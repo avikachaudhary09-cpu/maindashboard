@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prayas Catch-Up Planner</title>
+<style>
+:root{
+  --bg:#eef1f7; --panel:#ffffff; --panel2:#f5f7fb; --text:#171a23; --muted:#5c6272;
+  --line:#dde1ec; --accent:#31439e; --accent-ink:#ffffff; --good:#1b8a5a; --warn:#b5691a;
+  --one:#a6461f; --one-bg:#fdeee6; --chip:#e7eaf5; --shadow:0 6px 20px rgba(30,40,80,.08);
+  --radius:14px;
+}
+body.dark{
+  --bg:#12141c; --panel:#1b1e29; --panel2:#20232f; --text:#e9ebf3; --muted:#9298ab;
+  --line:#2c3040; --accent:#7c8cf5; --accent-ink:#0e1020; --good:#4fd08a; --warn:#f0b54c;
+  --one:#f0a06e; --one-bg:#2c1f18; --chip:#262a3a; --shadow:0 6px 24px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Segoe UI',Roboto,-apple-system,sans-serif;background:var(--bg);color:var(--text);transition:background .2s,color .2s}
+.wrap{max-width:920px;margin:0 auto;padding:18px 16px 80px}
+header.top{display:flex;align-items:center;justify-content:space-between;padding:14px 0 18px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--accent),#7c8cf5);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800}
+.brand h1{font-size:17px;margin:0;letter-spacing:.2px}
+.brand span{display:block;font-size:11px;color:var(--muted)}
+.iconbtn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:10px;width:38px;height:38px;cursor:pointer;font-size:16px}
+nav.tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+nav.tabs button{flex:1;min-width:90px;padding:10px 12px;border-radius:11px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;font-size:13.5px;font-weight:600}
+nav.tabs button.active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:16px;box-shadow:var(--shadow)}
+.card h2{margin:0 0 4px;font-size:16px}
+.card p.sub{margin:0 0 14px;color:var(--muted);font-size:13px}
+label.field{display:block;margin-bottom:14px}
+label.field span.lbl{display:block;font-size:12.5px;color:var(--muted);margin-bottom:5px;font-weight:600}
+input[type=text],input[type=number],input[type=date],select{
+  width:100%;padding:10px 11px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:14px
+}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.row > label.field{flex:1;min-width:150px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:10px;border:none;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:13.5px;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
+.btn.sm{padding:6px 10px;font-size:12.5px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btnrow{display:flex;justify-content:space-between;margin-top:18px;gap:10px;flex-wrap:wrap}
+.pill{display:inline-block;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;background:var(--chip);color:var(--muted)}
+.pill.on{background:var(--good);color:#08301c}
+.pill.one{background:var(--one-bg);color:var(--one)}
+.chapter-row{display:flex;align-items:center;gap:10px;padding:10px 8px;border-bottom:1px solid var(--line);font-size:13.5px;flex-wrap:wrap}
+.chapter-row:last-child{border-bottom:none}
+.chapter-row .name{flex:1}
+.chapter-row .lectures{color:var(--muted);font-size:11.5px;min-width:58px}
+.chapter-row.done .name{text-decoration:line-through;color:var(--muted)}
+.mini-order{display:flex;flex-direction:column;gap:2px}
+.mini-order button{width:22px;height:18px;border:1px solid var(--line);background:var(--panel2);border-radius:4px;font-size:10px;cursor:pointer;color:var(--text)}
+.link-input{width:180px}
+.subtabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:4px}
+.subtabs button{white-space:nowrap;padding:8px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-size:12.5px;font-weight:700;cursor:pointer}
+.subtabs button.active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.stat{background:var(--panel2);border-radius:11px;padding:12px 14px;flex:1;min-width:140px}
+.stat b{display:block;font-size:20px}
+.stat span{font-size:11.5px;color:var(--muted)}
+.daycard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:12px;overflow:hidden}
+.daycard.istoday{border:2px solid var(--accent)}
+.daycard .dayhead{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;cursor:pointer;background:var(--panel2)}
+.daycard .dayhead b{font-size:13.5px}
+.daycard .dayhead .meta{color:var(--muted);font-size:11.5px}
+.daycard .body{padding:6px 12px 12px}
+.taskrow{display:flex;align-items:center;gap:10px;padding:10px 6px;border-bottom:1px solid var(--line)}
+.taskrow:last-child{border-bottom:none}
+.taskrow input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+.taskrow .txt{flex:1;font-size:13.5px}
+.taskrow .txt.done{text-decoration:line-through;color:var(--muted)}
+.taskrow .sub{font-size:11px;color:var(--muted)}
+.taskrow a.openbtn{font-size:11.5px;padding:6px 10px;border-radius:8px;background:var(--chip);color:var(--text);text-decoration:none;font-weight:700;white-space:nowrap}
+.badge-oneshot{background:var(--one-bg);color:var(--one);padding:2px 8px;border-radius:99px;font-size:10.5px;font-weight:800;margin-left:6px}
+.progress-outer{background:var(--panel2);border-radius:99px;height:8px;overflow:hidden;margin-top:6px}
+.progress-inner{background:var(--good);height:100%;transition:width .3s}
+.note{font-size:12px;color:var(--muted);background:var(--panel2);padding:10px 12px;border-radius:9px;margin-top:8px}
+.warnbox{background:var(--one-bg);color:var(--one);padding:10px 12px;border-radius:9px;font-size:12.5px;margin-top:10px}
+.section-title{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:18px 0 8px;font-weight:800}
+.emptystate{text-align:center;padding:40px 14px;color:var(--muted)}
+.toggle-group{display:flex;gap:8px}
+.toggle-group button{flex:1;padding:10px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);cursor:pointer;font-weight:700;font-size:13px}
+.toggle-group button.active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.settings-list button.linklike{background:none;border:none;color:var(--accent);font-weight:700;cursor:pointer;font-size:13px;padding:0}
+hr.sep{border:none;border-top:1px solid var(--line);margin:16px 0}
+.quotebar{background:linear-gradient(135deg,var(--accent),#7c8cf5);color:#fff;padding:12px 16px;border-radius:var(--radius);font-size:13px;font-style:italic;margin-bottom:14px;box-shadow:var(--shadow)}
+.pacegrid{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+.pacecard{flex:1;min-width:150px;border:2px solid var(--line);background:var(--panel2);border-radius:12px;padding:12px;cursor:pointer;transition:border-color .15s,background .15s}
+.pacecard:hover{border-color:var(--accent)}
+.pacecard.selected{border-color:var(--accent);background:var(--chip)}
+.pacecard-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13.5px}
+.pacecard-body{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+.skipbox{background:var(--panel2);border-radius:11px;padding:12px;margin-top:12px}
+.subjectprogress-row{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:13px}
+.subjectprogress-row .name{min-width:130px}
+.subjectprogress-row .pct{min-width:50px;text-align:right;color:var(--muted);font-size:11.5px}
+.logrow{font-size:12.5px;padding:7px 0;border-bottom:1px solid var(--line)}
+.logrow:last-child{border-bottom:none}
+.streakline{font-size:12px;color:var(--muted);margin-top:4px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+/* ---------------- SUBJECT DATA ---------------- */
+const SUBJECTS = [
+{id:'physics',name:'Physics',faculty:'Manish Singh Tak Sir',
+ link:'https://pwthor.live/study/batches/6994351ae02b4900c7ac6906/subjects/physics-by-manish-singh-tak-sir-685329',
+ chapters:[
+  {name:'Mathematical Tools',lectures:4},{name:'Motion in a Straight Line',lectures:7},
+  {name:'Motion in a Plane',lectures:7},{name:'Laws of Motion',lectures:10},
+  {name:'Work, Energy and Power',lectures:9},{name:'Circular Motion',lectures:6},
+  {name:'Centre of Mass & System of Particles',lectures:9},{name:'Rotational Motion',lectures:12},
+  {name:'Mechanical Properties of Solids',lectures:1},{name:'Thermal Properties of Matter',lectures:5},
+  {name:'Kinetic Theory',lectures:2},{name:'Thermodynamics',lectures:5},
+  {name:'Mechanical Properties of Fluids',lectures:8},{name:'Oscillations',lectures:6},
+  {name:'Waves',lectures:6},{name:'Electric Charges and Fields',lectures:12},
+  {name:'Gravitation',lectures:2},{name:'Current Electricity',lectures:6},
+  {name:'Electrostatic Potential and Capacitance',lectures:6},{name:'Moving Charges and Magnetism',lectures:8},
+  {name:'Magnetism and Matter',lectures:1},{name:'Electromagnetic Induction',lectures:6},
+  {name:'Alternating Current',lectures:3},{name:'Electromagnetic Waves',lectures:2},
+  {name:'Ray Optics and Optical Instruments',lectures:11},{name:'Wave Optics',lectures:4},
+  {name:'Dual Nature of Radiation and Matter',lectures:2},{name:'Atoms',lectures:2},
+  {name:'Nuclei',lectures:2},{name:'Semiconductor Electronics',lectures:2},
+  {name:'Units and Measurements',lectures:1},{name:'Errors in Measurement',lectures:1}
+ ]},
+{id:'maths',name:'Mathematics',faculty:'Tarun Khandelwal Sir',
+ link:'https://pwthor.live/study/batches/6994351ae02b4900c7ac6906/subjects/11th-maths-by-tarun-khandelwal-sir-771778',
+ chapters:[
+  {name:'Basic Mathematics',lectures:12},{name:'Quadratic Equations',lectures:9},
+  {name:'Sequence and Series',lectures:9},{name:'Trigonometric Functions',lectures:8},
+  {name:'Trigonometric Equation',lectures:5},{name:'Permutations and Combinations',lectures:9},
+  {name:'Binomial Theorem',lectures:6},{name:'Straight Lines',lectures:10},
+  {name:'Circles',lectures:8},{name:'Conic Sections: Parabola',lectures:7},
+  {name:'Conic Sections: Ellipse',lectures:5},{name:'Conic Sections: Hyperbola',lectures:3},
+  {name:'Determinants',lectures:4},{name:'Matrices',lectures:6},
+  {name:'Sets',lectures:3},{name:'Relations and Functions',lectures:12},
+  {name:'Inverse Trigonometric Functions',lectures:5},{name:'Method of Differentiation',lectures:3},
+  {name:'Limit, Continuity and Differentiability',lectures:9},{name:'Indefinite Integration',lectures:5},
+  {name:'Application of Derivatives',lectures:5},{name:'Definite Integration',lectures:5},
+  {name:'Application of Integrals',lectures:2},{name:'Differential Equation',lectures:4},
+  {name:'Vector Algebra',lectures:5},{name:'Three Dimensional Geometry',lectures:4},
+  {name:'Statistics',lectures:2},{name:'Probability',lectures:4},
+  {name:'Complex Number',lectures:4},{name:'Solution of Triangle',lectures:1}
+ ]},
+{id:'inorganic',name:'Inorganic Chemistry',faculty:'Kunwar Om Pandey Sir',
+ link:'https://pwthor.live/study/batches/6994351ae02b4900c7ac6906/subjects/inorganic-chemistry-by-kunwar-om-pandey-sir-733450',
+ chapters:[
+  {name:'Classification of Elements and Periodicity',lectures:9},
+  {name:'Chemical Bonding and Molecular Structure',lectures:17},
+  {name:'Coordination Compounds',lectures:14},
+  {name:'P-block Elements',lectures:5},
+  {name:'The d and f-Block Elements',lectures:5},
+  {name:'Qualitative Analysis: Salt Analysis',lectures:6},
+  {name:'Isolation of Metals (Recorded)',lectures:1},
+  {name:'Hydrogen and its Compounds (Recorded)',lectures:1},
+  {name:'S-block Elements (Recorded)',lectures:1}
+ ]},
+{id:'organic',name:'Organic Chemistry',faculty:'Rohit Agarwal Sir',
+ link:'https://pwthor.live/study/batches/6994351ae02b4900c7ac6906/subjects/organic-chemistry-by-rohit-agarwal-sir-184120',
+ chapters:[
+  {name:'IUPAC Nomenclature',lectures:9},
+  {name:'GOC (Basic Principles)',lectures:12},
+  {name:'Isomerism',lectures:14},
+  {name:'Hydrocarbon',lectures:12},
+  {name:'Haloalkanes and Haloarenes',lectures:8},
+  {name:'Alcohols, Phenols and Ethers',lectures:5},
+  {name:'Aldehydes, Ketones and Carboxylic Acids',lectures:6},
+  {name:'Amines',lectures:1},
+  {name:'Biomolecules',lectures:1},
+  {name:'Polymers (Recorded)',lectures:1},
+  {name:'Chemistry in Everyday Life (Recorded)',lectures:1},
+  {name:'Environmental Chemistry (Recorded)',lectures:1}
+ ]},
+{id:'physicalchem',name:'Physical Chemistry',faculty:'Rahul Dudi Sir',
+ link:'https://pwthor.live/study/batches/6994351ae02b4900c7ac6906/subjects/physical-chemistry-by-rahul-dudi-sir-111230',
+ chapters:[
+  {name:'Some Basic Concepts of Chemistry',lectures:12},
+  {name:'Redox Reaction',lectures:5},
+  {name:'Structure of Atom',lectures:7},
+  {name:'Solutions',lectures:7},
+  {name:'Chemical Kinetics',lectures:7},
+  {name:'Thermodynamics',lectures:10},
+  {name:'Chemical Equilibrium',lectures:6},
+  {name:'Ionic Equilibrium',lectures:6},
+  {name:'Electrochemistry',lectures:7},
+  {name:'States of Matter',lectures:1},
+  {name:'The Solid State',lectures:1},
+  {name:'Surface Chemistry',lectures:1}
+ ]}
+];
+
+const QUOTES = [
+ "Small steps every day beat big leaps once in a while.",
+ "Discipline is choosing what you want most over what you want now.",
+ "Consistency compounds — one lecture at a time.",
+ "You don't have to be extreme, just consistent.",
+ "The syllabus doesn't finish itself. Today is a good day to start.",
+ "Progress, not perfection.",
+ "Future you is watching — make them proud today.",
+ "One chapter today is one less chapter tomorrow.",
+ "Motivation gets you started. Habit keeps you going.",
+ "It always seems impossible until it's done.",
+ "Every lecture you finish is a rank you're earning.",
+ "Don't count the days, make the days count.",
+ "Hard work beats talent when talent doesn't work hard.",
+ "You are one focused session away from a good day.",
+ "Slow progress is still progress.",
+ "The best time to study was yesterday. The next best time is now.",
+ "Push yourself, because no one else is going to do it for you.",
+ "Success is the sum of small efforts repeated daily."
+];
+
+const SKIP_REASONS = ['Fever / Unwell','Procrastination','Guests at home','Festival','Market / Errands','Test / Exam','Family function','Travel','Other'];
+
+/* ---------------- STATE ---------------- */
+let state = null;
+const STORAGE_KEY = 'prayas-planner-state-v2';
+
+/* Uses LOCAL date parts (not UTC) so "today" is correct regardless of timezone/time of day */
+function todayISO(){
+  const d = new Date();
+  const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
+/* All calendar math below is done in UTC internally purely as neutral date arithmetic (no timezone drift) */
+function addDays(iso,n){
+  const parts = iso.split('-').map(Number);
+  const dt = new Date(Date.UTC(parts[0],parts[1]-1,parts[2]));
+  dt.setUTCDate(dt.getUTCDate()+n);
+  return dt.toISOString().slice(0,10);
+}
+function fmtDate(iso){
+  const parts = iso.split('-').map(Number);
+  const dt = new Date(Date.UTC(parts[0],parts[1]-1,parts[2]));
+  return dt.toLocaleDateString('en-US',{weekday:'short',day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
+}
+function fmtMinutes(mins){
+  mins = Math.max(0,Math.round(mins));
+  if(mins<60) return mins+' min';
+  const h = Math.floor(mins/60), m = mins%60;
+  return h+'h'+(m?' '+m+'m':'');
+}
+function todaysQuote(){
+  const d = new Date();
+  const start = new Date(d.getFullYear(),0,0);
+  const dayOfYear = Math.floor((d-start)/86400000);
+  return QUOTES[((dayOfYear%QUOTES.length)+QUOTES.length)%QUOTES.length];
+}
+
+function defaultState(){
+  const chapters={}, chapterOrder={};
+  SUBJECTS.forEach(s=>{
+    chapters[s.id]={};
+    chapterOrder[s.id]=s.chapters.map(c=>c.name);
+    s.chapters.forEach(c=>{ chapters[s.id][c.name]={done:false,mode:'regular',oneshotLink:''}; });
+  });
+  return {
+    theme:'light', setupDone:false, wizardStep:0,
+    startDate: todayISO(), targetDays:60,
+    avgLectureMinutes:30, lecturesPerDay:2, subjectsPerDay:2, paceChoice:null,
+    subjectOrder: SUBJECTS.map(s=>s.id),
+    chapters, chapterOrder,
+    plan: [], planGenerated:false,
+    skippedDates: [], skipLog: [], completedItems: {}, completionLog: [],
+    view:'today', openDay:null, skipPromptOpen:false, settingsPaceEditing:false
+  };
+}
+
+function migrateState(parsed){
+  const def = defaultState();
+  const merged = Object.assign({}, def, parsed);
+  merged.completedItems = parsed.completedItems || {};
+  merged.completionLog = parsed.completionLog || [];
+  merged.skippedDates = parsed.skippedDates || [];
+  merged.skipLog = parsed.skipLog || [];
+  merged.startDate = parsed.startDate || parsed.today || def.startDate;
+  merged.avgLectureMinutes = parsed.avgLectureMinutes || def.avgLectureMinutes;
+  merged.chapters = parsed.chapters || def.chapters;
+  merged.chapterOrder = parsed.chapterOrder || def.chapterOrder;
+  merged.subjectOrder = parsed.subjectOrder || def.subjectOrder;
+  merged.plan = parsed.plan || [];
+  merged.skipPromptOpen = false;
+  merged.settingsPaceEditing = false;
+  return merged;
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){ state = migrateState(JSON.parse(raw)); return; }
+  }catch(e){ console.warn('Could not load saved plan', e); }
+  state = defaultState();
+}
+function saveState(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch(e){ console.warn('Could not save plan', e); }
+}
+
+/* ---------------- HELPERS ---------------- */
+function subj(id){ return SUBJECTS.find(s=>s.id===id); }
+function itemKey(sid,chName,part){ return sid+'::'+chName+'::'+part; }
+
+function remainingChapters(sid){
+  return state.chapterOrder[sid].filter(n=>!state.chapters[sid][n].done);
+}
+function totalRemainingLectureCount(sid){
+  let n=0;
+  remainingChapters(sid).forEach(ch=>{
+    const cfg=state.chapters[sid][ch];
+    const chObj=subj(sid).chapters.find(c=>c.name===ch);
+    if(cfg.mode==='oneshot') return;
+    for(let i=1;i<=chObj.lectures;i++){
+      if(!state.completedItems[itemKey(sid,ch,i)]) n++;
+    }
+  });
+  return n;
+}
+function oneShotCount(sid){
+  return remainingChapters(sid).filter(ch=>{
+    const cfg=state.chapters[sid][ch];
+    if(cfg.mode!=='oneshot') return false;
+    return !state.completedItems[itemKey(sid,ch,'oneshot')];
+  }).length;
+}
+function remainingTotalLectures(){ let n=0; SUBJECTS.forEach(s=>n+=totalRemainingLectureCount(s.id)); return n; }
+function remainingTotalOneshots(){ let n=0; SUBJECTS.forEach(s=>n+=oneShotCount(s.id)); return n; }
+
+function chapterProgress(sid,chName){
+  const cfg = state.chapters[sid][chName];
+  const chObj = subj(sid).chapters.find(c=>c.name===chName);
+  if(cfg.mode==='oneshot'){
+    const done = (cfg.done || state.completedItems[itemKey(sid,chName,'oneshot')]) ? 1:0;
+    return {done, total:1};
+  }
+  let done=0;
+  for(let i=1;i<=chObj.lectures;i++){
+    if(cfg.done || state.completedItems[itemKey(sid,chName,i)]) done++;
+  }
+  return {done, total:chObj.lectures};
+}
+function subjectTotals(sid){
+  let total=0, done=0;
+  subj(sid).chapters.forEach(c=>{
+    const p = chapterProgress(sid,c.name);
+    total+=p.total; done+=p.done;
+  });
+  return {total,done};
+}
+function syllabusTotals(){
+  let total=0, done=0;
+  SUBJECTS.forEach(s=>{ const t=subjectTotals(s.id); total+=t.total; done+=t.done; });
+  return {total,done};
+}
+function computeStreak(){
+  const days = new Set((state.completionLog||[]).map(e=>e.date));
+  let cursor = todayISO();
+  if(!days.has(cursor)) cursor = addDays(cursor,-1);
+  let streak=0, guard=0;
+  while(days.has(cursor) && guard<3660){ streak++; cursor=addDays(cursor,-1); guard++; }
+  return streak;
+}
+
+/* ---------------- PACE SUGGESTIONS ---------------- */
+function computePaceTiers(){
+  const totalLec = remainingTotalLectures();
+  const totalOne = remainingTotalOneshots();
+  const availDays = Math.max(1, state.targetDays - totalOne);
+  const minCombined = Math.max(1, Math.ceil(totalLec/availDays));
+  const defs = [
+    {key:'relaxed', label:'Relaxed', mult:1},
+    {key:'balanced', label:'Balanced', mult:1.3},
+    {key:'intensive', label:'Intensive', mult:1.6}
+  ];
+  const seenLPD = new Set();
+  const start = planStartDate();
+  return defs.map(d=>{
+    let combinedTarget = Math.max(1, Math.round(minCombined*d.mult));
+    let lecturesPerDay = Math.max(1, Math.ceil(combinedTarget/state.subjectsPerDay));
+    while(seenLPD.has(lecturesPerDay)){ combinedTarget += state.subjectsPerDay; lecturesPerDay = Math.max(1, Math.ceil(combinedTarget/state.subjectsPerDay)); }
+    seenLPD.add(lecturesPerDay);
+    const actualCombined = lecturesPerDay*state.subjectsPerDay;
+    const estDays = totalLec>0 ? Math.ceil(totalLec/actualCombined)+totalOne : totalOne;
+    const finishDate = addDays(start, Math.max(0,estDays-1));
+    const dailyMinutes = actualCombined*state.avgLectureMinutes;
+    return {key:d.key,label:d.label,combinedPace:actualCombined,lecturesPerDay,estDays,finishDate,dailyMinutes};
+  });
+}
+function planStartDate(){
+  const real = todayISO();
+  return (state.startDate && state.startDate>real) ? state.startDate : real;
+}
+function nextScheduledDate(dateIso){
+  let d = dateIso, guard=0;
+  while(state.skippedDates.indexOf(d)!==-1 && guard<3660){ d = addDays(d,1); guard++; }
+  return d;
+}
+
+/* ---------------- PLAN GENERATION ---------------- */
+function buildSubjectQueue(sid){
+  const tasks=[];
+  remainingChapters(sid).forEach(chName=>{
+    const cfg=state.chapters[sid][chName];
+    const chObj=subj(sid).chapters.find(c=>c.name===chName);
+    if(cfg.mode==='oneshot'){
+      const key = itemKey(sid,chName,'oneshot');
+      if(!state.completedItems[key]) tasks.push({type:'oneshot',subject:sid,chapter:chName,link:cfg.oneshotLink||'',id:key});
+    } else {
+      for(let i=1;i<=chObj.lectures;i++){
+        const key = itemKey(sid,chName,i);
+        if(!state.completedItems[key]) tasks.push({type:'lecture',subject:sid,chapter:chName,lectureNum:i,totalLectures:chObj.lectures,id:key});
+      }
+    }
+  });
+  return tasks;
+}
+
+function generatePlan(){
+  const active = state.subjectOrder.filter(sid=>buildSubjectQueue(sid).length>0);
+  const queues={}; active.forEach(sid=>queues[sid]=buildSubjectQueue(sid));
+  let rotation=[...active];
+  const plan=[];
+  let dateCursor = nextScheduledDate(planStartDate());
+  const N = state.subjectsPerDay;
+  const pace = state.lecturesPerDay;
+  let guard=0;
+  while(rotation.length>0 && guard<8000){
+    guard++;
+    const picks=[];
+    while(picks.length<N && rotation.length>0){ picks.push(rotation.shift()); }
+    let oneshotPick=null;
+    for(const sid of picks){ if(queues[sid][0] && queues[sid][0].type==='oneshot'){ oneshotPick=sid; break; } }
+    const dayItems=[];
+    if(oneshotPick){
+      const t=queues[oneshotPick].shift();
+      dayItems.push(Object.assign({},t,{done:!!state.completedItems[t.id]}));
+      const others = picks.filter(p=>p!==oneshotPick);
+      rotation = others.concat(rotation);
+      if(queues[oneshotPick].length>0) rotation.push(oneshotPick);
+    } else {
+      for(const sid of picks){
+        const chunk = queues[sid].splice(0,pace);
+        chunk.forEach(t=>dayItems.push(Object.assign({},t,{done:!!state.completedItems[t.id]})));
+        if(queues[sid].length>0) rotation.push(sid);
+      }
+    }
+    if(dayItems.length>0){
+      plan.push({date:dateCursor, items:dayItems});
+      dateCursor = nextScheduledDate(addDays(dateCursor,1));
+    }
+  }
+  state.plan = plan;
+  state.planGenerated = true;
+  saveState();
+}
+
+function ensurePlanFresh(){
+  if(!state.planGenerated || state.plan.length===0) return;
+  const last = state.plan[state.plan.length-1].date;
+  if(last < todayISO()) generatePlan();
+}
+
+/* ---------------- SKIP DAY ---------------- */
+function skipToday(reason){
+  const real = todayISO();
+  if(state.skippedDates.indexOf(real)===-1) state.skippedDates.push(real);
+  state.skipLog.push({date:real, reason, ts:Date.now()});
+  generatePlan();
+}
+
+/* ---------------- EXPORT / IMPORT ---------------- */
+function exportData(){
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download = 'prayas-planner-backup-'+todayISO()+'.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function importData(file){
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    try{
+      const parsed = JSON.parse(e.target.result);
+      if(!parsed || !parsed.chapters || !parsed.chapterOrder){ alert("This file doesn't look like a valid Prayas Planner backup."); return; }
+      state = migrateState(parsed);
+      saveState(); render();
+      alert('Backup restored successfully!');
+    }catch(err){ alert('Could not read this file — make sure it is a valid backup JSON.'); }
+  };
+  reader.readAsText(file);
+}
+
+/* ---------------- RENDER ---------------- */
+const app = document.getElementById('app');
+
+function render(){
+  document.body.className = state.theme==='dark' ? 'dark' : '';
+  let html = '';
+  html += renderHeader();
+  if(!state.setupDone){
+    html += renderWizard();
+  } else {
+    ensurePlanFresh();
+    html += renderTabs();
+    if(state.view==='today') html += renderToday();
+    else if(state.view==='plan') html += renderFullPlan();
+    else if(state.view==='progress') html += renderProgressTab();
+    else if(state.view==='settings') html += renderSettings();
+  }
+  app.innerHTML = html;
+  attachHandlers();
+}
+
+function renderHeader(){
+  const streak = (state && state.setupDone) ? computeStreak() : 0;
+  return `<header class="top">
+    <div class="brand">
+      <div class="mark">P</div>
+      <div><h1>Prayas Catch-Up Planner</h1><span>Physics &middot; Maths &middot; Chemistry</span></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      ${streak>0?`<span class="pill on" title="Current streak">🔥 ${streak}</span>`:''}
+      <button class="iconbtn" id="themeBtn" title="Toggle theme">${state.theme==='dark'?'☀️':'🌙'}</button>
+    </div>
+  </header>`;
+}
+
+function renderTabs(){
+  return `<nav class="tabs">
+    <button data-view="today" class="${state.view==='today'?'active':''}">Today</button>
+    <button data-view="plan" class="${state.view==='plan'?'active':''}">Full Plan</button>
+    <button data-view="progress" class="${state.view==='progress'?'active':''}">Progress</button>
+    <button data-view="settings" class="${state.view==='settings'?'active':''}">Settings</button>
+  </nav>`;
+}
+
+/* ---- SHARED CHAPTER ROWS ---- */
+function renderChapterRows(sid){
+  const s = subj(sid);
+  const order = state.chapterOrder[sid];
+  let rows='';
+  order.forEach((chName,i)=>{
+    const cfg = state.chapters[sid][chName];
+    const prog = chapterProgress(sid,chName);
+    rows += `<div class="chapter-row ${cfg.done?'done':''}">
+      <input type="checkbox" data-act="donetoggle" data-sub="${sid}" data-ch="${escAttr(chName)}" ${cfg.done?'checked':''}>
+      <div class="name">${chName}</div>
+      <div class="lectures">${prog.done}/${prog.total} lec</div>
+      ${!cfg.done ? `
+        <select data-act="modeselect" data-sub="${sid}" data-ch="${escAttr(chName)}" style="width:110px">
+          <option value="regular" ${cfg.mode==='regular'?'selected':''}>Regular</option>
+          <option value="oneshot" ${cfg.mode==='oneshot'?'selected':''}>One Shot</option>
+        </select>
+        ${cfg.mode==='oneshot' ? `<input class="link-input" type="text" placeholder="One-shot link" data-act="oneshotlink" data-sub="${sid}" data-ch="${escAttr(chName)}" value="${escAttr(cfg.oneshotLink||'')}">` : ''}
+        <div class="mini-order">
+          <button data-act="moveup" data-sub="${sid}" data-idx="${i}" ${i===0?'disabled':''}>▲</button>
+          <button data-act="movedown" data-sub="${sid}" data-idx="${i}" ${i===order.length-1?'disabled':''}>▼</button>
+        </div>` : ''}
+    </div>`;
+  });
+  return `<div>${rows}</div>`;
+}
+
+/* ---- WIZARD ---- */
+function renderWizard(){
+  const step = state.wizardStep;
+  let inner='';
+  if(step===0) inner=wizardStep0();
+  else if(step>=1 && step<=5) inner=wizardChapterStep(step-1);
+  else if(step===6) inner=wizardPaceStep();
+  else if(step===7) inner=wizardReviewStep();
+  const totalSteps=8;
+  return `<div class="card">
+    <p class="sub">Setup &middot; Step ${step+1} of ${totalSteps}</p>
+    ${inner}
+  </div>`;
+}
+
+function wizardStep0(){
+  return `
+  <h2>Let's set your baseline</h2>
+  <p class="sub">Tell us your plan's start date and how many days you want to give yourself to finish the whole syllabus.</p>
+  <div class="row">
+    <label class="field"><span class="lbl">Plan start date</span>
+      <input type="date" id="w-start" value="${state.startDate}">
+    </label>
+    <label class="field"><span class="lbl">Days to complete full syllabus</span>
+      <input type="number" min="1" id="w-target" value="${state.targetDays}">
+    </label>
+  </div>
+  <div class="btnrow"><span></span><button class="btn" id="w-next0">Next →</button></div>`;
+}
+
+function wizardChapterStep(idx){
+  const s = SUBJECTS[idx];
+  return `
+  <h2>${s.name}</h2>
+  <p class="sub">Faculty: ${s.faculty}. Tick chapters you've already finished. For the rest, choose Regular or One Shot, and set the order you want to tackle them in (▲▼).</p>
+  ${renderChapterRows(s.id)}
+  <div class="btnrow">
+    <button class="btn ghost" id="w-back">← Back</button>
+    <button class="btn" id="w-nextsub">Next →</button>
+  </div>`;
+}
+
+function renderPaceTierCards(tiers, actPrefix){
+  return tiers.map(t=>`
+    <div class="pacecard ${state.paceChoice===t.key && state.lecturesPerDay===t.lecturesPerDay?'selected':''}" data-act="${actPrefix}" data-tier="${t.key}" data-lecperday="${t.lecturesPerDay}">
+      <div class="pacecard-head"><b>${t.label}</b>${t.key==='intensive'?'<span class="pill one">Fastest</span>':''}</div>
+      <div class="pacecard-body">
+        <div>${t.lecturesPerDay} lecture${t.lecturesPerDay>1?'s':''}/day per subject</div>
+        <div>~${fmtMinutes(t.dailyMinutes)}/day study time</div>
+        <div>Finish by ${fmtDate(t.finishDate)} (${t.estDays}d)</div>
+      </div>
+    </div>`).join('');
+}
+
+function wizardPaceStep(){
+  const tiers = computePaceTiers();
+  return `
+  <h2>Choose your pace</h2>
+  <p class="sub">Based on ${remainingTotalLectures()} remaining lectures and your ${state.targetDays}-day goal, here's what different paces look like — pick one below. None of these will push you past your ${state.targetDays}-day deadline.</p>
+  <div class="row">
+    <label class="field"><span class="lbl">Subjects tackled per day</span>
+      <select id="w-subjday" data-act="wliveupdate">
+        <option value="2" ${state.subjectsPerDay===2?'selected':''}>2 subjects/day</option>
+        <option value="3" ${state.subjectsPerDay===3?'selected':''}>3 subjects/day</option>
+      </select>
+    </label>
+    <label class="field"><span class="lbl">Avg. minutes per lecture</span>
+      <input type="number" min="5" id="w-avgmin" value="${state.avgLectureMinutes}" data-act="wliveupdate">
+    </label>
+  </div>
+  <div class="pacegrid">${renderPaceTierCards(tiers,'wpicktier')}</div>
+  ${!state.paceChoice ? `<div class="note">Tap a pace option above to continue.</div>`:''}
+  <div class="btnrow">
+    <button class="btn ghost" id="w-back">← Back</button>
+    <button class="btn" id="w-nextpace" ${!state.paceChoice?'disabled':''}>Next →</button>
+  </div>`;
+}
+
+function wizardReviewStep(){
+  const totalLec = remainingTotalLectures();
+  const totalOne = remainingTotalOneshots();
+  const combined = state.lecturesPerDay*state.subjectsPerDay;
+  const estDays = totalLec>0 ? Math.ceil(totalLec/combined)+totalOne : totalOne;
+  const finishDate = addDays(planStartDate(), Math.max(0,estDays-1));
+  const dailyMinutes = combined*state.avgLectureMinutes;
+  return `
+  <h2>Review &amp; generate</h2>
+  <div class="row" style="margin-bottom:10px">
+    <div class="stat"><b>${totalLec}</b><span>Remaining lectures</span></div>
+    <div class="stat"><b>${totalOne}</b><span>One-shot chapters</span></div>
+    <div class="stat"><b>${fmtMinutes(dailyMinutes)}</b><span>Daily study time at this pace</span></div>
+    <div class="stat"><b>${fmtDate(finishDate)}</b><span>Projected completion (~${estDays}d)</span></div>
+  </div>
+  <div class="note">Pace: ${state.lecturesPerDay} lecture(s)/day per subject × ${state.subjectsPerDay} subjects = ${combined}/day combined. You can change this anytime in Settings.</div>
+  <div class="btnrow">
+    <button class="btn ghost" id="w-back">← Back</button>
+    <button class="btn" id="w-generate">Generate My Plan ✓</button>
+  </div>`;
+}
+
+/* ---- TODAY VIEW ---- */
+function renderQuoteBar(){ return `<div class="quotebar">💬 ${todaysQuote()}</div>`; }
+
+function renderPlanSummaryStrip(){
+  const streak = computeStreak();
+  const finishDate = state.plan.length ? state.plan[state.plan.length-1].date : planStartDate();
+  return `<div class="card">
+    <div class="row">
+      <div class="stat"><b>🔥 ${streak}</b><span>Day streak</span></div>
+      <div class="stat"><b>${fmtDate(finishDate)}</b><span>Projected completion</span></div>
+      <div class="stat"><b>${state.targetDays}d</b><span>Your original goal</span></div>
+    </div>
+  </div>`;
+}
+
+function renderSkipPrompt(){
+  if(!state.skipPromptOpen) return `<div style="margin-top:10px"><button class="btn ghost sm" id="openSkip">⏭️ Can't study today? Skip &amp; shift plan</button></div>`;
+  const opts = SKIP_REASONS.map(r=>`<option value="${escAttr(r)}">${r}</option>`).join('');
+  return `<div class="skipbox">
+    <label class="field" style="margin-bottom:10px"><span class="lbl">Why are you skipping today?</span>
+      <select id="skipReason">${opts}</select>
+    </label>
+    <div class="btnrow" style="margin-top:0">
+      <button class="btn ghost sm" id="cancelSkip">Cancel</button>
+      <button class="btn sm" id="confirmSkip">Confirm — push today's plan to tomorrow</button>
+    </div>
+  </div>`;
+}
+
+function renderToday(){
+  if(!state.planGenerated){
+    return `<div class="card emptystate"><p>No plan yet. Go to <b>Settings</b> to run setup and generate your plan.</p></div>`;
+  }
+  const realToday = todayISO();
+  let day = state.plan.find(d=>d.date===realToday);
+  let note='';
+  if(!day){
+    if(state.plan.length===0){
+      return renderQuoteBar() + `<div class="card"><h2>🎉 Syllabus complete!</h2><p class="sub">You've finished everything currently in your plan. Check <b>Progress</b> for your stats, or add more chapters in Settings.</p></div>` + renderOverallProgress();
+    }
+    const future = state.plan.filter(d=>d.date>=realToday);
+    if(future.length>0){
+      day = future[0];
+      note = day.date!==realToday ? `<div class="note">No tasks land exactly on today. Showing your next scheduled day: ${fmtDate(day.date)}.</div>` : '';
+    } else {
+      return renderQuoteBar() + `<div class="card"><h2>🎉 Plan complete!</h2><p class="sub">You've reached the end of your generated plan. Check <b>Progress</b> to review, or adjust pace in Settings.</p></div>` + renderOverallProgress();
+    }
+  }
+  const doneCt = day.items.filter(i=>i.done).length;
+  const allDone = day.items.length>0 && doneCt===day.items.length;
+  return renderQuoteBar() + renderPlanSummaryStrip() + `<div class="card">
+    <h2>Today &middot; ${fmtDate(day.date)}</h2>
+    <p class="sub">${day.items.length} task${day.items.length!==1?'s':''} scheduled${allDone?' — all done! 🎉':''}</p>
+    ${note}
+    ${renderDayItems(day)}
+    ${renderSkipPrompt()}
+  </div>` + renderOverallProgress();
+}
+
+function renderDayItems(day){
+  let rows='';
+  day.items.forEach(it=>{
+    const s = subj(it.subject);
+    const link = it.type==='oneshot' ? (it.link||'') : s.link;
+    const label = it.type==='oneshot'
+      ? `Watch One Shot: ${it.chapter}`
+      : `${it.chapter} — Lecture ${it.lectureNum}/${it.totalLectures}`;
+    rows += `<div class="taskrow">
+      <input type="checkbox" data-act="tasktoggle" data-day="${day.date}" data-id="${escAttr(it.id)}" ${it.done?'checked':''}>
+      <div class="txt ${it.done?'done':''}">${label}${it.type==='oneshot'?'<span class="badge-oneshot">ONE SHOT</span>':''}<div class="sub">${s.name}</div></div>
+      ${link ? `<a class="openbtn" href="${escAttr(link)}" target="_blank" rel="noopener">Open Class ↗</a>` : ''}
+    </div>`;
+  });
+  return `<div>${rows}</div>`;
+}
+
+function renderOverallProgress(){
+  const {total,done} = syllabusTotals();
+  const pct = total? Math.round(done/total*100):0;
+  return `<div class="card">
+    <h2>Overall progress</h2>
+    <p class="sub">${done} / ${total} lectures &amp; one-shots completed (${pct}%)</p>
+    <div class="progress-outer"><div class="progress-inner" style="width:${pct}%"></div></div>
+  </div>`;
+}
+
+/* ---- FULL PLAN VIEW ---- */
+function renderFullPlan(){
+  if(!state.planGenerated || state.plan.length===0){
+    return `<div class="card emptystate"><p>No upcoming plan — either you haven't generated one yet in <b>Settings</b>, or you've completed everything! Check <b>Progress</b> for your stats.</p></div>`;
+  }
+  const finishDate = state.plan[state.plan.length-1].date;
+  let html = renderOverallProgress();
+  html += `<div class="note">📅 Projected to finish by <b>${fmtDate(finishDate)}</b> — ${state.plan.length} study day${state.plan.length!==1?'s':''} scheduled.</div><div style="height:6px"></div>`;
+  const realToday = todayISO();
+  state.plan.forEach(day=>{
+    const doneCt = day.items.filter(i=>i.done).length;
+    const isOpen = state.openDay===day.date;
+    const isToday = day.date===realToday;
+    html += `<div class="daycard ${isToday?'istoday':''}">
+      <div class="dayhead" data-act="toggleday" data-day="${day.date}">
+        <div><b>${fmtDate(day.date)}</b>${isToday?' <span class="pill on">Today</span>':''}</div>
+        <div class="meta">${doneCt}/${day.items.length} done ${isOpen?'▲':'▼'}</div>
+      </div>
+      ${isOpen ? `<div class="body">${renderDayItems(day)}</div>` : ''}
+    </div>`;
+  });
+  return html;
+}
+
+/* ---- PROGRESS VIEW ---- */
+function renderProgressTab(){
+  const {total,done} = syllabusTotals();
+  const pct = total? Math.round(done/total*100):0;
+  const streak = computeStreak();
+  let html = `<div class="card">
+    <h2>Your progress</h2>
+    <div class="row" style="margin-bottom:6px">
+      <div class="stat"><b>${pct}%</b><span>Syllabus complete</span></div>
+      <div class="stat"><b>🔥 ${streak}</b><span>Day streak</span></div>
+      <div class="stat"><b>${done}/${total}</b><span>Lectures / one-shots done</span></div>
+    </div>
+    <div class="progress-outer"><div class="progress-inner" style="width:${pct}%"></div></div>
+  </div>`;
+
+  html += `<div class="card"><h2>By subject</h2>`;
+  SUBJECTS.forEach(s=>{
+    const st = subjectTotals(s.id);
+    const spct = st.total? Math.round(st.done/st.total*100):0;
+    html += `<div class="subjectprogress-row">
+      <div class="name">${s.name}</div>
+      <div class="progress-outer" style="flex:1;margin-top:0"><div class="progress-inner" style="width:${spct}%"></div></div>
+      <div class="pct">${st.done}/${st.total}</div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  if(state.skipLog.length>0){
+    html += `<div class="card"><h2>Skipped days</h2>`;
+    state.skipLog.slice().reverse().slice(0,15).forEach(e=>{
+      html += `<div class="logrow">⏭️ <b>${fmtDate(e.date)}</b> — ${e.reason}</div>`;
+    });
+    html += `</div>`;
+  }
+
+  html += `<div class="card"><h2>Recent activity</h2>`;
+  if(state.completionLog.length>0){
+    state.completionLog.slice().reverse().slice(0,15).forEach(e=>{
+      const s = subj(e.subject);
+      html += `<div class="logrow">✅ <b>${fmtDate(e.date)}</b> — ${s?s.name:e.subject}: ${e.chapter} (${e.part})</div>`;
+    });
+  } else {
+    html += `<p class="sub">Start ticking off lectures to see your activity here.</p>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+/* ---- SETTINGS VIEW ---- */
+function renderBaselineCard(){
+  return `<div class="card">
+    <h2>Baseline</h2>
+    <div class="row">
+      <label class="field"><span class="lbl">Plan start date</span>
+        <input type="date" id="s-start" value="${state.startDate}">
+      </label>
+      <label class="field"><span class="lbl">Target days to finish syllabus</span>
+        <input type="number" min="1" id="s-target" value="${state.targetDays}">
+      </label>
+    </div>
+    <button class="btn" id="s-savebaseline">Save &amp; Regenerate Plan</button>
+  </div>`;
+}
+
+function renderPaceCard(){
+  const combined = state.lecturesPerDay*state.subjectsPerDay;
+  const finishDate = state.plan.length ? state.plan[state.plan.length-1].date : (()=>{
+    const totalLec=remainingTotalLectures(), totalOne=remainingTotalOneshots();
+    const estDays = totalLec>0?Math.ceil(totalLec/combined)+totalOne:totalOne;
+    return addDays(planStartDate(),Math.max(0,estDays-1));
+  })();
+  const dailyMinutes = combined*state.avgLectureMinutes;
+  let body = `<div class="row" style="margin-bottom:6px">
+      <div class="stat"><b>${state.lecturesPerDay}/day</b><span>Lectures, per subject</span></div>
+      <div class="stat"><b>${fmtMinutes(dailyMinutes)}</b><span>Daily study time</span></div>
+      <div class="stat"><b>${fmtDate(finishDate)}</b><span>Projected completion</span></div>
+    </div>`;
+  if(state.settingsPaceEditing){
+    const tiers = computePaceTiers();
+    body += `<div class="row">
+      <label class="field"><span class="lbl">Subjects/day</span>
+        <select id="s-subjday2" data-act="sliveupdate">
+          <option value="2" ${state.subjectsPerDay===2?'selected':''}>2</option>
+          <option value="3" ${state.subjectsPerDay===3?'selected':''}>3</option>
+        </select>
+      </label>
+      <label class="field"><span class="lbl">Avg min/lecture</span>
+        <input type="number" min="5" id="s-avgmin2" data-act="sliveupdate" value="${state.avgLectureMinutes}">
+      </label>
+    </div>
+    <div class="pacegrid">${renderPaceTierCards(tiers,'spicktier')}</div>
+    <button class="btn ghost sm" id="s-closepace">Done</button>`;
+  } else {
+    body += `<button class="btn ghost" id="s-changepace">Change pace</button>`;
+  }
+  return `<div class="card"><h2>Pace &amp; study time</h2><p class="sub">Your pace never pushes past the target-day goal above.</p>${body}</div>`;
+}
+
+function renderSettings(){
+  return `
+  <div class="card">
+    <h2>Appearance</h2>
+    <div class="toggle-group">
+      <button data-act="settheme" data-theme="light" class="${state.theme==='light'?'active':''}">☀️ Light</button>
+      <button data-act="settheme" data-theme="dark" class="${state.theme==='dark'?'active':''}">🌙 Dark</button>
+    </div>
+  </div>
+
+  ${renderBaselineCard()}
+  ${renderPaceCard()}
+
+  <div class="card">
+    <h2>Subject order</h2>
+    <p class="sub">Order subjects rotate through when picking each day's subjects.</p>
+    ${renderSubjectOrderList()}
+  </div>
+
+  <div class="card">
+    <h2>Chapters &amp; one-shots</h2>
+    <p class="sub">Edit done status, one-shot links, and chapter order per subject.</p>
+    ${renderSettingsSubjectTabs()}
+  </div>
+
+  <div class="card">
+    <h2>Backup &amp; restore</h2>
+    <p class="sub">Export your progress as a file so you never lose it, or restore from a previous backup.</p>
+    <div class="btnrow" style="justify-content:flex-start;margin-top:6px">
+      <button class="btn" id="s-export">⬇️ Export backup</button>
+      <button class="btn ghost" id="s-importbtn">⬆️ Import backup</button>
+      <input type="file" id="s-importfile" accept="application/json" style="display:none">
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Reset</h2>
+    <p class="sub">Re-run the full setup wizard, or wipe everything and start fresh.</p>
+    <div class="btnrow" style="justify-content:flex-start;margin-top:6px">
+      <button class="btn ghost" id="s-rerunwizard">Re-run setup wizard</button>
+      <button class="btn ghost" id="s-hardreset" style="color:var(--one)">⚠️ Erase all data</button>
+    </div>
+  </div>`;
+}
+
+function renderSubjectOrderList(){
+  let rows='';
+  state.subjectOrder.forEach((sid,i)=>{
+    const s=subj(sid);
+    rows+=`<div class="chapter-row"><div class="name">${s.name}</div>
+      <div class="mini-order">
+        <button data-act="subjmoveup" data-idx="${i}" ${i===0?'disabled':''}>▲</button>
+        <button data-act="subjmovedown" data-idx="${i}" ${i===state.subjectOrder.length-1?'disabled':''}>▼</button>
+      </div></div>`;
+  });
+  return `<div>${rows}</div>`;
+}
+
+let settingsActiveSubj = SUBJECTS[0].id;
+function renderSettingsSubjectTabs(){
+  let tabs = `<div class="subtabs">`;
+  SUBJECTS.forEach(s=>{
+    tabs += `<button data-act="ssubjtab" data-sub="${s.id}" class="${settingsActiveSubj===s.id?'active':''}">${s.name}</button>`;
+  });
+  tabs += `</div>`;
+  return tabs + `<div>${renderChapterRows(settingsActiveSubj)}</div><button class="btn" id="s-saveChapters" style="margin-top:12px">Save &amp; Regenerate Plan</button>`;
+}
+
+function escAttr(s){ return String(s).replace(/"/g,'&quot;'); }
+
+/* ---------------- EVENT HANDLING ---------------- */
+function attachHandlers(){
+  const themeBtn = document.getElementById('themeBtn');
+  if(themeBtn) themeBtn.onclick = ()=>{ state.theme = state.theme==='dark'?'light':'dark'; saveState(); render(); };
+
+  document.querySelectorAll('nav.tabs button').forEach(b=>{
+    b.onclick = ()=>{ state.view = b.dataset.view; render(); };
+  });
+
+  // wizard step 0
+  const wnext0 = document.getElementById('w-next0');
+  if(wnext0) wnext0.onclick = ()=>{
+    state.startDate = document.getElementById('w-start').value || state.startDate;
+    state.targetDays = parseInt(document.getElementById('w-target').value)||60;
+    state.wizardStep = 1; saveState(); render();
+  };
+
+  const wback = document.getElementById('w-back');
+  if(wback) wback.onclick = ()=>{ state.wizardStep = Math.max(0,state.wizardStep-1); render(); };
+
+  const wnextsub = document.getElementById('w-nextsub');
+  if(wnextsub) wnextsub.onclick = ()=>{ state.wizardStep++; render(); };
+
+  document.querySelectorAll('[data-act="wliveupdate"]').forEach(el=>{
+    el.onchange = ()=>{
+      if(el.id==='w-subjday') state.subjectsPerDay = parseInt(el.value)||2;
+      if(el.id==='w-avgmin') state.avgLectureMinutes = Math.max(5,parseInt(el.value)||30);
+      state.paceChoice = null;
+      render();
+    };
+  });
+  document.querySelectorAll('[data-act="wpicktier"]').forEach(el=>{
+    el.onclick = ()=>{
+      state.paceChoice = el.dataset.tier;
+      state.lecturesPerDay = parseInt(el.dataset.lecperday)||2;
+      render();
+    };
+  });
+  const wnextpace = document.getElementById('w-nextpace');
+  if(wnextpace) wnextpace.onclick = ()=>{ state.wizardStep = 7; saveState(); render(); };
+
+  const wgen = document.getElementById('w-generate');
+  if(wgen) wgen.onclick = ()=>{
+    state.setupDone = true; state.view='today';
+    generatePlan(); render();
+  };
+
+  // chapter row controls (both wizard & settings)
+  document.querySelectorAll('[data-act="donetoggle"]').forEach(el=>{
+    el.onchange = ()=>{
+      const sid=el.dataset.sub, ch=el.dataset.ch;
+      state.chapters[sid][ch].done = el.checked;
+      saveState(); render();
+    };
+  });
+  document.querySelectorAll('[data-act="modeselect"]').forEach(el=>{
+    el.onchange = ()=>{
+      const sid=el.dataset.sub, ch=el.dataset.ch;
+      state.chapters[sid][ch].mode = el.value;
+      saveState(); render();
+    };
+  });
+  document.querySelectorAll('[data-act="oneshotlink"]').forEach(el=>{
+    el.onchange = ()=>{
+      const sid=el.dataset.sub, ch=el.dataset.ch;
+      state.chapters[sid][ch].oneshotLink = el.value;
+      saveState();
+    };
+  });
+  document.querySelectorAll('[data-act="moveup"]').forEach(el=>{
+    el.onclick = ()=>{
+      const sid=el.dataset.sub, i=parseInt(el.dataset.idx);
+      const arr=state.chapterOrder[sid];
+      if(i>0){ [arr[i-1],arr[i]]=[arr[i],arr[i-1]]; saveState(); render(); }
+    };
+  });
+  document.querySelectorAll('[data-act="movedown"]').forEach(el=>{
+    el.onclick = ()=>{
+      const sid=el.dataset.sub, i=parseInt(el.dataset.idx);
+      const arr=state.chapterOrder[sid];
+      if(i<arr.length-1){ [arr[i+1],arr[i]]=[arr[i],arr[i+1]]; saveState(); render(); }
+    };
+  });
+
+  // today / full plan task toggles
+  document.querySelectorAll('[data-act="tasktoggle"]').forEach(el=>{
+    el.onchange = ()=>{
+      const dayDate = el.dataset.day, id = el.dataset.id;
+      const day = state.plan.find(d=>d.date===dayDate);
+      let item = day ? day.items.find(i=>i.id===id) : null;
+      if(item) item.done = el.checked;
+      if(el.checked){
+        state.completedItems[id] = true;
+        if(item){
+          state.completionLog.push({
+            id, subject:item.subject, chapter:item.chapter,
+            part: item.type==='oneshot' ? 'One Shot' : ('Lecture '+item.lectureNum),
+            date: todayISO(), ts: Date.now()
+          });
+        }
+      } else {
+        delete state.completedItems[id];
+        for(let i=state.completionLog.length-1;i>=0;i--){
+          if(state.completionLog[i].id===id && state.completionLog[i].date===todayISO()){ state.completionLog.splice(i,1); break; }
+        }
+      }
+      saveState(); render();
+    };
+  });
+
+  document.querySelectorAll('[data-act="toggleday"]').forEach(el=>{
+    el.onclick = ()=>{
+      const d = el.dataset.day;
+      state.openDay = state.openDay===d ? null : d;
+      render();
+    };
+  });
+
+  // skip today
+  const openSkip = document.getElementById('openSkip');
+  if(openSkip) openSkip.onclick = ()=>{ state.skipPromptOpen = true; render(); };
+  const cancelSkip = document.getElementById('cancelSkip');
+  if(cancelSkip) cancelSkip.onclick = ()=>{ state.skipPromptOpen = false; render(); };
+  const confirmSkip = document.getElementById('confirmSkip');
+  if(confirmSkip) confirmSkip.onclick = ()=>{
+    const reason = document.getElementById('skipReason').value;
+    skipToday(reason);
+    state.skipPromptOpen = false;
+    render();
+  };
+
+  // settings
+  document.querySelectorAll('[data-act="settheme"]').forEach(el=>{
+    el.onclick = ()=>{ state.theme = el.dataset.theme; saveState(); render(); };
+  });
+  const saveBaseline = document.getElementById('s-savebaseline');
+  if(saveBaseline) saveBaseline.onclick = ()=>{
+    state.startDate = document.getElementById('s-start').value || state.startDate;
+    state.targetDays = parseInt(document.getElementById('s-target').value)||state.targetDays;
+    generatePlan(); render();
+  };
+
+  const changePace = document.getElementById('s-changepace');
+  if(changePace) changePace.onclick = ()=>{ state.settingsPaceEditing = true; render(); };
+  const closePace = document.getElementById('s-closepace');
+  if(closePace) closePace.onclick = ()=>{ state.settingsPaceEditing = false; saveState(); render(); };
+  document.querySelectorAll('[data-act="sliveupdate"]').forEach(el=>{
+    el.onchange = ()=>{
+      if(el.id==='s-subjday2') state.subjectsPerDay = parseInt(el.value)||2;
+      if(el.id==='s-avgmin2') state.avgLectureMinutes = Math.max(5,parseInt(el.value)||30);
+      render();
+    };
+  });
+  document.querySelectorAll('[data-act="spicktier"]').forEach(el=>{
+    el.onclick = ()=>{
+      state.paceChoice = el.dataset.tier;
+      state.lecturesPerDay = parseInt(el.dataset.lecperday)||2;
+      state.settingsPaceEditing = false;
+      generatePlan(); render();
+    };
+  });
+
+  document.querySelectorAll('[data-act="subjmoveup"]').forEach(el=>{
+    el.onclick=()=>{ const i=parseInt(el.dataset.idx); if(i>0){ const a=state.subjectOrder; [a[i-1],a[i]]=[a[i],a[i-1]]; saveState(); render(); } };
+  });
+  document.querySelectorAll('[data-act="subjmovedown"]').forEach(el=>{
+    el.onclick=()=>{ const i=parseInt(el.dataset.idx); const a=state.subjectOrder; if(i<a.length-1){ [a[i+1],a[i]]=[a[i],a[i+1]]; saveState(); render(); } };
+  });
+  document.querySelectorAll('[data-act="ssubjtab"]').forEach(el=>{
+    el.onclick = ()=>{ settingsActiveSubj = el.dataset.sub; render(); };
+  });
+  const saveChapters = document.getElementById('s-saveChapters');
+  if(saveChapters) saveChapters.onclick = ()=>{ generatePlan(); render(); };
+
+  const exportBtn = document.getElementById('s-export');
+  if(exportBtn) exportBtn.onclick = exportData;
+  const importBtn = document.getElementById('s-importbtn');
+  if(importBtn) importBtn.onclick = ()=>document.getElementById('s-importfile').click();
+  const importFile = document.getElementById('s-importfile');
+  if(importFile) importFile.onchange = (e)=>{ if(e.target.files[0]) importData(e.target.files[0]); };
+
+  const rerun = document.getElementById('s-rerunwizard');
+  if(rerun) rerun.onclick = ()=>{ state.setupDone = false; state.wizardStep = 0; saveState(); render(); };
+  const hardReset = document.getElementById('s-hardreset');
+  if(hardReset) hardReset.onclick = ()=>{
+    if(confirm('This will permanently erase all your progress and settings on this device. Export a backup first if you want to keep it. Continue?')){
+      try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+      state = defaultState();
+      render();
+    }
+  };
+}
+
+/* ---------------- INIT ---------------- */
+(function init(){
+  loadState();
+  ensurePlanFresh();
+  render();
+})();
+</script>
+</body>
+</html>
