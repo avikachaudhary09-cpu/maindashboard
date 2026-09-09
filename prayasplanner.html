@@ -6,103 +6,366 @@
 <title>Prayas Catch-Up Planner</title>
 <style>
 :root{
-  --bg:#eef1f7; --panel:#ffffff; --panel2:#f5f7fb; --text:#171a23; --muted:#5c6272;
-  --line:#dde1ec; --accent:#31439e; --accent-ink:#ffffff; --good:#1b8a5a; --warn:#b5691a;
-  --one:#a6461f; --one-bg:#fdeee6; --chip:#e7eaf5; --shadow:0 6px 20px rgba(30,40,80,.08);
-  --radius:14px;
+  --bg:#ffffff; --panel:#ffffff; --panel2:#f7f7f9; --panel3:#f0f0f3;
+  --text:#1d1d1f; --muted:#6e6e73; --muted2:#86868b;
+  --line:#e6e6ea; --line-soft:#efeff2;
+  --accent:#0071e3; --accent-hover:#0077ed; --accent-ink:#ffffff;
+  --good:#1e8e4f; --good-bg:#e6f6ec;
+  --warn:#c26a00; --warn-bg:#fdf1e0;
+  --one:#c2185b; --one-bg:#fdeaf1;
+  --purple:#7d5fff; --purple-bg:#f1edff;
+  --teal:#0a9396; --teal-bg:#e3f6f6;
+  --block:#d64545; --block-bg:#fdeaea;
+  --chip:#f0f0f3;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.04);
+  --shadow:0 1px 3px rgba(0,0,0,.04), 0 6px 18px rgba(0,0,0,.05);
+  --shadow-lg:0 16px 40px rgba(0,0,0,.08);
+  --radius:20px; --radius-sm:12px; --radius-lg:26px;
+  --ease:cubic-bezier(.4,0,.2,1);
 }
 body.dark{
-  --bg:#12141c; --panel:#1b1e29; --panel2:#20232f; --text:#e9ebf3; --muted:#9298ab;
-  --line:#2c3040; --accent:#7c8cf5; --accent-ink:#0e1020; --good:#4fd08a; --warn:#f0b54c;
-  --one:#f0a06e; --one-bg:#2c1f18; --chip:#262a3a; --shadow:0 6px 24px rgba(0,0,0,.45);
+  --bg:#000000; --panel:#1c1c1e; --panel2:#161618; --panel3:#232325;
+  --text:#f5f5f7; --muted:#98989d; --muted2:#8a8a8e;
+  --line:#2c2c2e; --line-soft:#252527;
+  --accent:#0a84ff; --accent-hover:#3aa0ff; --accent-ink:#ffffff;
+  --good:#32d74b; --good-bg:#0f2818;
+  --warn:#ff9f0a; --warn-bg:#2b2007;
+  --one:#ff375f; --one-bg:#2b0f18;
+  --purple:#a78bfa; --purple-bg:#211a35;
+  --teal:#4dd0d6; --teal-bg:#0d2626;
+  --block:#ff6b6b; --block-bg:#301111;
+  --chip:#232325;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.3);
+  --shadow:0 2px 14px rgba(0,0,0,.45);
+  --shadow-lg:0 20px 50px rgba(0,0,0,.55);
 }
 *{box-sizing:border-box}
-body{margin:0;font-family:'Segoe UI',Roboto,-apple-system,sans-serif;background:var(--bg);color:var(--text);transition:background .2s,color .2s}
-.wrap{max-width:920px;margin:0 auto;padding:18px 16px 80px}
-header.top{display:flex;align-items:center;justify-content:space-between;padding:14px 0 18px}
-.brand{display:flex;align-items:center;gap:10px}
-.brand .mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--accent),#7c8cf5);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800}
-.brand h1{font-size:17px;margin:0;letter-spacing:.2px}
-.brand span{display:block;font-size:11px;color:var(--muted)}
-.iconbtn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:10px;width:38px;height:38px;cursor:pointer;font-size:16px}
-nav.tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
-nav.tabs button{flex:1;min-width:90px;padding:10px 12px;border-radius:11px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;font-size:13.5px;font-weight:600}
-nav.tabs button.active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:16px;box-shadow:var(--shadow)}
-.card h2{margin:0 0 4px;font-size:16px}
-.card p.sub{margin:0 0 14px;color:var(--muted);font-size:13px}
-label.field{display:block;margin-bottom:14px}
-label.field span.lbl{display:block;font-size:12.5px;color:var(--muted);margin-bottom:5px;font-weight:600}
-input[type=text],input[type=number],input[type=date],select{
-  width:100%;padding:10px 11px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font-size:14px
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",Inter,"Helvetica Neue",Arial,sans-serif;
+  background:var(--bg);color:var(--text);
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  transition:background .25s var(--ease),color .25s var(--ease);
+  font-size:15px;line-height:1.45;
 }
+@media (prefers-reduced-motion:reduce){ *{animation-duration:.01ms!important;transition-duration:.01ms!important} }
+.wrap{max-width:820px;width:100%;margin:0 auto;padding:0 24px 90px}
+header.top{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:22px 0 20px;
+}
+.brand{display:flex;align-items:center;gap:11px}
+.brand .mark{
+  width:36px;height:36px;border-radius:10px;background:var(--text);
+  display:flex;align-items:center;justify-content:center;color:var(--bg);
+  font-weight:700;font-size:16px;letter-spacing:-.02em;
+}
+.brand h1{font-size:17px;margin:0;letter-spacing:-.01em;font-weight:600;color:var(--text)}
+.brand span{display:block;font-size:12px;color:var(--muted);margin-top:1px;font-weight:400}
+.iconbtn{
+  border:none;background:var(--panel3);color:var(--text);border-radius:50%;
+  width:36px;height:36px;cursor:pointer;font-size:15px;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s var(--ease),transform .1s var(--ease);
+}
+.iconbtn:hover{background:var(--line)}
+.iconbtn:active{transform:scale(.92)}
+
+nav.tabs{
+  display:flex;gap:2px;margin-bottom:22px;background:var(--panel3);
+  border-radius:11px;padding:3px;
+}
+nav.tabs button{
+  flex:1;padding:8px 10px;border-radius:9px;border:none;background:transparent;
+  color:var(--muted);cursor:pointer;font-size:13px;font-weight:590;
+  transition:background .18s var(--ease),color .18s var(--ease),box-shadow .18s var(--ease);
+  font-family:inherit;
+}
+nav.tabs button.active{background:var(--panel);color:var(--text);box-shadow:var(--shadow-sm)}
+
+.card{
+  background:var(--panel);border:1px solid var(--line-soft);border-radius:var(--radius);
+  padding:22px;margin-bottom:14px;box-shadow:var(--shadow);
+}
+body.dark .card{border-color:var(--line)}
+.card h2{margin:0 0 4px;font-size:18px;font-weight:650;letter-spacing:-.01em}
+.card p.sub{margin:0 0 16px;color:var(--muted);font-size:13px;line-height:1.5}
+
+label.field{display:block;margin-bottom:14px}
+label.field span.lbl{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px;font-weight:500}
+input[type=text],input[type=number],input[type=date],select{
+  width:100%;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--line);
+  background:var(--panel2);color:var(--text);font-size:14px;font-family:inherit;
+  transition:border-color .15s var(--ease),background .15s var(--ease);
+  -webkit-appearance:none;appearance:none;
+}
+input[type=text]:focus,input[type=number]:focus,input[type=date]:focus,select:focus{
+  outline:none;border-color:var(--accent);background:var(--panel);
+}
+select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236e6e73' stroke-width='1.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:28px;
+}
+
 .row{display:flex;gap:12px;flex-wrap:wrap}
 .row > label.field{flex:1;min-width:150px}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:10px;border:none;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:13.5px;cursor:pointer}
-.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
-.btn.sm{padding:6px 10px;font-size:12.5px}
-.btn[disabled]{opacity:.45;cursor:not-allowed}
-.btnrow{display:flex;justify-content:space-between;margin-top:18px;gap:10px;flex-wrap:wrap}
-.pill{display:inline-block;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;background:var(--chip);color:var(--muted)}
-.pill.on{background:var(--good);color:#08301c}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:11px 18px;border-radius:980px;border:none;background:var(--accent);
+  color:var(--accent-ink);font-weight:590;font-size:13.5px;cursor:pointer;
+  font-family:inherit;transition:background .15s var(--ease),transform .1s var(--ease),opacity .15s var(--ease);
+}
+.btn:hover{background:var(--accent-hover)}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:var(--panel3);color:var(--text)}
+.btn.ghost:hover{background:var(--line)}
+.btn.sm{padding:8px 14px;font-size:12.5px}
+.btn[disabled]{opacity:.4;cursor:not-allowed;transform:none}
+
+.btnrow{display:flex;justify-content:space-between;align-items:center;margin-top:20px;gap:10px;flex-wrap:wrap}
+
+.pill{display:inline-block;padding:4px 10px;border-radius:980px;font-size:11px;font-weight:600;background:var(--chip);color:var(--muted)}
+.pill.on{background:var(--good-bg);color:var(--good)}
 .pill.one{background:var(--one-bg);color:var(--one)}
-.chapter-row{display:flex;align-items:center;gap:10px;padding:10px 8px;border-bottom:1px solid var(--line);font-size:13.5px;flex-wrap:wrap}
+
+.chapter-row{display:flex;align-items:center;gap:10px;padding:12px 4px;border-bottom:1px solid var(--line-soft);font-size:13.5px;flex-wrap:wrap}
 .chapter-row:last-child{border-bottom:none}
-.chapter-row .name{flex:1}
-.chapter-row .lectures{color:var(--muted);font-size:11.5px;min-width:58px}
-.chapter-row.done .name{text-decoration:line-through;color:var(--muted)}
+.chapter-row .name{flex:1;font-weight:450}
+.chapter-row .lectures{color:var(--muted2);font-size:11.5px;min-width:56px;font-variant-numeric:tabular-nums}
+.chapter-row.done .name{text-decoration:none;color:var(--muted)}
+.chapter-row.done{opacity:.55}
+
 .mini-order{display:flex;flex-direction:column;gap:2px}
-.mini-order button{width:22px;height:18px;border:1px solid var(--line);background:var(--panel2);border-radius:4px;font-size:10px;cursor:pointer;color:var(--text)}
-.link-input{width:180px}
-.subtabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:4px}
-.subtabs button{white-space:nowrap;padding:8px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);font-size:12.5px;font-weight:700;cursor:pointer}
-.subtabs button.active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.stat{background:var(--panel2);border-radius:11px;padding:12px 14px;flex:1;min-width:140px}
-.stat b{display:block;font-size:20px}
-.stat span{font-size:11.5px;color:var(--muted)}
-.daycard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:12px;overflow:hidden}
-.daycard.istoday{border:2px solid var(--accent)}
-.daycard .dayhead{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;cursor:pointer;background:var(--panel2)}
-.daycard .dayhead b{font-size:13.5px}
-.daycard .dayhead .meta{color:var(--muted);font-size:11.5px}
-.daycard .body{padding:6px 12px 12px}
-.taskrow{display:flex;align-items:center;gap:10px;padding:10px 6px;border-bottom:1px solid var(--line)}
+.mini-order button{width:22px;height:17px;border:none;background:var(--panel3);border-radius:5px;font-size:9px;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center}
+.mini-order button:hover{background:var(--line)}
+.mini-order button[disabled]{opacity:.3;cursor:default}
+.link-input{width:170px}
+
+.subtabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:16px;padding-bottom:2px}
+.subtabs button{
+  white-space:nowrap;padding:8px 14px;border-radius:980px;border:none;background:var(--panel3);
+  color:var(--muted);font-size:12.5px;font-weight:590;cursor:pointer;font-family:inherit;
+  transition:background .15s var(--ease),color .15s var(--ease);
+}
+.subtabs button.active{background:var(--text);color:var(--bg)}
+
+.stat{background:var(--panel2);border-radius:var(--radius-sm);padding:14px 16px;flex:1;min-width:130px}
+.stat b{display:block;font-size:22px;font-weight:650;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stat span{font-size:11.5px;color:var(--muted);font-weight:450}
+
+.daycard{background:var(--panel);border:none;border-radius:var(--radius);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow)}
+.daycard.istoday{box-shadow:0 0 0 2px var(--accent),var(--shadow)}
+.daycard .dayhead{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;cursor:pointer;transition:background .15s var(--ease)}
+.daycard .dayhead:hover{background:var(--panel2)}
+.daycard .dayhead b{font-size:13.5px;font-weight:590}
+.daycard .dayhead .meta{color:var(--muted);font-size:11.5px;font-variant-numeric:tabular-nums}
+.daycard .body{padding:2px 18px 14px}
+
+.taskrow{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line-soft);flex-wrap:wrap}
 .taskrow:last-child{border-bottom:none}
-.taskrow input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
-.taskrow .txt{flex:1;font-size:13.5px}
-.taskrow .txt.done{text-decoration:line-through;color:var(--muted)}
-.taskrow .sub{font-size:11px;color:var(--muted)}
-.taskrow a.openbtn{font-size:11.5px;padding:6px 10px;border-radius:8px;background:var(--chip);color:var(--text);text-decoration:none;font-weight:700;white-space:nowrap}
-.badge-oneshot{background:var(--one-bg);color:var(--one);padding:2px 8px;border-radius:99px;font-size:10.5px;font-weight:800;margin-left:6px}
-.progress-outer{background:var(--panel2);border-radius:99px;height:8px;overflow:hidden;margin-top:6px}
-.progress-inner{background:var(--good);height:100%;transition:width .3s}
-.note{font-size:12px;color:var(--muted);background:var(--panel2);padding:10px 12px;border-radius:9px;margin-top:8px}
-.warnbox{background:var(--one-bg);color:var(--one);padding:10px 12px;border-radius:9px;font-size:12.5px;margin-top:10px}
-.section-title{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:18px 0 8px;font-weight:800}
-.emptystate{text-align:center;padding:40px 14px;color:var(--muted)}
-.toggle-group{display:flex;gap:8px}
-.toggle-group button{flex:1;padding:10px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);cursor:pointer;font-weight:700;font-size:13px}
-.toggle-group button.active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.settings-list button.linklike{background:none;border:none;color:var(--accent);font-weight:700;cursor:pointer;font-size:13px;padding:0}
-hr.sep{border:none;border-top:1px solid var(--line);margin:16px 0}
-.quotebar{background:linear-gradient(135deg,var(--accent),#7c8cf5);color:#fff;padding:12px 16px;border-radius:var(--radius);font-size:13px;font-style:italic;margin-bottom:14px;box-shadow:var(--shadow)}
-.pacegrid{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
-.pacecard{flex:1;min-width:150px;border:2px solid var(--line);background:var(--panel2);border-radius:12px;padding:12px;cursor:pointer;transition:border-color .15s,background .15s}
-.pacecard:hover{border-color:var(--accent)}
-.pacecard.selected{border-color:var(--accent);background:var(--chip)}
-.pacecard-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13.5px}
-.pacecard-body{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
-.skipbox{background:var(--panel2);border-radius:11px;padding:12px;margin-top:12px}
-.subjectprogress-row{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:13px}
-.subjectprogress-row .name{min-width:130px}
-.subjectprogress-row .pct{min-width:50px;text-align:right;color:var(--muted);font-size:11.5px}
-.logrow{font-size:12.5px;padding:7px 0;border-bottom:1px solid var(--line)}
+.taskrow input[type=checkbox]{
+  -webkit-appearance:none;appearance:none;width:21px;height:21px;border-radius:50%;
+  border:1.5px solid var(--line);flex-shrink:0;cursor:pointer;position:relative;
+  transition:background .15s var(--ease),border-color .15s var(--ease);
+}
+.taskrow input[type=checkbox]:checked{background:var(--good);border-color:var(--good)}
+.taskrow input[type=checkbox]:checked::after{
+  content:'';position:absolute;left:6px;top:2px;width:5px;height:9px;
+  border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);
+}
+.taskrow .txt{flex:1;font-size:13.5px;font-weight:450}
+.taskrow .txt.done{text-decoration:none;color:var(--muted)}
+.taskrow .sub{font-size:11.5px;color:var(--muted2);margin-top:1px;font-weight:400}
+.taskrow .openbtn{
+  font-size:12px;padding:7px 13px;border-radius:980px;background:var(--panel3);
+  color:var(--text);text-decoration:none;font-weight:590;white-space:nowrap;
+  transition:background .15s var(--ease);font-family:inherit;border:none;cursor:pointer;
+}
+.taskrow .openbtn:hover{background:var(--line)}
+
+.badge-oneshot{background:var(--one-bg);color:var(--one);padding:2px 8px;border-radius:980px;font-size:10px;font-weight:650;margin-left:7px;letter-spacing:.01em}
+.badge-revision{background:var(--chip);color:var(--accent);padding:2px 8px;border-radius:980px;font-size:10px;font-weight:650;margin-left:7px;letter-spacing:.01em}
+
+.progress-outer{background:var(--panel3);border-radius:980px;height:6px;overflow:hidden;margin-top:8px}
+.progress-inner{background:var(--good);height:100%;border-radius:980px;transition:width .4s var(--ease)}
+
+.note{font-size:12.5px;color:var(--muted);background:var(--panel2);padding:12px 14px;border-radius:var(--radius-sm);margin-top:10px;line-height:1.5}
+.warnbox{background:var(--warn-bg);color:var(--warn);padding:12px 14px;border-radius:var(--radius-sm);font-size:12.5px;margin-top:10px}
+.section-title{font-size:11.5px;color:var(--muted);margin:20px 0 10px;font-weight:590}
+.emptystate{text-align:center;padding:48px 16px;color:var(--muted);font-size:14px}
+
+.toggle-group{display:flex;gap:2px;background:var(--panel3);border-radius:11px;padding:3px}
+.toggle-group button{flex:1;padding:9px;border-radius:9px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-weight:590;font-size:13px;font-family:inherit;transition:background .18s var(--ease),color .18s var(--ease)}
+.toggle-group button.active{background:var(--panel);color:var(--text);box-shadow:var(--shadow-sm)}
+
+.settings-list button.linklike{background:none;border:none;color:var(--accent);font-weight:590;cursor:pointer;font-size:13px;padding:0}
+hr.sep{border:none;border-top:1px solid var(--line-soft);margin:18px 0}
+
+.quotebar{
+  background:var(--text);color:var(--bg);padding:16px 20px;border-radius:var(--radius);
+  font-size:14px;font-weight:450;margin-bottom:14px;letter-spacing:-.005em;line-height:1.45;
+}
+body.dark .quotebar{background:var(--panel3);color:var(--text)}
+
+.pacegrid{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 4px}
+.pacecard{
+  flex:1;min-width:150px;border:1.5px solid var(--line);background:var(--panel2);
+  border-radius:var(--radius-sm);padding:14px;cursor:pointer;
+  transition:border-color .15s var(--ease),background .15s var(--ease),transform .1s var(--ease);
+}
+.pacecard:hover{border-color:var(--muted2)}
+.pacecard:active{transform:scale(.98)}
+.pacecard.selected{border-color:var(--accent);background:var(--panel)}
+.pacecard-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;font-size:13.5px;font-weight:590}
+.pacecard-body{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+
+.skipbox{background:var(--panel2);border-radius:var(--radius-sm);padding:14px;margin-top:12px}
+
+.subjectprogress-row{display:flex;align-items:center;gap:12px;padding:9px 0;font-size:13px}
+.subjectprogress-row .name{min-width:132px;font-weight:450}
+.subjectprogress-row .pct{min-width:48px;text-align:right;color:var(--muted);font-size:11.5px;font-variant-numeric:tabular-nums}
+
+.logrow{font-size:12.5px;padding:8px 0;border-bottom:1px solid var(--line-soft);color:var(--text)}
 .logrow:last-child{border-bottom:none}
 .streakline{font-size:12px;color:var(--muted);margin-top:4px}
+
+/* ---- layout w/ sidebar ---- */
+.layout{display:flex;align-items:flex-start;max-width:1240px;width:100%;margin:0 auto;gap:8px;padding:0 16px}
+.sidebar{
+  width:272px;flex-shrink:0;position:sticky;top:0;max-height:100vh;overflow-y:auto;
+  padding:28px 16px;background:transparent;
+}
+.sidebar h3{margin:0 0 3px;font-size:14px;font-weight:650;letter-spacing:-.01em}
+.sidebar p.sub{margin:0 0 14px;color:var(--muted);font-size:12px;line-height:1.5}
+.sidebar .qgoal-input{width:100%}
+.sidebar .qprogress{margin:14px 0}
+.sidebar .qnum{font-size:30px;font-weight:650;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.sidebar .qnum span{font-size:13px;font-weight:450;color:var(--muted)}
+.sidebar .qbtnrow{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+.sidebar .qbtnrow .btn{width:100%;justify-content:center}
+.sidebar > .btn{margin-top:12px}
+.wrap{flex:1;min-width:0;max-width:860px}
+/* Laptop/desktop: give the whole layout real breathing room instead of a
+   narrow tablet-width column stranded in a sea of empty page */
+@media (min-width:1100px){
+  .layout{max-width:1320px;gap:28px;padding:0 32px}
+  .wrap{max-width:900px}
+  .sidebar{width:300px}
+}
+@media (min-width:1440px){
+  .layout{max-width:1480px;gap:36px}
+  .wrap{max-width:960px}
+  .sidebar{width:320px}
+}
+@media (max-width:820px){
+  .layout{flex-direction:column;gap:0;padding:0}
+  .sidebar{position:static;width:100%;max-height:none;padding:16px 20px 4px}
+  .wrap{max-width:none}
+}
+
+/* ---- lecture count edit ---- */
+.leccount-input{width:52px;padding:8px 6px;text-align:center;font-size:12.5px}
+.small-lbl{font-size:10.5px;color:var(--muted2);margin-right:1px}
+
+/* ---- revision / DPP ---- */
+.dppbox{background:var(--panel2);border-radius:var(--radius-sm);padding:16px;margin-top:14px;font-size:12.5px}
+.question-practice{border-top:1px solid var(--line);margin-top:16px;padding-top:15px}
+.question-practice .taskrow{padding-left:4px;padding-right:4px}
+.question-practice .taskrow .txt{min-width:170px}
+.practice-chapter-select{width:210px;padding:8px 9px;font-size:12px}
+.practice-count-input{width:74px!important;padding:8px 9px!important;font-size:12px!important}
+.question-practice-remove{width:28px;height:30px;border:none;border-radius:8px;background:var(--panel);color:var(--muted);cursor:pointer;font-size:17px;line-height:1}
+.question-practice-remove:hover{background:var(--line)}
+.practice-summary{font-size:11.5px;color:var(--muted);margin-top:9px}
+@media (max-width:560px){.practice-chapter-select{width:100%;flex:1}.practice-count-input{width:70px!important}}
+.achieve-banner{
+  background:var(--text);color:var(--bg);padding:14px 18px;border-radius:var(--radius-sm);
+  font-weight:590;font-size:13.5px;margin-top:12px;text-align:center;letter-spacing:-.005em;
+}
+body.dark .achieve-banner{background:var(--good-bg);color:var(--good)}
+
+/* ---- questions graph ---- */
+.qgraph{margin-top:4px}
+.qgraph svg{width:100%;height:auto;display:block}
+.qgraph .legend{display:flex;gap:16px;font-size:11.5px;color:var(--muted);margin-top:10px}
+.qgraph .legend span{display:inline-flex;align-items:center;gap:5px}
+.qgraph .legend i{width:8px;height:8px;border-radius:2px;display:inline-block}
+
+/* ---- DPP circular toggle (per lecture task) ---- */
+.dpp-widget{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.dpp-label{font-size:10px;color:var(--muted2);font-weight:650;letter-spacing:.03em;text-transform:uppercase;margin-right:1px}
+.dpp-toggle{display:flex;gap:6px}
+.dpp-toggle button{
+  width:30px;height:30px;border-radius:50%;border:1.5px solid var(--line);background:var(--panel2);
+  color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;line-height:1;
+  transition:all .15s var(--ease);
+}
+.dpp-toggle button:hover{border-color:var(--muted2)}
+.dpp-toggle button:active{transform:scale(.9)}
+.dpp-toggle button.yes.on{background:var(--good);border-color:var(--good);color:#fff}
+.dpp-toggle button.no.on{background:var(--muted2);border-color:var(--muted2);color:#fff}
+.dpp-toggle button.block.on{background:var(--block);border-color:var(--block);color:#fff}
+
+/* ---- Quick stats strip (Lectures / Questions / DPPs / Revisions / Study days) ---- */
+.qstrip{display:flex;flex-wrap:wrap;gap:10px}
+.qstrip .qstat{
+  flex:1;min-width:118px;background:var(--panel2);border-radius:var(--radius-sm);
+  padding:14px 14px;display:flex;flex-direction:column;gap:5px;border:1px solid var(--line-soft);
+}
+.qstrip .qstat b{font-size:21px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.qstrip .qstat span{font-size:11px;color:var(--muted);font-weight:590;text-transform:uppercase;letter-spacing:.02em}
+.qstrip .qstat.c-blue{border-color:color-mix(in srgb, var(--accent) 25%, var(--line-soft))}
+.qstrip .qstat.c-blue b{color:var(--accent)}
+.qstrip .qstat.c-purple b{color:var(--purple)}
+.qstrip .qstat.c-good b{color:var(--good)}
+.qstrip .qstat.c-teal b{color:var(--teal)}
+.qstrip .qstat.c-warn b{color:var(--warn)}
+
+/* ---- Redesigned chapter selection cards ---- */
+.chapter-card{
+  background:var(--panel2);border:1px solid var(--line-soft);border-radius:var(--radius-sm);
+  padding:14px 16px;margin-bottom:10px;transition:background .15s var(--ease),border-color .15s var(--ease);
+}
+.chapter-card.done{background:transparent;opacity:.6}
+.chapter-card-top{display:flex;align-items:center;gap:12px}
+.check-circle{
+  width:24px;height:24px;border-radius:50%;border:1.5px solid var(--line);background:var(--panel);
+  flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:transparent;font-size:12px;font-weight:800;transition:all .15s var(--ease);
+}
+.check-circle.checked{background:var(--good);border-color:var(--good);color:#fff}
+.chapter-card-name{flex:1;font-size:14px;font-weight:560;letter-spacing:-.005em}
+.chapter-card.done .chapter-card-name{color:var(--muted);text-decoration:line-through}
+.chapter-card-progress{
+  font-size:11px;font-weight:650;color:var(--muted);background:var(--chip);
+  padding:3px 9px;border-radius:980px;font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+.chapter-card-controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--line-soft)}
+.seg-toggle{display:flex;gap:2px;background:var(--panel3);border-radius:9px;padding:2px}
+.seg-toggle button{padding:6px 12px;border-radius:7px;border:none;background:transparent;color:var(--muted);font-size:12px;font-weight:590;cursor:pointer;font-family:inherit;transition:all .15s var(--ease)}
+.seg-toggle button.active{background:var(--panel);color:var(--text);box-shadow:var(--shadow-sm)}
+.stepper{display:flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.stepper button{width:26px;height:30px;border:none;background:var(--panel);color:var(--text);font-size:14px;cursor:pointer;font-family:inherit}
+.stepper button:hover{background:var(--panel3)}
+.stepper input{width:38px;border:none;border-left:1px solid var(--line);border-right:1px solid var(--line);text-align:center;padding:0;font-size:13px;background:var(--panel);height:30px}
+.field-mini{display:flex;flex-direction:column;gap:4px}
+.field-mini .small-lbl{font-size:10.5px;color:var(--muted2);font-weight:600;text-transform:uppercase;letter-spacing:.02em}
+.chapter-card .link-input{width:190px}
+.chapter-card .mini-order{flex-shrink:0}
+ .oneshot-day-note{font-size:11px;color:var(--one);font-weight:650;margin-left:auto}
+ .reschedule-grid{display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:10px;align-items:end}
+ .reschedule-grid .btn{grid-column:1 / -1;justify-self:start}
+ @media (max-width:560px){.reschedule-grid{grid-template-columns:1fr}.reschedule-grid .btn{width:100%}}
 </style>
 </head>
 <body>
-<div class="wrap" id="app"></div>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="wrap" id="app"></div>
+</div>
 <script>
 /* ---------------- SUBJECT DATA ---------------- */
 const SUBJECTS = [
@@ -218,6 +481,7 @@ const SKIP_REASONS = ['Fever / Unwell','Procrastination','Guests at home','Festi
 /* ---------------- STATE ---------------- */
 let state = null;
 const STORAGE_KEY = 'prayas-planner-state-v2';
+const PLAN_VERSION = 9;
 
 /* Uses LOCAL date parts (not UTC) so "today" is correct regardless of timezone/time of day */
 function todayISO(){
@@ -225,8 +489,18 @@ function todayISO(){
   const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
   return y+'-'+m+'-'+day;
 }
+function normalizeISODate(value,fallback){
+  const raw = String(value||'').trim();
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return fallback;
+  const parts = raw.split('-').map(Number);
+  const dt = new Date(Date.UTC(parts[0],parts[1]-1,parts[2]));
+  return dt.getUTCFullYear()===parts[0] &&
+    dt.getUTCMonth()===parts[1]-1 &&
+    dt.getUTCDate()===parts[2] ? raw : fallback;
+}
 /* All calendar math below is done in UTC internally purely as neutral date arithmetic (no timezone drift) */
 function addDays(iso,n){
+  iso = normalizeISODate(iso,todayISO());
   const parts = iso.split('-').map(Number);
   const dt = new Date(Date.UTC(parts[0],parts[1]-1,parts[2]));
   dt.setUTCDate(dt.getUTCDate()+n);
@@ -251,39 +525,68 @@ function todaysQuote(){
 }
 
 function defaultState(){
-  const chapters={}, chapterOrder={};
+  const chapters={}, chapterOrder={}, lectureOverrides={};
   SUBJECTS.forEach(s=>{
     chapters[s.id]={};
     chapterOrder[s.id]=s.chapters.map(c=>c.name);
-    s.chapters.forEach(c=>{ chapters[s.id][c.name]={done:false,mode:'regular',oneshotLink:''}; });
+    lectureOverrides[s.id]={};
+    s.chapters.forEach(c=>{ chapters[s.id][c.name]={
+      done:false,mode:'regular',oneshotLink:''
+    }; });
   });
   return {
     theme:'light', setupDone:false, wizardStep:0,
-    startDate: todayISO(), targetDays:60,
+    startDate: todayISO(),
     avgLectureMinutes:30, lecturesPerDay:2, subjectsPerDay:2, paceChoice:null,
     subjectOrder: SUBJECTS.map(s=>s.id),
-    chapters, chapterOrder,
+     chapters, chapterOrder, lectureOverrides,
     plan: [], planGenerated:false,
+     planVersion: PLAN_VERSION,
     skippedDates: [], skipLog: [], completedItems: {}, completionLog: [],
-    view:'today', openDay:null, skipPromptOpen:false, settingsPaceEditing:false
+    view:'today', openDay:null, skipPromptOpen:false, settingsPaceEditing:false,
+     dailyQuestionGoal:60, questionGoalOverrides:{}, questionsLog:{}, questionsByItem:{},
+     questionPractice:{},
+    dppByItem:{},
+     manualSchedule:{}, revisionSelections:{},
+    sidebarTab:'questions'
   };
 }
 
 function migrateState(parsed){
   const def = defaultState();
   const merged = Object.assign({}, def, parsed);
+  const savedPlanVersion = Number(parsed.planVersion)||0;
+  // Versions 1–7 stored x as subjects/day and y as lectures/subject.
+  // Version 8 stores m as total lectures/day and n as subjects/day.
+  if(savedPlanVersion<8 && parsed.subjectsPerDay!==undefined && parsed.lecturesPerDay!==undefined){
+    merged.lecturesPerDay = Math.max(1, Number(parsed.subjectsPerDay)||1) * Math.max(1, Number(parsed.lecturesPerDay)||1);
+    merged.subjectsPerDay = Math.max(1, Number(parsed.subjectsPerDay)||1);
+  }
   merged.completedItems = parsed.completedItems || {};
   merged.completionLog = parsed.completionLog || [];
   merged.skippedDates = parsed.skippedDates || [];
   merged.skipLog = parsed.skipLog || [];
-  merged.startDate = parsed.startDate || parsed.today || def.startDate;
+  merged.startDate = normalizeISODate(parsed.startDate || parsed.today, def.startDate);
+  delete merged.targetDays;
   merged.avgLectureMinutes = parsed.avgLectureMinutes || def.avgLectureMinutes;
   merged.chapters = parsed.chapters || def.chapters;
   merged.chapterOrder = parsed.chapterOrder || def.chapterOrder;
   merged.subjectOrder = parsed.subjectOrder || def.subjectOrder;
+  merged.lectureOverrides = parsed.lectureOverrides || def.lectureOverrides;
+  SUBJECTS.forEach(s=>{ if(!merged.lectureOverrides[s.id]) merged.lectureOverrides[s.id]={}; });
+  merged.dailyQuestionGoal = parsed.dailyQuestionGoal || def.dailyQuestionGoal;
+  merged.questionGoalOverrides = parsed.questionGoalOverrides || {};
+  merged.questionsLog = parsed.questionsLog || {};
+  merged.questionsByItem = parsed.questionsByItem || {};
+  merged.questionPractice = parsed.questionPractice || {};
+  merged.dppByItem = parsed.dppByItem || {};
+  merged.manualSchedule = parsed.manualSchedule || {};
+  merged.revisionSelections = parsed.revisionSelections || {};
   merged.plan = parsed.plan || [];
+  merged.planVersion = parsed.planVersion || 0;
   merged.skipPromptOpen = false;
   merged.settingsPaceEditing = false;
+  merged.sidebarTab = parsed.sidebarTab || 'questions';
   return merged;
 }
 
@@ -303,6 +606,19 @@ function saveState(){
 function subj(id){ return SUBJECTS.find(s=>s.id===id); }
 function itemKey(sid,chName,part){ return sid+'::'+chName+'::'+part; }
 
+/* Lecture count per chapter — user-editable, falls back to the default from SUBJECTS */
+function getLectureCount(sid,chName){
+  const ov = state.lectureOverrides && state.lectureOverrides[sid] ? state.lectureOverrides[sid][chName] : undefined;
+  if(ov!==undefined && ov!==null && ov>0) return ov;
+  const chObj = subj(sid).chapters.find(c=>c.name===chName);
+  return chObj ? chObj.lectures : 1;
+}
+function setLectureCount(sid,chName,n){
+  n = Math.max(1, parseInt(n)||1);
+  if(!state.lectureOverrides[sid]) state.lectureOverrides[sid]={};
+  state.lectureOverrides[sid][chName] = n;
+}
+
 function remainingChapters(sid){
   return state.chapterOrder[sid].filter(n=>!state.chapters[sid][n].done);
 }
@@ -310,13 +626,81 @@ function totalRemainingLectureCount(sid){
   let n=0;
   remainingChapters(sid).forEach(ch=>{
     const cfg=state.chapters[sid][ch];
-    const chObj=subj(sid).chapters.find(c=>c.name===ch);
     if(cfg.mode==='oneshot') return;
-    for(let i=1;i<=chObj.lectures;i++){
+    const lecCount = getLectureCount(sid,ch);
+    for(let i=1;i<=lecCount;i++){
       if(!state.completedItems[itemKey(sid,ch,i)]) n++;
     }
   });
   return n;
+}
+
+/* ---------------- QUESTIONS-PER-DAY TRACKING ---------------- */
+function dayQuestionGoal(dateIso){
+  const ov = state.questionGoalOverrides[dateIso];
+  return (ov!==undefined && ov!==null) ? ov : state.dailyQuestionGoal;
+}
+function dayQuestionsDone(dateIso){
+  return state.questionsLog[dateIso] || 0;
+}
+function addQuestions(dateIso,n){
+  n = parseInt(n)||0;
+  if(n===0) return;
+  state.questionsLog[dateIso] = (state.questionsLog[dateIso]||0) + n;
+  if(state.questionsLog[dateIso]<0) state.questionsLog[dateIso]=0;
+}
+function questionPracticeEntries(dateIso){
+  const entries = Array.isArray(state.questionPractice && state.questionPractice[dateIso])
+    ? state.questionPractice[dateIso] : [];
+  return entries.slice(0,3).map(e=>({
+    subject:e && e.subject ? e.subject : '',
+    chapter:e && e.chapter ? e.chapter : '',
+    questions:Math.max(0,parseInt(e && e.questions)||0),
+    done:!!(e && e.done)
+  }));
+}
+function questionPracticeTotal(dateIso){
+  return questionPracticeEntries(dateIso).reduce((sum,e)=>
+    sum+(e.subject&&e.chapter ? e.questions : 0),0);
+}
+function questionTarget(dateIso){
+  return dayQuestionGoal(dateIso) + questionPracticeTotal(dateIso);
+}
+function setQuestionPracticeEntries(dateIso, entries){
+  if(!state.questionPractice) state.questionPractice = {};
+  const cleaned = (entries||[]).slice(0,3).map(e=>({
+    subject:e.subject||'', chapter:e.chapter||'', questions:Math.max(0,parseInt(e.questions)||0), done:!!e.done
+  }));
+  if(cleaned.length) state.questionPractice[dateIso] = cleaned;
+  else delete state.questionPractice[dateIso];
+}
+function practiceTaskItems(dateIso){
+  return questionPracticeEntries(dateIso)
+    .filter(e=>e.subject&&e.chapter)
+    .map((e,index)=>({
+      type:'practice',
+      subject:e.subject,
+      chapter:e.chapter,
+      questions:e.questions,
+      done:!!e.done,
+      id:'question-practice::'+dateIso+'::'+index,
+      practiceIndex:index
+    }));
+}
+function dayDisplayItems(day){
+  return [...(day.items||[]),...practiceTaskItems(day.date)];
+}
+function askQuestionsFor(promptText){
+  const raw = window.prompt(promptText, '0');
+  if(raw===null) return 0;
+  const n = parseInt(raw);
+  return isNaN(n) || n<0 ? 0 : n;
+}
+function last14DaysQuestionData(){
+  const out=[];
+  let d = todayISO();
+  for(let i=0;i<14;i++){ out.unshift({date:d, done:dayQuestionsDone(d), goal:questionTarget(d)}); d = addDays(d,-1); }
+  return out;
 }
 function oneShotCount(sid){
   return remainingChapters(sid).filter(ch=>{
@@ -327,19 +711,29 @@ function oneShotCount(sid){
 }
 function remainingTotalLectures(){ let n=0; SUBJECTS.forEach(s=>n+=totalRemainingLectureCount(s.id)); return n; }
 function remainingTotalOneshots(){ let n=0; SUBJECTS.forEach(s=>n+=oneShotCount(s.id)); return n; }
+function estimateDaysAtPace(){
+  const totalLec = remainingTotalLectures();
+  const totalOne = remainingTotalOneshots();
+  const lecturesPerDay = Math.max(1,Number(state.lecturesPerDay)||1);
+  return totalLec>0 ? Math.ceil(totalLec/lecturesPerDay)+totalOne : totalOne;
+}
+function estimatedFinishDate(){
+  const days = estimateDaysAtPace();
+  return addDays(planStartDate(),Math.max(0,days-1));
+}
 
 function chapterProgress(sid,chName){
   const cfg = state.chapters[sid][chName];
-  const chObj = subj(sid).chapters.find(c=>c.name===chName);
   if(cfg.mode==='oneshot'){
     const done = (cfg.done || state.completedItems[itemKey(sid,chName,'oneshot')]) ? 1:0;
     return {done, total:1};
   }
+  const lecCount = getLectureCount(sid,chName);
   let done=0;
-  for(let i=1;i<=chObj.lectures;i++){
+  for(let i=1;i<=lecCount;i++){
     if(cfg.done || state.completedItems[itemKey(sid,chName,i)]) done++;
   }
-  return {done, total:chObj.lectures};
+  return {done, total:lecCount};
 }
 function subjectTotals(sid){
   let total=0, done=0;
@@ -363,34 +757,50 @@ function computeStreak(){
   return streak;
 }
 
+/* ---------------- DPP TRACKING ---------------- */
+/* Per-lecture DPP status: 'yes' (done), 'no' (not done), 'block' (none set today) */
+function dppStatus(id){ return (state.dppByItem||{})[id]; }
+function setDppStatus(id, val){
+  if(!state.dppByItem) state.dppByItem = {};
+  if(state.dppByItem[id]===val) delete state.dppByItem[id];
+  else state.dppByItem[id] = val;
+}
+function statsDppDoneCount(){ return Object.values(state.dppByItem||{}).filter(v=>v==='yes').length; }
+function statsLecturesDoneCount(){ return (state.completionLog||[]).filter(e=>e.part && e.part.indexOf('Lecture')===0).length; }
+function statsRevisionsDoneCount(){ return (state.completionLog||[]).filter(e=>e.part==='Revision').length; }
+function statsQuestionsTotal(){ return Object.values(state.questionsLog||{}).reduce((a,b)=>a+b,0); }
+function statsStudyDaysThisWeek(){
+  let count=0;
+  for(let i=0;i<7;i++){
+    const d = addDays(todayISO(), -i);
+    const hasActivity = (state.completionLog||[]).some(e=>e.date===d) || dayQuestionsDone(d)>0;
+    if(hasActivity) count++;
+  }
+  return count;
+}
+
 /* ---------------- PACE SUGGESTIONS ---------------- */
 function computePaceTiers(){
   const totalLec = remainingTotalLectures();
   const totalOne = remainingTotalOneshots();
-  const availDays = Math.max(1, state.targetDays - totalOne);
-  const minCombined = Math.max(1, Math.ceil(totalLec/availDays));
-  const defs = [
-    {key:'relaxed', label:'Relaxed', mult:1},
-    {key:'balanced', label:'Balanced', mult:1.3},
-    {key:'intensive', label:'Intensive', mult:1.6}
-  ];
-  const seenLPD = new Set();
+  const minCombined = Math.max(1, Math.ceil(totalLec/Math.max(1,estimateDaysAtPace()-totalOne)));
+  // Show concrete total-lecture counts instead of opaque pace tiers.
+  const firstPace = Math.max(1, minCombined);
+  const maxPace = Math.max(8, firstPace+3);
   const start = planStartDate();
-  return defs.map(d=>{
-    let combinedTarget = Math.max(1, Math.round(minCombined*d.mult));
-    let lecturesPerDay = Math.max(1, Math.ceil(combinedTarget/state.subjectsPerDay));
-    while(seenLPD.has(lecturesPerDay)){ combinedTarget += state.subjectsPerDay; lecturesPerDay = Math.max(1, Math.ceil(combinedTarget/state.subjectsPerDay)); }
-    seenLPD.add(lecturesPerDay);
-    const actualCombined = lecturesPerDay*state.subjectsPerDay;
-    const estDays = totalLec>0 ? Math.ceil(totalLec/actualCombined)+totalOne : totalOne;
+  const tiers=[];
+  for(let totalLecturesPerDay=firstPace;totalLecturesPerDay<=maxPace;totalLecturesPerDay++){
+    const estDays = totalLec>0 ? Math.ceil(totalLec/totalLecturesPerDay)+totalOne : totalOne;
     const finishDate = addDays(start, Math.max(0,estDays-1));
-    const dailyMinutes = actualCombined*state.avgLectureMinutes;
-    return {key:d.key,label:d.label,combinedPace:actualCombined,lecturesPerDay,estDays,finishDate,dailyMinutes};
-  });
+    const dailyMinutes = totalLecturesPerDay*state.avgLectureMinutes;
+    tiers.push({key:'pace-'+totalLecturesPerDay,label:totalLecturesPerDay+' total/day',combinedPace:totalLecturesPerDay,lecturesPerDay:totalLecturesPerDay,estDays,finishDate,dailyMinutes});
+  }
+  return tiers;
 }
 function planStartDate(){
   const real = todayISO();
-  return (state.startDate && state.startDate>real) ? state.startDate : real;
+  const selected = normalizeISODate(state.startDate,real);
+  return selected>real ? selected : real;
 }
 function nextScheduledDate(dateIso){
   let d = dateIso, guard=0;
@@ -403,14 +813,14 @@ function buildSubjectQueue(sid){
   const tasks=[];
   remainingChapters(sid).forEach(chName=>{
     const cfg=state.chapters[sid][chName];
-    const chObj=subj(sid).chapters.find(c=>c.name===chName);
     if(cfg.mode==='oneshot'){
       const key = itemKey(sid,chName,'oneshot');
-      if(!state.completedItems[key]) tasks.push({type:'oneshot',subject:sid,chapter:chName,link:cfg.oneshotLink||'',id:key});
+       if(!state.completedItems[key]) tasks.push({type:'oneshot',subject:sid,chapter:chName,link:cfg.oneshotLink||'',hours:cfg.oneshotHours||0,id:key});
     } else {
-      for(let i=1;i<=chObj.lectures;i++){
+      const lecCount = getLectureCount(sid,chName);
+      for(let i=1;i<=lecCount;i++){
         const key = itemKey(sid,chName,i);
-        if(!state.completedItems[key]) tasks.push({type:'lecture',subject:sid,chapter:chName,lectureNum:i,totalLectures:chObj.lectures,id:key});
+        if(!state.completedItems[key]) tasks.push({type:'lecture',subject:sid,chapter:chName,lectureNum:i,totalLectures:lecCount,id:key});
       }
     }
   });
@@ -423,43 +833,229 @@ function generatePlan(){
   let rotation=[...active];
   const plan=[];
   let dateCursor = nextScheduledDate(planStartDate());
-  const N = state.subjectsPerDay;
+  const N = Math.max(1, state.subjectsPerDay);
   const pace = state.lecturesPerDay;
   let guard=0;
   while(rotation.length>0 && guard<8000){
     guard++;
+    rotation = rotation.filter(sid=>queues[sid] && queues[sid].length>0);
+    if(rotation.length===0) break;
     const picks=[];
     while(picks.length<N && rotation.length>0){ picks.push(rotation.shift()); }
     let oneshotPick=null;
     for(const sid of picks){ if(queues[sid][0] && queues[sid][0].type==='oneshot'){ oneshotPick=sid; break; } }
     const dayItems=[];
     if(oneshotPick){
+      // A one-shot is always exactly one study day. Its configured hours are
+      // informational only: never bulk it with lectures or let it consume a
+      // fraction of a day.
       const t=queues[oneshotPick].shift();
       dayItems.push(Object.assign({},t,{done:!!state.completedItems[t.id]}));
+      // Give the user a revision window on the same one-shot day. It does not
+      // turn the one-shot into a second day; it fills the otherwise-unused
+      // part of that day and starts with completed chapters as suggestions.
+      const revisionId = 'revision-window::'+t.id;
+      const selectedRevision = state.revisionSelections[revisionId] || {};
+      if(!state.completedItems[revisionId]){
+        dayItems.push({
+          type:'revision', subject:selectedRevision.subject||'', chapter:selectedRevision.chapter||'',
+          id:revisionId, done:false, manual:false, revisionFor:t.id
+        });
+      }
       const others = picks.filter(p=>p!==oneshotPick);
       rotation = others.concat(rotation);
       if(queues[oneshotPick].length>0) rotation.push(oneshotPick);
     } else {
-      for(const sid of picks){
-        const chunk = queues[sid].splice(0,pace);
-        chunk.forEach(t=>dayItems.push(Object.assign({},t,{done:!!state.completedItems[t.id]})));
-        if(queues[sid].length>0) rotation.push(sid);
+      /*
+       * Keep m total lecture slots per day, distributed across n subjects.
+       *
+       * Every selected subject gets one slot first. Any remaining slots go
+       * one-by-one to the selected subjects with the most lectures left.
+       * This gives 4/3 -> 2,1,1 and 5/3 -> 2,2,1 (subject ranking decides
+       * which subjects receive the extra slots).
+       */
+      const totalSlots = Math.max(1,pace);
+      const selected = picks.slice(0,totalSlots);
+      const allocation = {};
+      let slotsLeft = totalSlots;
+      const lectureCapacity = sid=>{
+        const queue = queues[sid];
+        if(!queue || queue.length===0) return 0;
+        const oneShotAt = queue.findIndex(t=>t.type==='oneshot');
+        return oneShotAt===-1 ? queue.length : oneShotAt;
+      };
+      // Give each selected subject one lecture before distributing extras.
+      selected.forEach(sid=>{
+        if(slotsLeft>0 && lectureCapacity(sid)>0){
+          allocation[sid] = 1;
+          slotsLeft--;
+        }
+      });
+      // Extras are assigned by remaining lecture volume, highest first.
+      let extraIndex = 0;
+      while(slotsLeft>0){
+        const ranked = selected
+          .filter(sid=>lectureCapacity(sid)>(allocation[sid]||0))
+          .sort((a,b)=>lectureCapacity(b)-lectureCapacity(a));
+        if(ranked.length===0) break;
+        const sid = ranked[extraIndex % ranked.length];
+        allocation[sid] = (allocation[sid]||0)+1;
+        slotsLeft--;
+        extraIndex++;
       }
+      // Consume each subject's allocated chunk, stopping before a one-shot.
+      selected.forEach(sid=>{
+        const queue = queues[sid];
+        const take = Math.min(allocation[sid]||0, lectureCapacity(sid));
+        for(let i=0;i<take;i++){
+          const t = queue.shift();
+          dayItems.push(Object.assign({},t,{done:!!state.completedItems[t.id]}));
+        }
+      });
+      // Subjects not selected stay at the front; selected subjects rotate to
+      // the back while still retaining their remaining queue.
+      rotation = rotation.filter(sid=>queues[sid] && queues[sid].length>0);
+      selected.forEach(sid=>{
+        if(queues[sid] && queues[sid].length>0) rotation.push(sid);
+      });
     }
     if(dayItems.length>0){
       plan.push({date:dateCursor, items:dayItems});
       dateCursor = nextScheduledDate(addDays(dateCursor,1));
     }
   }
+  applyManualSchedules(plan);
   state.plan = plan;
   state.planGenerated = true;
+  state.planVersion = PLAN_VERSION;
   saveState();
+}
+
+/* Re-pack the affected portion of the plan after an explicit move. This
+   creates a stable ripple:
+   - a lecture day never exceeds the configured total lecture slots;
+   - inserting a lecture into a full day pushes one lecture forward;
+   - inserting a one-shot starts a one-shot day and pushes the whole lecture
+     window (or the previous one-shot) into the next available window. */
+function reflowAfterManualMove(plan,itemId,targetDate){
+  const currentDay=plan.find(d=>d.items.some(i=>i.id===itemId));
+  if(!currentDay || !targetDate) return;
+  const startDate=currentDay.date<targetDate ? currentDay.date : targetDate;
+  const sourceDays=plan.filter(d=>d.date>=startDate);
+  const bundles=[], miscByDate={};
+  sourceDays.forEach(day=>{
+    miscByDate[day.date]=[];
+    day.items.forEach(it=>{
+      if(it.type==='lecture'){
+        bundles.push({primary:it,extras:[],oldDate:day.date});
+      }else if(it.type==='oneshot'){
+        const extras=day.items.filter(x=>x.type==='revision' && x.revisionFor===it.id);
+        bundles.push({primary:it,extras,oldDate:day.date});
+      }else if(!(it.type==='revision' && it.revisionFor)){
+        miscByDate[day.date].push(it);
+      }
+    });
+  });
+  const selectedIndex=bundles.findIndex(b=>b.primary.id===itemId);
+  if(selectedIndex===-1) return;
+  const selected=bundles.splice(selectedIndex,1)[0];
+  const insertAt=bundles.findIndex(b=>b.oldDate>=targetDate);
+  bundles.splice(insertAt===-1 ? bundles.length : insertAt,0,selected);
+
+  const coreByDate={};
+  const addCore=(date,bundle)=>{
+    if(!coreByDate[date]) coreByDate[date]=[];
+    coreByDate[date].push(bundle.primary,...bundle.extras);
+  };
+  let cursor=nextScheduledDate(startDate), lectureCount=0;
+  const dailyLectureLimit = Math.max(1,state.lecturesPerDay);
+  bundles.forEach(bundle=>{
+    if(bundle.primary.type==='oneshot'){
+      if(lectureCount>0){ cursor=nextScheduledDate(addDays(cursor,1)); lectureCount=0; }
+      addCore(cursor,bundle);
+      cursor=nextScheduledDate(addDays(cursor,1));
+    }else{
+      if(lectureCount>=dailyLectureLimit){
+        cursor=nextScheduledDate(addDays(cursor,1)); lectureCount=0;
+      }
+      addCore(cursor,bundle);
+      lectureCount++;
+      if(lectureCount>=dailyLectureLimit){
+        cursor=nextScheduledDate(addDays(cursor,1)); lectureCount=0;
+      }
+    }
+  });
+
+  const oldDates=new Set(sourceDays.map(d=>d.date));
+  const rebuiltDates=new Set([...oldDates,...Object.keys(coreByDate)]);
+  const rebuilt=[...rebuiltDates].sort().map(date=>({
+    date,
+    items:[...(coreByDate[date]||[]),...(miscByDate[date]||[])]
+  })).filter(d=>d.items.length>0);
+  const before=plan.filter(d=>d.date<startDate);
+  plan.splice(0,plan.length,...before,...rebuilt);
+  plan.sort((a,b)=>a.date.localeCompare(b.date));
+}
+
+function applyManualSchedules(plan){
+  Object.entries(state.manualSchedule||{}).forEach(([id,targetDate])=>{
+    // Revision windows travel with their one-shot bundle and are not moved
+    // independently.
+    if(!targetDate || id.indexOf('revision-window::')===0) return;
+    reflowAfterManualMove(plan,id,targetDate);
+  });
 }
 
 function ensurePlanFresh(){
   if(!state.planGenerated || state.plan.length===0) return;
+  if(state.planVersion!==PLAN_VERSION){ generatePlan(); return; }
   const last = state.plan[state.plan.length-1].date;
   if(last < todayISO()) generatePlan();
+}
+
+/* ---------------- MANUAL REVISION ---------------- */
+/* The day a manually-added revision task should land on: today's day if the
+   plan has one, otherwise the next upcoming scheduled day — same day the
+   "Today" tab itself falls back to. */
+function findTargetPlanDay(){
+  if(!state.planGenerated || state.plan.length===0) return null;
+  const real = todayISO();
+  const day = state.plan.find(d=>d.date===real);
+  if(day) return day;
+  const future = state.plan.filter(d=>d.date>=real);
+  return future.length>0 ? future[0] : null;
+}
+function allChapterOptionsGrouped(){
+  let html='';
+  SUBJECTS.forEach(s=>{
+    html += `<optgroup label="${s.name}">`;
+    state.chapterOrder[s.id].forEach(ch=>{ html += `<option value="${s.id}::${escAttr(ch)}">${ch}</option>`; });
+    html += `</optgroup>`;
+  });
+  return html;
+}
+function addManualRevision(sid, chName){
+  const day = findTargetPlanDay();
+  if(!day) return false;
+  const id = 'manual-rev-'+Date.now()+'-'+Math.floor(Math.random()*1000);
+  day.items.push({type:'revision', subject:sid, chapter:chName, id, done:false, manual:true});
+  saveState();
+  return true;
+}
+function removeRevisionItem(dateIso, id){
+  const day = state.plan.find(d=>d.date===dateIso);
+  if(!day) return;
+  const idx = day.items.findIndex(i=>i.id===id);
+  if(idx===-1) return;
+  if(day.items[idx].done){
+    delete state.completedItems[id];
+    for(let i=state.completionLog.length-1;i>=0;i--){
+      if(state.completionLog[i].id===id && state.completionLog[i].date===todayISO()){ state.completionLog.splice(i,1); break; }
+    }
+    if(state.questionsByItem[id]){ addQuestions(dateIso, -state.questionsByItem[id]); delete state.questionsByItem[id]; }
+  }
+  day.items.splice(idx,1);
+  saveState();
 }
 
 /* ---------------- SKIP DAY ---------------- */
@@ -471,13 +1067,143 @@ function skipToday(reason){
 }
 
 /* ---------------- EXPORT / IMPORT ---------------- */
-function exportData(){
-  const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
+function downloadJson(data,filename){
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href=url; a.download = 'prayas-planner-backup-'+todayISO()+'.json';
+  a.href=url; a.download=filename;
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+function exportData(){
+  downloadJson(state,'prayas-planner-backup-'+todayISO()+'.json');
+}
+function buildSyllabusExport(){
+  return {
+    format:'prayas-syllabus',
+    version:1,
+    exportedOn:todayISO(),
+    subjects:SUBJECTS.map(s=>({
+      id:s.id,
+      name:s.name,
+      faculty:s.faculty,
+      link:s.link,
+      chapters:state.chapterOrder[s.id].map(name=>{
+        const cfg=state.chapters[s.id][name]||{};
+        return {
+          name,
+          lectures:getLectureCount(s.id,name),
+          mode:cfg.mode==='oneshot' ? 'oneshot' : 'regular',
+          oneshotLink:cfg.oneshotLink||''
+        };
+      })
+    }))
+  };
+}
+function exportSyllabus(){
+  const syllabus = buildSyllabusExport();
+  downloadJson(syllabus,'prayas-syllabus-'+todayISO()+'.json');
+}
+function syllabusSubjectsFromFile(parsed){
+  if(parsed && parsed.format==='prayas-syllabus' && Array.isArray(parsed.subjects)){
+    return parsed.subjects;
+  }
+  if(parsed && parsed.syllabus && Array.isArray(parsed.syllabus.subjects)){
+    return parsed.syllabus.subjects;
+  }
+  if(Array.isArray(parsed)){
+    return parsed;
+  }
+  // Also accept a full planner backup and extract only its syllabus fields.
+  // This makes the two export/import paths interoperable if the wrong export
+  // button is used.
+  if(parsed && parsed.chapters && parsed.chapterOrder){
+    return SUBJECTS.map(s=>({
+      id:s.id,
+      name:s.name,
+      faculty:s.faculty,
+      link:s.link,
+      chapters:(parsed.chapterOrder[s.id]||[]).map(name=>({
+        name,
+        lectures:parsed.lectureOverrides &&
+          parsed.lectureOverrides[s.id] &&
+          parsed.lectureOverrides[s.id][name]
+          ? parsed.lectureOverrides[s.id][name]
+          : (s.chapters.find(c=>c.name===name)||{}).lectures||1,
+        mode:parsed.chapters[s.id] && parsed.chapters[s.id][name] &&
+          parsed.chapters[s.id][name].mode==='oneshot' ? 'oneshot' : 'regular',
+        oneshotLink:parsed.chapters[s.id] && parsed.chapters[s.id][name]
+          ? parsed.chapters[s.id][name].oneshotLink||'' : ''
+      }))
+    }));
+  }
+  return null;
+}
+function importSyllabusData(file){
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    try{
+      const parsed = JSON.parse(e.target.result);
+      const subjects = syllabusSubjectsFromFile(parsed);
+      if(!Array.isArray(subjects)){
+        alert("This doesn't look like a valid syllabus export.");
+        return;
+      }
+      const knownSubjects = new Map(SUBJECTS.map(s=>[s.id,s]));
+      const imported = subjects.filter(s=>s && knownSubjects.has(s.id));
+      const unknown = subjects.filter(s=>!s || !knownSubjects.has(s.id));
+      if(unknown.length>0 || imported.length===0){
+        alert('This syllabus was not exported from a compatible Prayas Planner.');
+        return;
+      }
+      for(const importedSubject of imported){
+        const baseSubject = knownSubjects.get(importedSubject.id);
+        if(!Array.isArray(importedSubject.chapters) || importedSubject.chapters.length===0){
+          alert(`No chapters found for ${baseSubject.name}.`);
+          return;
+        }
+        const knownChapters = new Set(baseSubject.chapters.map(c=>c.name));
+        const names = importedSubject.chapters.map(ch=>String(ch && ch.name || '').trim());
+        if(names.some(name=>!name || !knownChapters.has(name)) || new Set(names).size!==names.length){
+          alert(`The syllabus contains an unknown or duplicate chapter in ${baseSubject.name}.`);
+          return;
+        }
+      }
+      imported.forEach(importedSubject=>{
+        const sid = importedSubject.id;
+        const previous = state.chapters[sid] || {};
+        const nextChapters = {};
+        const nextOverrides = {};
+        importedSubject.chapters.forEach(ch=>{
+          const name = String(ch.name).trim();
+          const old = previous[name] || {};
+          nextChapters[name] = {
+            // Syllabus imports do not erase completion already recorded here.
+            done:!!old.done,
+            mode:ch.mode==='oneshot' ? 'oneshot' : 'regular',
+            oneshotLink:String(ch.oneshotLink||'').trim()
+          };
+          nextOverrides[name] = Math.max(1,parseInt(ch.lectures)||1);
+        });
+        state.chapterOrder[sid] = importedSubject.chapters.map(ch=>String(ch.name).trim());
+        state.chapters[sid] = nextChapters;
+        state.lectureOverrides[sid] = nextOverrides;
+      });
+      // The syllabus structure changed, so rebuild the generated schedule.
+      // Progress, question logs, and completion history remain untouched.
+      state.manualSchedule = {};
+      state.revisionSelections = {};
+      state.plan = [];
+      state.planGenerated = false;
+      if(state.setupDone) generatePlan();
+      else saveState();
+      render();
+      alert(`Syllabus imported for ${imported.length} subject${imported.length!==1?'s':''}. Existing progress was kept.`);
+    }catch(err){
+      alert('Could not read this syllabus — make sure it is a valid JSON export.');
+    }
+  };
+  reader.readAsText(file);
 }
 function importData(file){
   const reader = new FileReader();
@@ -511,7 +1237,107 @@ function render(){
     else if(state.view==='settings') html += renderSettings();
   }
   app.innerHTML = html;
+  const sidebarEl = document.getElementById('sidebar');
+  if(sidebarEl) sidebarEl.innerHTML = state.setupDone ? renderSidebar() : '';
   attachHandlers();
+}
+
+/* ---- LEFT SIDEBAR: tabbed (Questions / Revision) + quick stats ---- */
+function renderSidebar(){
+  const tab = state.sidebarTab || 'questions';
+  return `
+    <div class="toggle-group">
+      <button data-act="sbtab" data-tab="questions" class="${tab==='questions'?'active':''}">Questions</button>
+      <button data-act="sbtab" data-tab="revision" class="${tab==='revision'?'active':''}">Revision</button>
+    </div>
+    <div style="margin-top:16px">
+      ${tab==='revision' ? renderSidebarRevision() : renderSidebarQuestions()}
+    </div>
+    ${renderSidebarStats()}
+  `;
+}
+
+function renderSidebarQuestions(){
+  const today = todayISO();
+  const baseGoal = dayQuestionGoal(today);
+  const practiceTotal = questionPracticeTotal(today);
+  const goal = questionTarget(today);
+  const done = dayQuestionsDone(today);
+  const pct = Math.min(100, Math.round(done/Math.max(1,goal)*100));
+  const over = done>goal;
+  return `
+    <h3>Daily Questions</h3>
+    <p class="sub">Track how many questions you solve each day.</p>
+    <label class="field" style="margin-bottom:8px">
+       <span class="lbl">Today's base goal</span>
+       <input type="number" min="1" class="qgoal-input" id="sb-goalinput" value="${baseGoal}">
+    </label>
+    ${practiceTotal ? `<div class="sub" style="margin:-2px 0 8px">Includes ${practiceTotal} chapter-practice questions (base goal ${baseGoal}).</div>` : ''}
+    <div class="qbtnrow">
+      <button class="btn ghost sm" id="sb-settoday">Set for today only</button>
+      <button class="btn sm" id="sb-setpermanent">Set as permanent default</button>
+    </div>
+    <div class="qprogress">
+      <div class="qnum">${done} <span>/ ${goal}</span></div>
+      <div class="progress-outer"><div class="progress-inner" style="width:${pct}%"></div></div>
+      ${over ? `<div style="color:var(--good);font-weight:700;font-size:12px;margin-top:6px">Goal beaten</div>` : `<div class="sub" style="margin:6px 0 0">${Math.max(0,goal-done)} left today</div>`}
+    </div>
+    <button class="btn ghost sm" id="sb-quickadd" style="width:100%">Log questions</button>
+  `;
+}
+
+function renderSidebarRevision(){
+  const day = findTargetPlanDay();
+  const isToday = day && day.date===todayISO();
+  const revItems = day ? day.items.filter(i=>i.type==='revision' && i.chapter) : [];
+  let html = `
+    <h3>Add a Revision</h3>
+    <p class="sub">Done chapters are suggested first. You can drop one into ${day ? (isToday?"today's plan":'your next scheduled day') : 'your plan'} as a revision task.</p>`;
+  if(!day){
+    html += `<div class="note">No plan yet — generate one in Settings first.</div>`;
+    return html;
+  }
+  html += `
+    <label class="field" style="margin-bottom:10px">
+      <span class="lbl">Chapter</span>
+      <select id="sb-revisionchapter">
+        <option value="">Choose chapter…</option>
+        ${allChapterOptionsGrouped()}
+      </select>
+    </label>
+    <button class="btn sm" id="sb-addrevision" style="width:100%">Add to ${isToday?'today':'plan'}</button>
+  `;
+  html += `<div class="section-title" style="margin-top:18px">${isToday?'Today':fmtDate(day.date)}'s revisions</div>`;
+  if(revItems.length>0){
+    html += revItems.map(it=>`
+      <div class="taskrow" style="padding:8px 0">
+        <div class="txt" style="font-size:12.5px;font-weight:450">${it.chapter}${it.done?' <span class="pill on" style="padding:2px 7px">done</span>':''}<div class="sub">${subj(it.subject).name}</div></div>
+        <button class="iconbtn" style="width:24px;height:24px;font-size:11px;flex-shrink:0" data-act="removerevision" data-day="${day.date}" data-id="${escAttr(it.id)}" title="Remove">&times;</button>
+      </div>`).join('');
+  } else {
+    html += `<div class="note" style="margin-top:2px">None added yet.</div>`;
+  }
+  return html;
+}
+
+function renderSidebarStats(){
+  const {total,done} = syllabusTotals();
+  const pct = total ? Math.round(done/total*100) : 0;
+  const streak = computeStreak();
+   const goal = questionTarget(todayISO());
+  const qdone = dayQuestionsDone(todayISO());
+  return `
+    <hr class="sep" style="margin:20px 0 14px">
+    <div class="section-title" style="margin:0 0 8px">Quick stats</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <div class="stat"><b>${pct}%</b><span>Syllabus done</span></div>
+      <div class="stat"><b>${streak}</b><span>Day streak</span></div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+      <div class="stat"><b>${done}</b><span>Lectures &amp; one-shots done</span></div>
+      <div class="stat"><b>${qdone}/${goal}</b><span>Questions today</span></div>
+    </div>
+  `;
 }
 
 function renderHeader(){
@@ -522,8 +1348,8 @@ function renderHeader(){
       <div><h1>Prayas Catch-Up Planner</h1><span>Physics &middot; Maths &middot; Chemistry</span></div>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
-      ${streak>0?`<span class="pill on" title="Current streak">🔥 ${streak}</span>`:''}
-      <button class="iconbtn" id="themeBtn" title="Toggle theme">${state.theme==='dark'?'☀️':'🌙'}</button>
+      ${streak>0?`<span class="pill on" title="Current streak">${streak}-day streak</span>`:''}
+      <button class="iconbtn" id="themeBtn" title="Toggle theme">${state.theme==='dark'?'&#9728;':'&#9789;'}</button>
     </div>
   </header>`;
 }
@@ -537,28 +1363,45 @@ function renderTabs(){
   </nav>`;
 }
 
-/* ---- SHARED CHAPTER ROWS ---- */
+/* ---- SHARED CHAPTER CARDS ---- */
 function renderChapterRows(sid){
-  const s = subj(sid);
   const order = state.chapterOrder[sid];
   let rows='';
   order.forEach((chName,i)=>{
     const cfg = state.chapters[sid][chName];
     const prog = chapterProgress(sid,chName);
-    rows += `<div class="chapter-row ${cfg.done?'done':''}">
-      <input type="checkbox" data-act="donetoggle" data-sub="${sid}" data-ch="${escAttr(chName)}" ${cfg.done?'checked':''}>
-      <div class="name">${chName}</div>
-      <div class="lectures">${prog.done}/${prog.total} lec</div>
-      ${!cfg.done ? `
-        <select data-act="modeselect" data-sub="${sid}" data-ch="${escAttr(chName)}" style="width:110px">
-          <option value="regular" ${cfg.mode==='regular'?'selected':''}>Regular</option>
-          <option value="oneshot" ${cfg.mode==='oneshot'?'selected':''}>One Shot</option>
-        </select>
-        ${cfg.mode==='oneshot' ? `<input class="link-input" type="text" placeholder="One-shot link" data-act="oneshotlink" data-sub="${sid}" data-ch="${escAttr(chName)}" value="${escAttr(cfg.oneshotLink||'')}">` : ''}
-        <div class="mini-order">
+    rows += `<div class="chapter-card ${cfg.done?'done':''}">
+      <div class="chapter-card-top">
+        <button type="button" class="check-circle ${cfg.done?'checked':''}" data-act="donetoggle" data-sub="${sid}" data-ch="${escAttr(chName)}" title="Mark chapter done">${cfg.done?'&#10003;':''}</button>
+        <div class="chapter-card-name">${chName}</div>
+        <div class="chapter-card-progress">${prog.done}/${prog.total} lec</div>
+        ${!cfg.done ? `<div class="mini-order">
           <button data-act="moveup" data-sub="${sid}" data-idx="${i}" ${i===0?'disabled':''}>▲</button>
           <button data-act="movedown" data-sub="${sid}" data-idx="${i}" ${i===order.length-1?'disabled':''}>▼</button>
         </div>` : ''}
+      </div>
+      ${!cfg.done ? `
+      <div class="chapter-card-controls">
+        <div class="seg-toggle">
+          <button type="button" data-act="modeselect" data-sub="${sid}" data-ch="${escAttr(chName)}" data-value="regular" class="${cfg.mode==='regular'?'active':''}">Regular</button>
+          <button type="button" data-act="modeselect" data-sub="${sid}" data-ch="${escAttr(chName)}" data-value="oneshot" class="${cfg.mode==='oneshot'?'active':''}">One Shot</button>
+        </div>
+        ${cfg.mode==='regular' ? `
+        <div class="field-mini">
+          <span class="small-lbl">Lectures</span>
+          <div class="stepper">
+            <button type="button" data-act="leccountstep" data-sub="${sid}" data-ch="${escAttr(chName)}" data-dir="-1">&minus;</button>
+            <input type="number" min="1" data-act="leccount" data-sub="${sid}" data-ch="${escAttr(chName)}" value="${getLectureCount(sid,chName)}">
+            <button type="button" data-act="leccountstep" data-sub="${sid}" data-ch="${escAttr(chName)}" data-dir="1">+</button>
+          </div>
+        </div>` : ''}
+        ${cfg.mode==='oneshot' ? `
+        <div class="field-mini">
+          <span class="small-lbl">One-shot link</span>
+          <input class="link-input" type="text" placeholder="Paste link" data-act="oneshotlink" data-sub="${sid}" data-ch="${escAttr(chName)}" value="${escAttr(cfg.oneshotLink||'')}">
+        </div>
+        <span class="oneshot-day-note">Always 1 full day</span>` : ''}
+      </div>` : ''}
     </div>`;
   });
   return `<div>${rows}</div>`;
@@ -582,16 +1425,16 @@ function renderWizard(){
 function wizardStep0(){
   return `
   <h2>Let's set your baseline</h2>
-  <p class="sub">Tell us your plan's start date and how many days you want to give yourself to finish the whole syllabus.</p>
+  <p class="sub">Choose when your plan should begin. The planner will calculate the completion time from your daily pace.</p>
+  <div class="note" style="margin:0 0 16px">Already have a syllabus export? Import it now and the chapter setup will be filled for you.</div>
+  <button class="btn ghost sm" id="w-importsyllabusbtn" type="button">Import syllabus file</button>
+  <input type="file" id="w-importsyllabusfile" accept=".json,application/json" style="display:none">
   <div class="row">
     <label class="field"><span class="lbl">Plan start date</span>
       <input type="date" id="w-start" value="${state.startDate}">
     </label>
-    <label class="field"><span class="lbl">Days to complete full syllabus</span>
-      <input type="number" min="1" id="w-target" value="${state.targetDays}">
-    </label>
   </div>
-  <div class="btnrow"><span></span><button class="btn" id="w-next0">Next →</button></div>`;
+  <div class="btnrow"><span></span><button class="btn" id="w-next0">Continue</button></div>`;
 }
 
 function wizardChapterStep(idx){
@@ -602,16 +1445,17 @@ function wizardChapterStep(idx){
   ${renderChapterRows(s.id)}
   <div class="btnrow">
     <button class="btn ghost" id="w-back">← Back</button>
-    <button class="btn" id="w-nextsub">Next →</button>
+    <button class="btn" id="w-nextsub">Continue</button>
   </div>`;
 }
 
 function renderPaceTierCards(tiers, actPrefix){
   return tiers.map(t=>`
     <div class="pacecard ${state.paceChoice===t.key && state.lecturesPerDay===t.lecturesPerDay?'selected':''}" data-act="${actPrefix}" data-tier="${t.key}" data-lecperday="${t.lecturesPerDay}">
-      <div class="pacecard-head"><b>${t.label}</b>${t.key==='intensive'?'<span class="pill one">Fastest</span>':''}</div>
+      <div class="pacecard-head"><b>${t.label}</b></div>
       <div class="pacecard-body">
-        <div>${t.lecturesPerDay} lecture${t.lecturesPerDay>1?'s':''}/day per subject</div>
+        <div>${t.lecturesPerDay} total lecture slot${t.lecturesPerDay>1?'s':''}/day</div>
+        <div>${state.subjectsPerDay} subject${state.subjectsPerDay>1?'s':''}/day</div>
         <div>~${fmtMinutes(t.dailyMinutes)}/day study time</div>
         <div>Finish by ${fmtDate(t.finishDate)} (${t.estDays}d)</div>
       </div>
@@ -619,68 +1463,91 @@ function renderPaceTierCards(tiers, actPrefix){
 }
 
 function wizardPaceStep(){
-  const tiers = computePaceTiers();
+  const totalLecturesPerDay=Math.max(1,state.lecturesPerDay);
   return `
-  <h2>Choose your pace</h2>
-  <p class="sub">Based on ${remainingTotalLectures()} remaining lectures and your ${state.targetDays}-day goal, here's what different paces look like — pick one below. None of these will push you past your ${state.targetDays}-day deadline.</p>
+  <h2>Set your daily pace</h2>
+  <p class="sub">Choose <b>m</b> total lectures per day and <b>n</b> subjects per day. The planner gives one lecture to each selected subject first, then assigns the remaining slots to the subjects with the most lectures left.</p>
   <div class="row">
-    <label class="field"><span class="lbl">Subjects tackled per day</span>
-      <select id="w-subjday" data-act="wliveupdate">
-        <option value="2" ${state.subjectsPerDay===2?'selected':''}>2 subjects/day</option>
-        <option value="3" ${state.subjectsPerDay===3?'selected':''}>3 subjects/day</option>
-      </select>
+    <label class="field"><span class="lbl">m — Total lectures per day</span>
+      <input type="number" min="1" max="20" id="w-pace" value="${totalLecturesPerDay}" data-act="wliveupdate">
+    </label>
+    <label class="field"><span class="lbl">n — Subjects per day</span>
+      <input type="number" min="1" max="5" id="w-subjday" value="${state.subjectsPerDay}" data-act="wliveupdate">
     </label>
     <label class="field"><span class="lbl">Avg. minutes per lecture</span>
       <input type="number" min="5" id="w-avgmin" value="${state.avgLectureMinutes}" data-act="wliveupdate">
     </label>
   </div>
-  <div class="pacegrid">${renderPaceTierCards(tiers,'wpicktier')}</div>
-  ${!state.paceChoice ? `<div class="note">Tap a pace option above to continue.</div>`:''}
+  <div class="row" style="margin-top:4px">
+    <div class="stat"><b>${totalLecturesPerDay}</b><span>Total lectures/day</span></div>
+    <div class="stat"><b>${state.subjectsPerDay}</b><span>Subjects/day</span></div>
+  </div>
   <div class="btnrow">
     <button class="btn ghost" id="w-back">← Back</button>
-    <button class="btn" id="w-nextpace" ${!state.paceChoice?'disabled':''}>Next →</button>
+    <button class="btn" id="w-nextpace">Continue</button>
   </div>`;
 }
 
 function wizardReviewStep(){
   const totalLec = remainingTotalLectures();
   const totalOne = remainingTotalOneshots();
-  const combined = state.lecturesPerDay*state.subjectsPerDay;
-  const estDays = totalLec>0 ? Math.ceil(totalLec/combined)+totalOne : totalOne;
+  const totalLecturesPerDay = Math.max(1,state.lecturesPerDay);
+  const estDays = totalLec>0 ? Math.ceil(totalLec/totalLecturesPerDay)+totalOne : totalOne;
   const finishDate = addDays(planStartDate(), Math.max(0,estDays-1));
-  const dailyMinutes = combined*state.avgLectureMinutes;
+  const dailyMinutes = totalLecturesPerDay*state.avgLectureMinutes;
   return `
   <h2>Review &amp; generate</h2>
   <div class="row" style="margin-bottom:10px">
     <div class="stat"><b>${totalLec}</b><span>Remaining lectures</span></div>
     <div class="stat"><b>${totalOne}</b><span>One-shot chapters</span></div>
     <div class="stat"><b>${fmtMinutes(dailyMinutes)}</b><span>Daily study time at this pace</span></div>
-    <div class="stat"><b>${fmtDate(finishDate)}</b><span>Projected completion (~${estDays}d)</span></div>
+    <div class="stat"><b>${estDays}d</b><span>Days to complete at this pace</span></div>
   </div>
-  <div class="note">Pace: ${state.lecturesPerDay} lecture(s)/day per subject × ${state.subjectsPerDay} subjects = ${combined}/day combined. You can change this anytime in Settings.</div>
+  <div class="note">If you start on ${fmtDate(planStartDate())}, your projected finish date is <b>${fmtDate(finishDate)}</b>.</div>
+  <div class="note">Pace: ${totalLecturesPerDay} total lecture(s)/day across ${state.subjectsPerDay} subject(s). Each selected subject gets one first; remaining slots go to subjects with the most lectures left.</div>
   <div class="btnrow">
     <button class="btn ghost" id="w-back">← Back</button>
-    <button class="btn" id="w-generate">Generate My Plan ✓</button>
+    <button class="btn" id="w-generate">Generate My Plan</button>
   </div>`;
 }
 
 /* ---- TODAY VIEW ---- */
-function renderQuoteBar(){ return `<div class="quotebar">💬 ${todaysQuote()}</div>`; }
+function renderQuoteBar(){ return `<div class="quotebar">${todaysQuote()}</div>`; }
 
 function renderPlanSummaryStrip(){
   const streak = computeStreak();
-  const finishDate = state.plan.length ? state.plan[state.plan.length-1].date : planStartDate();
+  const finishDate = estimatedFinishDate();
+  const days = estimateDaysAtPace();
   return `<div class="card">
     <div class="row">
-      <div class="stat"><b>🔥 ${streak}</b><span>Day streak</span></div>
+      <div class="stat"><b>${streak}</b><span>Day streak</span></div>
+      <div class="stat"><b>${days}d</b><span>Days at this pace</span></div>
       <div class="stat"><b>${fmtDate(finishDate)}</b><span>Projected completion</span></div>
-      <div class="stat"><b>${state.targetDays}d</b><span>Your original goal</span></div>
+    </div>
+  </div>`;
+}
+
+/* ---- Quick progress strip: Lectures / Questions / DPPs / Revisions / Study days ---- */
+function renderQuickStatsStrip(){
+  const lectures = statsLecturesDoneCount();
+  const questions = statsQuestionsTotal();
+  const dpps = statsDppDoneCount();
+  const revisions = statsRevisionsDoneCount();
+  const studyDays = statsStudyDaysThisWeek();
+  return `<div class="card">
+    <div class="section-title" style="margin:0 0 10px">In progress</div>
+    <div class="qstrip">
+      <div class="qstat c-blue"><b>${lectures}</b><span>Lectures</span></div>
+      <div class="qstat c-purple"><b>${questions}</b><span>Questions</span></div>
+      <div class="qstat c-good"><b>${dpps}</b><span>DPPs</span></div>
+      <div class="qstat c-teal"><b>${revisions}</b><span>Revisions</span></div>
+      <div class="qstat c-warn"><b>${studyDays}/7</b><span>Study days</span></div>
     </div>
   </div>`;
 }
 
 function renderSkipPrompt(){
-  if(!state.skipPromptOpen) return `<div style="margin-top:10px"><button class="btn ghost sm" id="openSkip">⏭️ Can't study today? Skip &amp; shift plan</button></div>`;
+  if(!state.skipPromptOpen) return `<div style="margin-top:10px"><button class="btn ghost sm" id="openSkip">Can't study today?</button></div>`;
   const opts = SKIP_REASONS.map(r=>`<option value="${escAttr(r)}">${r}</option>`).join('');
   return `<div class="skipbox">
     <label class="field" style="margin-bottom:10px"><span class="lbl">Why are you skipping today?</span>
@@ -702,42 +1569,219 @@ function renderToday(){
   let note='';
   if(!day){
     if(state.plan.length===0){
-      return renderQuoteBar() + `<div class="card"><h2>🎉 Syllabus complete!</h2><p class="sub">You've finished everything currently in your plan. Check <b>Progress</b> for your stats, or add more chapters in Settings.</p></div>` + renderOverallProgress();
+      return renderQuoteBar() + `<div class="card"><h2>Syllabus complete</h2><p class="sub">You've finished everything currently in your plan. Check <b>Progress</b> for your stats, or add more chapters in Settings.</p></div>` + renderOverallProgress();
     }
     const future = state.plan.filter(d=>d.date>=realToday);
     if(future.length>0){
       day = future[0];
       note = day.date!==realToday ? `<div class="note">No tasks land exactly on today. Showing your next scheduled day: ${fmtDate(day.date)}.</div>` : '';
     } else {
-      return renderQuoteBar() + `<div class="card"><h2>🎉 Plan complete!</h2><p class="sub">You've reached the end of your generated plan. Check <b>Progress</b> to review, or adjust pace in Settings.</p></div>` + renderOverallProgress();
+      return renderQuoteBar() + `<div class="card"><h2>Plan complete</h2><p class="sub">You've reached the end of your generated plan. Check <b>Progress</b> to review, or adjust pace in Settings.</p></div>` + renderOverallProgress();
     }
   }
-  const doneCt = day.items.filter(i=>i.done).length;
-  const allDone = day.items.length>0 && doneCt===day.items.length;
-  return renderQuoteBar() + renderPlanSummaryStrip() + `<div class="card">
+  const displayItems = dayDisplayItems(day);
+  const doneCt = displayItems.filter(i=>i.done).length;
+  const allDone = displayItems.length>0 && doneCt===displayItems.length;
+  return renderQuoteBar() + renderQuickStatsStrip() + renderPlanSummaryStrip() + `<div class="card">
     <h2>Today &middot; ${fmtDate(day.date)}</h2>
-    <p class="sub">${day.items.length} task${day.items.length!==1?'s':''} scheduled${allDone?' — all done! 🎉':''}</p>
+    <p class="sub">${displayItems.length} task${displayItems.length!==1?'s':''} scheduled${allDone?' — all done':''}</p>
     ${note}
     ${renderDayItems(day)}
+    ${renderDayQuestionsPanel(day.date, allDone)}
     ${renderSkipPrompt()}
   </div>` + renderOverallProgress();
+}
+
+function questionPracticeChapterOptions(dateIso, currentIndex, entries){
+  const day = state.plan.find(d=>d.date===dateIso);
+  const planned = [], plannedKeys = new Set();
+  (day ? day.items : []).forEach(item=>{
+    if(!item.chapter) return;
+    const key = item.subject+'::'+item.chapter;
+    if(!plannedKeys.has(key)){
+      plannedKeys.add(key);
+      planned.push({sid:item.subject,ch:item.chapter,label:subj(item.subject)?.name||item.subject,planned:true});
+    }
+  });
+  const rest = [];
+  SUBJECTS.forEach(s=>state.chapterOrder[s.id].forEach(ch=>{
+    const key = s.id+'::'+ch;
+    if(!plannedKeys.has(key)) rest.push({sid:s.id,ch,label:s.name,planned:false});
+  }));
+  const options = planned.concat(rest);
+  const used = new Set(entries.map((e,i)=>i===currentIndex?'':(e.subject&&e.chapter?e.subject+'::'+e.chapter:'')));
+  const currentKey = entries[currentIndex].subject && entries[currentIndex].chapter
+    ? entries[currentIndex].subject+'::'+entries[currentIndex].chapter : '';
+  return `<option value="">Choose a chapter…</option>` + options.map(o=>{
+    const key = o.sid+'::'+o.ch;
+    const disabled = used.has(key) && key!==currentKey ? ' disabled' : '';
+    const selected = key===currentKey ? ' selected' : '';
+    return `<option value="${o.sid}::${escAttr(o.ch)}"${selected}${disabled}>${o.planned?'Planned today · ':''}${o.label} — ${o.ch}</option>`;
+  }).join('');
+}
+
+function renderQuestionPracticeWindow(dateIso){
+  const entries = questionPracticeEntries(dateIso);
+  const total = questionPracticeTotal(dateIso);
+  let html = `<div class="question-practice">`;
+  if(entries.length===0){
+    html += `<div class="taskrow">
+      <div class="txt"><b>Chapter practice</b><span class="badge-revision">UP TO 3 CHAPTERS</span><div class="sub">Add chapter-wise questions to this day's task list.</div></div>
+      <button class="btn ghost sm" data-act="addpractice" data-day="${dateIso}">Add chapter practice</button>
+    </div>`;
+  }else{
+    html += entries.map((entry,i)=>`
+      <div class="taskrow">
+        ${entry.subject&&entry.chapter ? `<input type="checkbox" data-act="practicetoggle" data-day="${dateIso}" data-index="${i}" ${entry.done?'checked':''}>` : '<span style="width:21px;flex-shrink:0"></span>'}
+        <div class="txt ${entry.done?'done':''}">${entry.subject&&entry.chapter ? `Practice questions: ${entry.chapter}<span class="badge-revision">QUESTION PRACTICE</span><div class="sub">${entry.questions||0} questions · ${subj(entry.subject)?.name||'Chapter selected'}</div>` : 'Choose a chapter for practice'} </div>
+        <select class="practice-chapter-select" data-act="practicechapter" data-day="${dateIso}" data-index="${i}">${questionPracticeChapterOptions(dateIso,i,entries)}</select>
+        <input class="practice-count-input" type="number" min="1" step="1" value="${entry.questions||''}" placeholder="Q" title="Number of questions" data-act="practicecount" data-day="${dateIso}" data-index="${i}">
+        <button type="button" class="question-practice-remove" data-act="removepractice" data-day="${dateIso}" data-index="${i}" title="Remove chapter">&times;</button>
+      </div>`).join('');
+  }
+  if(entries.length<3){
+    html += `<div style="margin-top:8px"><button class="btn ghost sm" data-act="addpractice" data-day="${dateIso}">+ Add another chapter</button></div>`;
+  }
+  html += `<div class="practice-summary">${total ? `${total} chapter-practice questions are included in the daily question goal.` : 'Chapter-practice questions are added to the daily question goal after you select a chapter and enter a count.'}</div></div>`;
+  return html;
+}
+
+function renderDayQuestionsPanel(dateIso, allTasksDone){
+  const goal = dayQuestionGoal(dateIso);
+  const done = dayQuestionsDone(dateIso);
+  const practiceTotal = questionPracticeTotal(dateIso);
+  const target = questionTarget(dateIso);
+  const left = Math.max(0, target-done);
+  const over = done > target;
+  let html = `<div class="dppbox">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div><b>${done}</b> / ${target} questions done today</div>
+      ${!over ? `<div style="color:var(--muted)">${left} left</div>` : `<div style="color:var(--good);font-weight:700">Goal met</div>`}
+    </div>
+    <div class="progress-outer"><div class="progress-inner" style="width:${Math.min(100,Math.round(done/Math.max(1,target)*100))}%"></div></div>
+    ${practiceTotal ? `<div class="practice-summary">Daily goal ${goal} + ${practiceTotal} chapter-practice questions</div>` : ''}`;
+  if(allTasksDone && left>0){
+    html += `<div class="btnrow" style="margin-top:10px"><span class="sub" style="font-size:12px">All today's tasks are done but you're short of your goal.</span>
+      <button class="btn sm" data-act="logdpp" data-day="${dateIso}">Log DPP / Module questions</button></div>`;
+  } else if(!allTasksDone){
+    html += `<div class="btnrow" style="margin-top:10px"><span></span><button class="btn ghost sm" data-act="logdpp" data-day="${dateIso}">Log extra questions</button></div>`;
+  }
+  if(over){
+    html += `<div class="achieve-banner">Achievement unlocked — you beat today's goal (${done}/${target})</div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+function allChapterOptions(){
+  let done=[], all=[];
+  SUBJECTS.forEach(s=>{
+    state.chapterOrder[s.id].forEach(ch=>{
+      const entry = {sid:s.id, sname:s.name, ch};
+      all.push(entry);
+      const prog = chapterProgress(s.id,ch);
+      if(prog.total>0 && prog.done===prog.total) done.push(entry);
+    });
+  });
+  // Revision windows should suggest fully completed chapters first. If none
+  // exist yet, keep the picker useful by showing every chapter.
+  return done.length>0 ? done : all;
 }
 
 function renderDayItems(day){
   let rows='';
   day.items.forEach(it=>{
+    if(it.type==='revision'){
+      if(!it.chapter){
+        const opts = allChapterOptions().map(o=>`<option value="${o.sid}::${escAttr(o.ch)}">${o.sname} — ${o.ch}</option>`).join('');
+        rows += `<div class="taskrow">
+          <div class="txt">Revision window <span class="badge-revision">SUGGESTED</span><div class="sub">Pick a completed chapter to revise in the time left after your one-shot</div></div>
+          <select data-act="revisionpick" data-day="${day.date}" data-id="${escAttr(it.id)}" style="width:220px">
+            <option value="">Choose a completed chapter…</option>${opts}
+          </select>
+        </div>`;
+        return;
+      }
+      const s = subj(it.subject);
+      rows += `<div class="taskrow">
+        <input type="checkbox" data-act="tasktoggle" data-day="${day.date}" data-id="${escAttr(it.id)}" ${it.done?'checked':''}>
+        <div class="txt ${it.done?'done':''}">Revision: ${it.chapter}<span class="badge-revision">REVISION WINDOW</span><div class="sub">${s?s.name:'Chapter selected'}</div></div>
+        <button class="iconbtn" style="width:28px;height:28px;font-size:12px;flex-shrink:0" data-act="removerevision" data-day="${day.date}" data-id="${escAttr(it.id)}" title="Remove">&times;</button>
+      </div>`;
+      return;
+    }
     const s = subj(it.subject);
-    const link = it.type==='oneshot' ? (it.link||'') : s.link;
+    const savedOneShotLink = it.type==='oneshot' && state.chapters[it.subject] && state.chapters[it.subject][it.chapter]
+      ? state.chapters[it.subject][it.chapter].oneshotLink
+      : '';
+    const link = it.type==='oneshot'
+      ? externalHref(savedOneShotLink || it.link || '')
+      : externalHref(s.link);
     const label = it.type==='oneshot'
       ? `Watch One Shot: ${it.chapter}`
       : `${it.chapter} — Lecture ${it.lectureNum}/${it.totalLectures}`;
     rows += `<div class="taskrow">
       <input type="checkbox" data-act="tasktoggle" data-day="${day.date}" data-id="${escAttr(it.id)}" ${it.done?'checked':''}>
-      <div class="txt ${it.done?'done':''}">${label}${it.type==='oneshot'?'<span class="badge-oneshot">ONE SHOT</span>':''}<div class="sub">${s.name}</div></div>
-      ${link ? `<a class="openbtn" href="${escAttr(link)}" target="_blank" rel="noopener">Open Class ↗</a>` : ''}
+      <div class="txt ${it.done?'done':''}">${label}${it.type==='oneshot'?'<span class="badge-oneshot">ONE SHOT · 1 DAY</span>':''}<div class="sub">${s.name}</div></div>
+      ${it.type==='lecture' ? renderDppWidget(it.id) : ''}
+      ${it.type==='oneshot'
+        ? (link ? `<a class="openbtn" href="${escAttr(link)}" target="_blank" rel="noopener noreferrer">Watch One Shot ↗</a>` : '')
+        : (link ? `<a class="openbtn" href="${escAttr(link)}" target="_blank" rel="noopener">Open Class ↗</a>` : '')}
     </div>`;
   });
-  return `<div>${rows}</div>`;
+  return `<div>${rows}${renderQuestionPracticeWindow(day.date)}</div>`;
+}
+
+/* ---- DPP widget: circular Yes / No / Block per lecture task ---- */
+function renderDppWidget(id){
+  const status = dppStatus(id);
+  return `<div class="dpp-widget" title="DPP for this lecture">
+    <span class="dpp-label">DPP</span>
+    <div class="dpp-toggle">
+      <button type="button" class="yes ${status==='yes'?'on':''}" data-act="dpptoggle" data-id="${escAttr(id)}" data-value="yes" title="DPP done">Y</button>
+      <button type="button" class="no ${status==='no'?'on':''}" data-act="dpptoggle" data-id="${escAttr(id)}" data-value="no" title="DPP not done">N</button>
+      <button type="button" class="block ${status==='block'?'on':''}" data-act="dpptoggle" data-id="${escAttr(id)}" data-value="block" title="No DPP given today">B</button>
+    </div>
+  </div>`;
+}
+
+function schedulablePlanItems(){
+  const out=[];
+  (state.plan||[]).forEach(day=>{
+    day.items.forEach(it=>{
+      if((it.type==='lecture' || it.type==='oneshot') && !it.done) out.push({day,it});
+    });
+  });
+  return out;
+}
+
+function taskScheduleLabel(it){
+  return it.type==='oneshot'
+    ? `One Shot — ${it.chapter}`
+    : `${it.chapter} — Lecture ${it.lectureNum}/${it.totalLectures}`;
+}
+
+function renderRescheduleCard(){
+  const items=schedulablePlanItems();
+  if(items.length===0) return '';
+  const options=items.map(({day,it})=>{
+    const manual=state.manualSchedule && state.manualSchedule[it.id];
+    return `<option value="${escAttr(it.id)}">${taskScheduleLabel(it)} · ${subj(it.subject).name} · ${fmtDate(day.date)}${manual?' · manually placed':''}</option>`;
+  }).join('');
+  return `<div class="card">
+    <h2>Choose what to study next</h2>
+    <p class="sub">Your automatic plan stays unchanged unless you explicitly move a task here. Pick any lecture or one-shot and place it on today, tomorrow, or any date.</p>
+    <div class="reschedule-grid">
+      <label class="field"><span class="lbl">Lecture / one-shot</span>
+        <select id="reschedule-item">${options}</select>
+      </label>
+      <label class="field"><span class="lbl">Study date</span>
+        <input type="date" id="reschedule-date" min="${todayISO()}" value="${items[0].day.date}">
+      </label>
+      <button class="btn" data-act="reschedule">Place in this slot</button>
+    </div>
+    <div class="note" style="margin-top:12px">The plan ripples forward to stay valid: a full lecture day pushes one lecture to the next window; a one-shot takes the day and pushes the full lecture window forward. One-shot revision windows travel with their one-shot.</div>
+  </div>`;
 }
 
 function renderOverallProgress(){
@@ -755,18 +1799,26 @@ function renderFullPlan(){
   if(!state.planGenerated || state.plan.length===0){
     return `<div class="card emptystate"><p>No upcoming plan — either you haven't generated one yet in <b>Settings</b>, or you've completed everything! Check <b>Progress</b> for your stats.</p></div>`;
   }
-  const finishDate = state.plan[state.plan.length-1].date;
-  let html = renderOverallProgress();
-  html += `<div class="note">📅 Projected to finish by <b>${fmtDate(finishDate)}</b> — ${state.plan.length} study day${state.plan.length!==1?'s':''} scheduled.</div><div style="height:6px"></div>`;
+  // Keep this summary tied to the current baseline and pace, rather than a
+  // stale cached plan date while the user is editing settings.
+  const finishDate = estimatedFinishDate();
+  const firstPlanDate = state.plan[0].date;
+  let html = renderRescheduleCard() + renderOverallProgress();
+  html += `<div class="note">Plan starts on <b>${fmtDate(firstPlanDate)}</b> and is projected to finish by <b>${fmtDate(finishDate)}</b> — ${state.plan.length} study day${state.plan.length!==1?'s':''} scheduled at this pace.</div><div style="height:6px"></div>`;
   const realToday = todayISO();
   state.plan.forEach(day=>{
-    const doneCt = day.items.filter(i=>i.done).length;
+    const displayItems = dayDisplayItems(day);
+    const doneCt = displayItems.filter(i=>i.done).length;
     const isOpen = state.openDay===day.date;
     const isToday = day.date===realToday;
+    const isOneShotDay = day.items.some(i=>i.type==='oneshot');
+    const dayMeta = isOneShotDay ? '1 one-shot day' : `${day.items.filter(i=>i.type==='lecture').length} lectures`;
+    const practiceTotal = questionPracticeTotal(day.date);
+    const practiceMeta = practiceTotal ? ` · ${practiceTotal} practice q` : '';
     html += `<div class="daycard ${isToday?'istoday':''}">
       <div class="dayhead" data-act="toggleday" data-day="${day.date}">
         <div><b>${fmtDate(day.date)}</b>${isToday?' <span class="pill on">Today</span>':''}</div>
-        <div class="meta">${doneCt}/${day.items.length} done ${isOpen?'▲':'▼'}</div>
+        <div class="meta">${dayMeta}${practiceMeta} · ${doneCt}/${displayItems.length} done ${isOpen?'▲':'▼'}</div>
       </div>
       ${isOpen ? `<div class="body">${renderDayItems(day)}</div>` : ''}
     </div>`;
@@ -779,11 +1831,12 @@ function renderProgressTab(){
   const {total,done} = syllabusTotals();
   const pct = total? Math.round(done/total*100):0;
   const streak = computeStreak();
-  let html = `<div class="card">
+  let html = renderQuickStatsStrip();
+  html += `<div class="card">
     <h2>Your progress</h2>
     <div class="row" style="margin-bottom:6px">
       <div class="stat"><b>${pct}%</b><span>Syllabus complete</span></div>
-      <div class="stat"><b>🔥 ${streak}</b><span>Day streak</span></div>
+      <div class="stat"><b>${streak}</b><span>Day streak</span></div>
       <div class="stat"><b>${done}/${total}</b><span>Lectures / one-shots done</span></div>
     </div>
     <div class="progress-outer"><div class="progress-inner" style="width:${pct}%"></div></div>
@@ -804,22 +1857,58 @@ function renderProgressTab(){
   if(state.skipLog.length>0){
     html += `<div class="card"><h2>Skipped days</h2>`;
     state.skipLog.slice().reverse().slice(0,15).forEach(e=>{
-      html += `<div class="logrow">⏭️ <b>${fmtDate(e.date)}</b> — ${e.reason}</div>`;
+      html += `<div class="logrow"><b>${fmtDate(e.date)}</b> — ${e.reason}</div>`;
     });
     html += `</div>`;
   }
+
+  html += `<div class="card"><h2>Daily questions</h2><p class="sub">Questions solved per day vs your goal (last 14 days).</p>${renderQuestionsGraph()}</div>`;
 
   html += `<div class="card"><h2>Recent activity</h2>`;
   if(state.completionLog.length>0){
     state.completionLog.slice().reverse().slice(0,15).forEach(e=>{
       const s = subj(e.subject);
-      html += `<div class="logrow">✅ <b>${fmtDate(e.date)}</b> — ${s?s.name:e.subject}: ${e.chapter} (${e.part})</div>`;
+      html += `<div class="logrow"><b>${fmtDate(e.date)}</b> — ${s?s.name:e.subject}: ${e.chapter} (${e.part})</div>`;
     });
   } else {
     html += `<p class="sub">Start ticking off lectures to see your activity here.</p>`;
   }
   html += `</div>`;
   return html;
+}
+
+/* ---- QUESTIONS GRAPH (inline SVG, no deps) ---- */
+function renderQuestionsGraph(){
+  const data = last14DaysQuestionData();
+  const maxVal = Math.max(1, ...data.map(d=>Math.max(d.done,d.goal)));
+  const W=560, H=180, padL=30, padB=26, padT=10, padR=6;
+  const chartW = W-padL-padR, chartH = H-padT-padB;
+  const bw = chartW/data.length;
+  const y = v => padT + chartH - (v/maxVal*chartH);
+  let bars='', goalPts=[];
+  data.forEach((d,i)=>{
+    const x = padL + i*bw;
+    const barH = (d.done/maxVal)*chartH;
+    const over = d.done>d.goal;
+    bars += `<rect x="${x+bw*0.18}" y="${y(d.done)}" width="${bw*0.64}" height="${barH}" rx="3" fill="${over?'var(--good)':'var(--accent)'}"></rect>`;
+    goalPts.push(`${x+bw/2},${y(d.goal)}`);
+    const lbl = fmtDate(d.date).split(',')[0];
+    bars += `<text x="${x+bw/2}" y="${H-8}" font-size="9" fill="var(--muted)" text-anchor="middle">${lbl.split(' ')[0]}</text>`;
+  });
+  const goalLine = `<polyline points="${goalPts.join(' ')}" fill="none" stroke="var(--warn)" stroke-width="2" stroke-dasharray="4,3"></polyline>`;
+  return `<div class="qgraph">
+    <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+      <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H-padB}" stroke="var(--line)"></line>
+      <line x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}" stroke="var(--line)"></line>
+      ${bars}
+      ${goalLine}
+    </svg>
+    <div class="legend">
+      <span><i style="background:var(--accent)"></i>Questions done</span>
+      <span><i style="background:var(--good)"></i>Goal beaten</span>
+      <span><i style="background:var(--warn)"></i>Goal line</span>
+    </div>
+  </div>`;
 }
 
 /* ---- SETTINGS VIEW ---- */
@@ -830,46 +1919,41 @@ function renderBaselineCard(){
       <label class="field"><span class="lbl">Plan start date</span>
         <input type="date" id="s-start" value="${state.startDate}">
       </label>
-      <label class="field"><span class="lbl">Target days to finish syllabus</span>
-        <input type="number" min="1" id="s-target" value="${state.targetDays}">
-      </label>
     </div>
     <button class="btn" id="s-savebaseline">Save &amp; Regenerate Plan</button>
   </div>`;
 }
 
 function renderPaceCard(){
-  const combined = state.lecturesPerDay*state.subjectsPerDay;
-  const finishDate = state.plan.length ? state.plan[state.plan.length-1].date : (()=>{
-    const totalLec=remainingTotalLectures(), totalOne=remainingTotalOneshots();
-    const estDays = totalLec>0?Math.ceil(totalLec/combined)+totalOne:totalOne;
-    return addDays(planStartDate(),Math.max(0,estDays-1));
-  })();
-  const dailyMinutes = combined*state.avgLectureMinutes;
+  const totalLecturesPerDay = Math.max(1,state.lecturesPerDay);
+  const daysToComplete = estimateDaysAtPace();
+  const finishDate = estimatedFinishDate();
+  const dailyMinutes = totalLecturesPerDay*state.avgLectureMinutes;
   let body = `<div class="row" style="margin-bottom:6px">
-      <div class="stat"><b>${state.lecturesPerDay}/day</b><span>Lectures, per subject</span></div>
+      <div class="stat"><b>${totalLecturesPerDay}/day</b><span>Total lectures</span></div>
+      <div class="stat"><b>${state.subjectsPerDay}/day</b><span>Subjects</span></div>
       <div class="stat"><b>${fmtMinutes(dailyMinutes)}</b><span>Daily study time</span></div>
+      <div class="stat"><b>${daysToComplete}d</b><span>Days to complete</span></div>
       <div class="stat"><b>${fmtDate(finishDate)}</b><span>Projected completion</span></div>
     </div>`;
   if(state.settingsPaceEditing){
-    const tiers = computePaceTiers();
     body += `<div class="row">
-      <label class="field"><span class="lbl">Subjects/day</span>
-        <select id="s-subjday2" data-act="sliveupdate">
-          <option value="2" ${state.subjectsPerDay===2?'selected':''}>2</option>
-          <option value="3" ${state.subjectsPerDay===3?'selected':''}>3</option>
-        </select>
+       <label class="field"><span class="lbl">m — Total lectures per day</span>
+         <input type="number" min="1" max="20" id="s-pace2" data-act="sliveupdate" value="${totalLecturesPerDay}">
+       </label>
+       <label class="field"><span class="lbl">n — Subjects per day</span>
+         <input type="number" min="1" max="5" id="s-subjday2" data-act="sliveupdate" value="${state.subjectsPerDay}">
       </label>
       <label class="field"><span class="lbl">Avg min/lecture</span>
         <input type="number" min="5" id="s-avgmin2" data-act="sliveupdate" value="${state.avgLectureMinutes}">
       </label>
     </div>
-    <div class="pacegrid">${renderPaceTierCards(tiers,'spicktier')}</div>
+     <div class="note">The automatic plan keeps ${totalLecturesPerDay} total lecture slots/day. Each selected subject gets one first; remaining slots go to subjects with the most lectures left.</div>
     <button class="btn ghost sm" id="s-closepace">Done</button>`;
   } else {
     body += `<button class="btn ghost" id="s-changepace">Change pace</button>`;
   }
-  return `<div class="card"><h2>Pace &amp; study time</h2><p class="sub">Your pace never pushes past the target-day goal above.</p>${body}</div>`;
+  return `<div class="card"><h2>Pace &amp; study time</h2><p class="sub">Completion time is calculated from the remaining lectures, one-shots, and your selected daily pace.</p>${body}</div>`;
 }
 
 function renderSettings(){
@@ -877,8 +1961,8 @@ function renderSettings(){
   <div class="card">
     <h2>Appearance</h2>
     <div class="toggle-group">
-      <button data-act="settheme" data-theme="light" class="${state.theme==='light'?'active':''}">☀️ Light</button>
-      <button data-act="settheme" data-theme="dark" class="${state.theme==='dark'?'active':''}">🌙 Dark</button>
+      <button data-act="settheme" data-theme="light" class="${state.theme==='light'?'active':''}">Light</button>
+      <button data-act="settheme" data-theme="dark" class="${state.theme==='dark'?'active':''}">Dark</button>
     </div>
   </div>
 
@@ -899,11 +1983,14 @@ function renderSettings(){
 
   <div class="card">
     <h2>Backup &amp; restore</h2>
-    <p class="sub">Export your progress as a file so you never lose it, or restore from a previous backup.</p>
+    <p class="sub">Export your progress as a full backup, or export just the syllabus without completion history and plan data.</p>
     <div class="btnrow" style="justify-content:flex-start;margin-top:6px">
-      <button class="btn" id="s-export">⬇️ Export backup</button>
-      <button class="btn ghost" id="s-importbtn">⬆️ Import backup</button>
-      <input type="file" id="s-importfile" accept="application/json" style="display:none">
+      <button class="btn" id="s-export">Export backup</button>
+      <button class="btn ghost" id="s-exportsyllabus">Export syllabus only</button>
+      <button class="btn ghost" id="s-importbtn">Import backup</button>
+      <button class="btn ghost" id="s-importsyllabusbtn">Import syllabus only</button>
+      <input type="file" id="s-importfile" accept=".json,application/json" style="display:none">
+      <input type="file" id="s-importsyllabusfile" accept=".json,application/json" style="display:none">
     </div>
   </div>
 
@@ -912,7 +1999,7 @@ function renderSettings(){
     <p class="sub">Re-run the full setup wizard, or wipe everything and start fresh.</p>
     <div class="btnrow" style="justify-content:flex-start;margin-top:6px">
       <button class="btn ghost" id="s-rerunwizard">Re-run setup wizard</button>
-      <button class="btn ghost" id="s-hardreset" style="color:var(--one)">⚠️ Erase all data</button>
+      <button class="btn ghost" id="s-hardreset" style="color:var(--one)">Erase all data</button>
     </div>
   </div>`;
 }
@@ -940,6 +2027,15 @@ function renderSettingsSubjectTabs(){
   return tabs + `<div>${renderChapterRows(settingsActiveSubj)}</div><button class="btn" id="s-saveChapters" style="margin-top:12px">Save &amp; Regenerate Plan</button>`;
 }
 
+function externalHref(value){
+  const raw = String(value||'').trim();
+  if(!raw) return '';
+  const candidate = /^[a-z][a-z\d+\-.]*:/i.test(raw) ? raw : 'https://'+raw;
+  try{
+    const url = new URL(candidate);
+    return (url.protocol==='http:' || url.protocol==='https:') ? url.href : '';
+  }catch(e){ return ''; }
+}
 function escAttr(s){ return String(s).replace(/"/g,'&quot;'); }
 
 /* ---------------- EVENT HANDLING ---------------- */
@@ -951,11 +2047,32 @@ function attachHandlers(){
     b.onclick = ()=>{ state.view = b.dataset.view; render(); };
   });
 
+  // sidebar tabs (Questions / Revision)
+  document.querySelectorAll('[data-act="sbtab"]').forEach(el=>{
+    el.onclick = ()=>{ state.sidebarTab = el.dataset.tab; saveState(); render(); };
+  });
+
+  // add a manual revision task from the sidebar
+  const sbAddRevision = document.getElementById('sb-addrevision');
+  if(sbAddRevision) sbAddRevision.onclick = ()=>{
+    const sel = document.getElementById('sb-revisionchapter');
+    if(!sel || !sel.value) return;
+    const [sid, chName] = sel.value.split('::');
+    if(addManualRevision(sid, chName)) render();
+  };
+
+  // remove a revision task (manual or free-time), from sidebar or plan views
+  document.querySelectorAll('[data-act="removerevision"]').forEach(el=>{
+    el.onclick = ()=>{
+      removeRevisionItem(el.dataset.day, el.dataset.id);
+      render();
+    };
+  });
+
   // wizard step 0
   const wnext0 = document.getElementById('w-next0');
   if(wnext0) wnext0.onclick = ()=>{
-    state.startDate = document.getElementById('w-start').value || state.startDate;
-    state.targetDays = parseInt(document.getElementById('w-target').value)||60;
+    state.startDate = normalizeISODate(document.getElementById('w-start').value, state.startDate);
     state.wizardStep = 1; saveState(); render();
   };
 
@@ -967,9 +2084,10 @@ function attachHandlers(){
 
   document.querySelectorAll('[data-act="wliveupdate"]').forEach(el=>{
     el.onchange = ()=>{
-      if(el.id==='w-subjday') state.subjectsPerDay = parseInt(el.value)||2;
+      if(el.id==='w-subjday') state.subjectsPerDay = Math.min(5,Math.max(1,parseInt(el.value)||1));
       if(el.id==='w-avgmin') state.avgLectureMinutes = Math.max(5,parseInt(el.value)||30);
-      state.paceChoice = null;
+      if(el.id==='w-pace'){ state.lecturesPerDay = Math.min(20,Math.max(1,parseInt(el.value)||1)); state.paceChoice='custom'; }
+      if(el.id!=='w-pace') state.paceChoice = null;
       render();
     };
   });
@@ -989,26 +2107,43 @@ function attachHandlers(){
     generatePlan(); render();
   };
 
-  // chapter row controls (both wizard & settings)
+  // chapter card controls (both wizard & settings)
   document.querySelectorAll('[data-act="donetoggle"]').forEach(el=>{
-    el.onchange = ()=>{
+    el.onclick = ()=>{
       const sid=el.dataset.sub, ch=el.dataset.ch;
-      state.chapters[sid][ch].done = el.checked;
+      state.chapters[sid][ch].done = !state.chapters[sid][ch].done;
       saveState(); render();
     };
   });
   document.querySelectorAll('[data-act="modeselect"]').forEach(el=>{
-    el.onchange = ()=>{
+    el.onclick = ()=>{
       const sid=el.dataset.sub, ch=el.dataset.ch;
-      state.chapters[sid][ch].mode = el.value;
+      state.chapters[sid][ch].mode = el.dataset.value;
+      saveState(); render();
+    };
+  });
+  document.querySelectorAll('[data-act="leccountstep"]').forEach(el=>{
+    el.onclick = ()=>{
+      const sid=el.dataset.sub, ch=el.dataset.ch, dir=parseInt(el.dataset.dir);
+      const cur = getLectureCount(sid,ch);
+      setLectureCount(sid, ch, cur+dir);
+      saveState(); render();
+    };
+  });
+  // DPP: yes / no / block toggle per lecture task
+  document.querySelectorAll('[data-act="dpptoggle"]').forEach(el=>{
+    el.onclick = ()=>{
+      setDppStatus(el.dataset.id, el.dataset.value);
       saveState(); render();
     };
   });
   document.querySelectorAll('[data-act="oneshotlink"]').forEach(el=>{
     el.onchange = ()=>{
       const sid=el.dataset.sub, ch=el.dataset.ch;
-      state.chapters[sid][ch].oneshotLink = el.value;
+      const cfg = state.chapters[sid][ch];
+      cfg.oneshotLink = el.value.trim();
       saveState();
+      render();
     };
   });
   document.querySelectorAll('[data-act="moveup"]').forEach(el=>{
@@ -1038,19 +2173,166 @@ function attachHandlers(){
         if(item){
           state.completionLog.push({
             id, subject:item.subject, chapter:item.chapter,
-            part: item.type==='oneshot' ? 'One Shot' : ('Lecture '+item.lectureNum),
+            part: item.type==='oneshot' ? 'One Shot' : (item.type==='revision' ? 'Revision' : ('Lecture '+item.lectureNum)),
             date: todayISO(), ts: Date.now()
           });
+        }
+        if(item && (item.type==='lecture' || item.type==='oneshot' || item.type==='revision')){
+          const label = item.type==='oneshot' ? 'this One Shot' : (item.type==='revision' ? 'this revision session' : 'this lecture');
+          const n = askQuestionsFor('How many questions did you solve for '+label+'?');
+          if(n>0){ state.questionsByItem[id] = n; addQuestions(dayDate, n); }
         }
       } else {
         delete state.completedItems[id];
         for(let i=state.completionLog.length-1;i>=0;i--){
           if(state.completionLog[i].id===id && state.completionLog[i].date===todayISO()){ state.completionLog.splice(i,1); break; }
         }
+        if(state.questionsByItem[id]){
+          addQuestions(dayDate, -state.questionsByItem[id]);
+          delete state.questionsByItem[id];
+        }
       }
       saveState(); render();
     };
   });
+
+  // editable lecture count per chapter
+  document.querySelectorAll('[data-act="leccount"]').forEach(el=>{
+    el.onchange = ()=>{
+      const sid=el.dataset.sub, ch=el.dataset.ch;
+      setLectureCount(sid, ch, el.value);
+      saveState(); render();
+    };
+  });
+
+  // Question practice window: at most three chapter/count pairs per day.
+  document.querySelectorAll('[data-act="addpractice"]').forEach(el=>{
+    el.onclick = ()=>{
+      const entries = questionPracticeEntries(el.dataset.day);
+      if(entries.length>=3) return;
+      entries.push({subject:'',chapter:'',questions:0});
+      setQuestionPracticeEntries(el.dataset.day, entries);
+      saveState(); render();
+    };
+  });
+  document.querySelectorAll('[data-act="removepractice"]').forEach(el=>{
+    el.onclick = ()=>{
+      const entries = questionPracticeEntries(el.dataset.day);
+      const index = parseInt(el.dataset.index);
+      const removed = entries[index];
+      if(removed && removed.done && removed.subject && removed.chapter) addQuestions(el.dataset.day,-removed.questions);
+      entries.splice(index,1);
+      setQuestionPracticeEntries(el.dataset.day, entries);
+      saveState(); render();
+    };
+  });
+  document.querySelectorAll('[data-act="practicechapter"]').forEach(el=>{
+    el.onchange = ()=>{
+      const entries = questionPracticeEntries(el.dataset.day);
+      const index = parseInt(el.dataset.index);
+      const [sid,chName] = (el.value||'::').split('::');
+      if(entries[index]){
+        if(entries[index].done && entries[index].subject && entries[index].chapter && (!sid || !chName)){
+          addQuestions(el.dataset.day,-entries[index].questions);
+          entries[index].done = false;
+        }
+        entries[index].subject = sid || '';
+        entries[index].chapter = chName || '';
+      }
+      setQuestionPracticeEntries(el.dataset.day, entries);
+      saveState(); render();
+    };
+  });
+  document.querySelectorAll('[data-act="practicetoggle"]').forEach(el=>{
+    el.onchange = ()=>{
+      const entries = questionPracticeEntries(el.dataset.day);
+      const index = parseInt(el.dataset.index);
+      const entry = entries[index];
+      if(!entry) return;
+      entry.done = el.checked;
+      addQuestions(el.dataset.day, el.checked ? entry.questions : -entry.questions);
+      setQuestionPracticeEntries(el.dataset.day, entries);
+      saveState(); render();
+    };
+  });
+  document.querySelectorAll('[data-act="practicecount"]').forEach(el=>{
+    el.onchange = ()=>{
+      const entries = questionPracticeEntries(el.dataset.day);
+      const index = parseInt(el.dataset.index);
+      if(entries[index]){
+        const next = Math.max(0,parseInt(el.value)||0);
+        if(entries[index].done && entries[index].subject && entries[index].chapter){
+          addQuestions(el.dataset.day,next-entries[index].questions);
+        }
+        entries[index].questions = next;
+      }
+      setQuestionPracticeEntries(el.dataset.day, entries);
+      saveState(); render();
+    };
+  });
+
+  // revision slot chapter picker
+  document.querySelectorAll('[data-act="revisionpick"]').forEach(el=>{
+    el.onchange = ()=>{
+      if(!el.value) return;
+      const dayDate = el.dataset.day, id = el.dataset.id;
+      const day = state.plan.find(d=>d.date===dayDate);
+      const item = day ? day.items.find(i=>i.id===id) : null;
+      if(item){
+        const [sid,chName] = el.value.split('::');
+        item.subject = sid; item.chapter = chName;
+        state.revisionSelections[id] = {subject:sid, chapter:chName};
+      }
+      saveState(); render();
+    };
+  });
+
+  // Explicitly move one pending lecture or one-shot. Automatic scheduling is
+  // untouched for every task the user does not choose here.
+  document.querySelectorAll('[data-act="reschedule"]').forEach(el=>{
+    el.onclick = ()=>{
+      const itemId = document.getElementById('reschedule-item')?.value;
+      const targetDate = document.getElementById('reschedule-date')?.value;
+      if(!itemId || !targetDate) return;
+      if(!state.manualSchedule) state.manualSchedule = {};
+      state.manualSchedule[itemId] = targetDate;
+      const current = (state.plan||[]).flatMap(d=>d.items).find(i=>i.id===itemId);
+      if(current && current.type==='oneshot'){
+        state.manualSchedule['revision-window::'+itemId] = targetDate;
+      }
+      generatePlan();
+      render();
+    };
+  });
+
+  // log DPP / extra questions
+  document.querySelectorAll('[data-act="logdpp"]').forEach(el=>{
+    el.onclick = ()=>{
+      const dayDate = el.dataset.day;
+      const n = askQuestionsFor('How many DPP / module questions did you solve?');
+      if(n>0){ addQuestions(dayDate, n); saveState(); render(); }
+    };
+  });
+
+  // sidebar: daily question goal
+  const sbSetToday = document.getElementById('sb-settoday');
+  if(sbSetToday) sbSetToday.onclick = ()=>{
+    const v = Math.max(1, parseInt(document.getElementById('sb-goalinput').value)||60);
+    state.questionGoalOverrides[todayISO()] = v;
+    saveState(); render();
+  };
+  const sbSetPermanent = document.getElementById('sb-setpermanent');
+  if(sbSetPermanent) sbSetPermanent.onclick = ()=>{
+    const v = Math.max(1, parseInt(document.getElementById('sb-goalinput').value)||60);
+    state.dailyQuestionGoal = v;
+    delete state.questionGoalOverrides[todayISO()];
+    saveState(); render();
+  };
+  const sbQuickAdd = document.getElementById('sb-quickadd');
+  if(sbQuickAdd) sbQuickAdd.onclick = ()=>{
+    const n = askQuestionsFor('How many questions do you want to log for today?');
+    if(n>0){ addQuestions(todayISO(), n); saveState(); render(); }
+  };
 
   document.querySelectorAll('[data-act="toggleday"]').forEach(el=>{
     el.onclick = ()=>{
@@ -1079,19 +2361,19 @@ function attachHandlers(){
   });
   const saveBaseline = document.getElementById('s-savebaseline');
   if(saveBaseline) saveBaseline.onclick = ()=>{
-    state.startDate = document.getElementById('s-start').value || state.startDate;
-    state.targetDays = parseInt(document.getElementById('s-target').value)||state.targetDays;
+    state.startDate = normalizeISODate(document.getElementById('s-start').value, state.startDate);
     generatePlan(); render();
   };
 
   const changePace = document.getElementById('s-changepace');
   if(changePace) changePace.onclick = ()=>{ state.settingsPaceEditing = true; render(); };
   const closePace = document.getElementById('s-closepace');
-  if(closePace) closePace.onclick = ()=>{ state.settingsPaceEditing = false; saveState(); render(); };
+  if(closePace) closePace.onclick = ()=>{ state.settingsPaceEditing = false; generatePlan(); render(); };
   document.querySelectorAll('[data-act="sliveupdate"]').forEach(el=>{
     el.onchange = ()=>{
-      if(el.id==='s-subjday2') state.subjectsPerDay = parseInt(el.value)||2;
+      if(el.id==='s-subjday2') state.subjectsPerDay = Math.min(5,Math.max(1,parseInt(el.value)||1));
       if(el.id==='s-avgmin2') state.avgLectureMinutes = Math.max(5,parseInt(el.value)||30);
+      if(el.id==='s-pace2'){ state.lecturesPerDay = Math.min(20,Math.max(1,parseInt(el.value)||1)); state.paceChoice='custom'; }
       render();
     };
   });
@@ -1118,10 +2400,26 @@ function attachHandlers(){
 
   const exportBtn = document.getElementById('s-export');
   if(exportBtn) exportBtn.onclick = exportData;
+  const exportSyllabusBtn = document.getElementById('s-exportsyllabus');
+  if(exportSyllabusBtn) exportSyllabusBtn.onclick = exportSyllabus;
   const importBtn = document.getElementById('s-importbtn');
   if(importBtn) importBtn.onclick = ()=>document.getElementById('s-importfile').click();
   const importFile = document.getElementById('s-importfile');
   if(importFile) importFile.onchange = (e)=>{ if(e.target.files[0]) importData(e.target.files[0]); };
+  const importSyllabusBtn = document.getElementById('s-importsyllabusbtn');
+  if(importSyllabusBtn) importSyllabusBtn.onclick = ()=>document.getElementById('s-importsyllabusfile').click();
+  const importSyllabusFile = document.getElementById('s-importsyllabusfile');
+  if(importSyllabusFile) importSyllabusFile.onchange = (e)=>{
+    if(e.target.files[0]) importSyllabusData(e.target.files[0]);
+    e.target.value='';
+  };
+  const wizardImportSyllabusBtn = document.getElementById('w-importsyllabusbtn');
+  if(wizardImportSyllabusBtn) wizardImportSyllabusBtn.onclick = ()=>document.getElementById('w-importsyllabusfile').click();
+  const wizardImportSyllabusFile = document.getElementById('w-importsyllabusfile');
+  if(wizardImportSyllabusFile) wizardImportSyllabusFile.onchange = (e)=>{
+    if(e.target.files[0]) importSyllabusData(e.target.files[0]);
+    e.target.value='';
+  };
 
   const rerun = document.getElementById('s-rerunwizard');
   if(rerun) rerun.onclick = ()=>{ state.setupDone = false; state.wizardStep = 0; saveState(); render(); };
