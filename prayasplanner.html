@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prayas Catch-Up Planner</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Manzil — Study Dashboard</title>
 <style>
 :root{
   --bg:#ffffff; --panel:#ffffff; --panel2:#f7f7f9; --panel3:#f0f0f3;
@@ -339,6 +339,11 @@ body.dark .achieve-banner{background:var(--good-bg);color:var(--good)}
 .check-circle.checked{background:var(--good);border-color:var(--good);color:#fff}
 .chapter-card-name{flex:1;font-size:14px;font-weight:560;letter-spacing:-.005em}
 .chapter-card.done .chapter-card-name{color:var(--muted);text-decoration:line-through}
+.chapter-card-manage{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.chapter-action{border:none;background:var(--panel3);color:var(--muted);border-radius:7px;padding:5px 8px;font:600 10.5px/1 inherit;cursor:pointer}
+.chapter-action:hover{background:var(--line);color:var(--text)}
+.chapter-action.danger{color:var(--one)}
+.chapter-action.danger:hover{background:var(--one-bg)}
 .chapter-card-progress{
   font-size:11px;font-weight:650;color:var(--muted);background:var(--chip);
   padding:3px 9px;border-radius:980px;font-variant-numeric:tabular-nums;white-space:nowrap;
@@ -356,21 +361,779 @@ body.dark .achieve-banner{background:var(--good-bg);color:var(--good)}
 .chapter-card .link-input{width:190px}
 .chapter-card .mini-order{flex-shrink:0}
  .oneshot-day-note{font-size:11px;color:var(--one);font-weight:650;margin-left:auto}
+ .csv-video-select{width:260px;max-width:100%;padding:8px 9px;font-size:12px}
+ .csv-video-open{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;color:var(--accent);text-decoration:none;font-weight:590;white-space:nowrap}
+ .csv-video-open:hover{text-decoration:underline}
+ .video-library{display:flex;flex-direction:column;gap:7px;margin-top:12px}
+ .video-library-row{display:flex;align-items:center;gap:10px;padding:9px 10px;background:var(--panel2);border-radius:9px;font-size:12px}
+ .video-library-row .video-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .video-library-row .video-open{flex-shrink:0}
+ .video-library-more{font-size:11.5px;color:var(--muted);margin-top:2px}
  .reschedule-grid{display:grid;grid-template-columns:minmax(0,1fr) 170px;gap:10px;align-items:end}
  .reschedule-grid .btn{grid-column:1 / -1;justify-self:start}
  @media (max-width:560px){.reschedule-grid{grid-template-columns:1fr}.reschedule-grid .btn{width:100%}}
+.order-list{display:flex;flex-direction:column;gap:8px;margin:12px 0 4px}
+.order-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--panel2);border-radius:10px;border:1px solid var(--line-soft)}
+.order-row .order-num{width:22px;height:22px;border-radius:50%;background:var(--chip);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.order-row .order-name{flex:1;font-size:13.5px;font-weight:560}
+.order-row .order-controls{display:flex;gap:4px}
+.order-row .order-controls button{width:26px;height:26px;border:0;border-radius:7px;background:var(--panel3);color:var(--muted);cursor:pointer;font-size:11px}
+.order-row .order-controls button:hover{background:var(--line);color:var(--text)}
+.order-row .order-controls button:disabled{opacity:.3;cursor:default}
+.holiday-card{border:1px dashed var(--accent);background:var(--panel2)}
+.holiday-label{color:var(--accent);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.holiday-options{background:var(--panel2);border-radius:var(--radius-sm);padding:14px;margin-top:8px}
+.holiday-options .option-block{padding:10px 0;border-bottom:1px solid var(--line-soft)}
+.holiday-options .option-block:last-child{border-bottom:0;padding-bottom:0}
+.holiday-options .option-title{font-size:12.5px;font-weight:650;margin-bottom:8px}
+.holiday-options .option-grid{display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:8px}
+.holiday-options .option-grid.one{grid-template-columns:1fr}
+.test-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+.test-fields .field{margin-bottom:0}
+@media (max-width:560px){.holiday-options .option-grid,.test-fields{grid-template-columns:1fr}}
+/* ===== MANZIL UI REFRESH ===== */
+:root{
+  --bg:#f4f5f1;
+  --panel:#fffefa;
+  --panel2:#f0f2ec;
+  --panel3:#e7eae3;
+  --text:#172033;
+  --muted:#718096;
+  --muted2:#97a1b1;
+  --line:#dfe4dc;
+  --line-soft:#e9ede6;
+  --accent:#5957d6;
+  --accent-hover:#4846be;
+  --accent-ink:#fff;
+  --good:#16835c;
+  --good-bg:#e5f4ec;
+  --warn:#c87823;
+  --warn-bg:#fff0dc;
+  --one:#d84f78;
+  --one-bg:#fde8ef;
+  --purple:#775be9;
+  --purple-bg:#eeeaff;
+  --teal:#138b91;
+  --teal-bg:#e2f4f3;
+  --block:#d95f5f;
+  --block-bg:#fce9e9;
+  --chip:#e9ece7;
+  --shadow-sm:0 1px 2px rgba(25,34,50,.05);
+  --shadow:0 10px 30px rgba(31,42,57,.06);
+  --shadow-lg:0 24px 60px rgba(31,42,57,.12);
+  --radius:22px;
+  --radius-sm:14px;
+  --radius-lg:30px;
+}
+body.dark{
+  --bg:#0b1020;
+  --panel:#11182b;
+  --panel2:#161f35;
+  --panel3:#222e49;
+  --text:#f1f5ff;
+  --muted:#a5b2c9;
+  --muted2:#75839e;
+  --line:#2d3a58;
+  --line-soft:#202c47;
+  --accent:#8b7cff;
+  --accent-hover:#a297ff;
+  --accent-ink:#100e20;
+  --good:#46d19a;
+  --good-bg:#12382f;
+  --warn:#f4b860;
+  --warn-bg:#3d2d18;
+  --one:#ff759b;
+  --one-bg:#402033;
+  --purple:#b29aff;
+  --purple-bg:#2b2250;
+  --teal:#5de0de;
+  --teal-bg:#113a3e;
+  --block:#ff7e86;
+  --block-bg:#42212a;
+  --chip:#293650;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.28);
+  --shadow:0 14px 34px rgba(0,0,0,.28);
+  --shadow-lg:0 28px 64px rgba(0,0,0,.45);
+}
+html{background:var(--bg)}
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 78% -12%, rgba(89,87,214,.12), transparent 30rem),
+    var(--bg);
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:15px;
+  line-height:1.5;
+}
+body.dark{
+  background:
+    radial-gradient(circle at 78% -12%, rgba(139,124,255,.18), transparent 32rem),
+    var(--bg);
+}
+body.dark .quotebar{
+  background:linear-gradient(110deg,#3d327d,var(--accent));
+  color:#f8f7ff;
+}
+.layout{
+  max-width:1440px;
+  min-height:100vh;
+  align-items:stretch;
+  gap:32px;
+  padding:0 38px;
+}
+.sidebar{
+  width:286px;
+  min-height:100vh;
+  padding:34px 0 40px;
+  position:sticky;
+  top:0;
+  background:transparent;
+}
+.wrap{
+  max-width:920px;
+  padding:0 0 100px;
+}
+.rightbar{
+  width:270px;
+  flex-shrink:0;
+  min-height:100vh;
+  padding:34px 0 40px;
+  position:sticky;
+  top:0;
+  overflow-y:auto;
+}
+.rightbar > .card{
+  padding:18px;
+  border-radius:18px;
+  box-shadow:var(--shadow-sm);
+}
+.rightbar .card h2{
+  font-size:13px;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.rightbar .card p.sub{font-size:11.5px;margin-bottom:14px}
+.rightbar .qstrip{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.rightbar .qstrip .qstat{
+  min-width:0;
+  padding:12px;
+  border-radius:13px;
+}
+.rightbar .qstrip .qstat b{font-size:20px}
+.rightbar .qstrip .qstat span{font-size:9px}
+.rightbar .row{gap:8px}
+.rightbar .card > .row{flex-direction:column}
+.rightbar .stat{
+  min-width:0;
+  min-height:70px;
+  padding:12px;
+}
+.rightbar .stat b{font-size:18px}
+.rightbar .stat span{font-size:9px;line-height:1.25}
+.rightbar .progress-outer{height:7px}
+.sidebar-nav{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  margin-bottom:20px;
+}
+.sidebar-nav-label{
+  padding:0 12px 9px;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:850;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.sidebar-nav button{
+  width:100%;
+  min-height:46px;
+  padding:8px 10px;
+  border:1px solid transparent;
+  border-radius:13px;
+  background:transparent;
+  color:var(--muted);
+  text-align:left;
+  font-family:inherit;
+  font-size:14px;
+  line-height:1.2;
+  font-weight:700;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  transition:background .15s var(--ease),color .15s var(--ease),border-color .15s var(--ease);
+}
+.sidebar-nav button:hover{
+  background:var(--panel2);
+  color:var(--text);
+}
+.sidebar-nav button.active{
+  background:var(--panel);
+  color:var(--accent);
+  border-color:var(--line-soft);
+  box-shadow:var(--shadow-sm);
+}
+.sidebar-nav button .nav-icon{
+  width:30px;
+  height:30px;
+  flex:0 0 30px;
+  display:grid;
+  place-items:center;
+  border-radius:9px;
+  background:var(--panel2);
+  color:var(--muted);
+  font-size:15px;
+  line-height:1;
+  font-weight:800;
+}
+.sidebar-nav button.active .nav-icon{
+  background:color-mix(in srgb,var(--accent) 14%,var(--panel2));
+  color:var(--accent);
+}
+header.top{
+  padding:34px 0 28px;
+  align-items:flex-start;
+}
+.brand{gap:13px}
+.brand .mark{
+  width:44px;
+  height:44px;
+  border-radius:15px;
+  background:linear-gradient(145deg,var(--accent),#8e75e8);
+  color:#fff;
+  font-size:17px;
+  box-shadow:0 9px 18px rgba(89,87,214,.22);
+}
+.brand h1{
+  font-size:20px;
+  line-height:1.15;
+  font-weight:760;
+  letter-spacing:-.035em;
+}
+.brand span{
+  margin-top:5px;
+  color:var(--muted);
+  font-size:12px;
+  letter-spacing:.01em;
+}
+.iconbtn{
+  width:40px;
+  height:40px;
+  border:1px solid var(--line);
+  background:var(--panel);
+  box-shadow:var(--shadow-sm);
+}
+.iconbtn:hover{background:var(--panel2);border-color:var(--accent)}
+nav.tabs{
+  display:flex;
+  gap:4px;
+  margin:0 0 26px;
+  padding:5px;
+  background:var(--panel2);
+  border:1px solid var(--line-soft);
+  border-radius:16px;
+}
+nav.tabs button{
+  min-height:38px;
+  padding:9px 14px;
+  border-radius:11px;
+  color:var(--muted);
+  font-size:12.5px;
+  font-weight:700;
+}
+nav.tabs button.active{
+  color:var(--text);
+  background:var(--panel);
+  box-shadow:0 4px 12px rgba(25,34,50,.08);
+}
+.card{
+  border:1px solid var(--line-soft);
+  border-radius:var(--radius);
+  padding:25px;
+  margin-bottom:16px;
+  background:var(--panel);
+  box-shadow:var(--shadow);
+}
+body.dark .card{border-color:var(--line)}
+.card h2{
+  margin:0 0 6px;
+  font-size:20px;
+  font-weight:760;
+  letter-spacing:-.035em;
+}
+.card p.sub{
+  margin:0 0 20px;
+  color:var(--muted);
+  font-size:13px;
+}
+label.field span.lbl,
+.small-lbl{
+  color:var(--muted);
+  font-size:11px;
+  font-weight:750;
+  letter-spacing:.055em;
+  text-transform:uppercase;
+}
+input[type=text],input[type=number],input[type=date],select{
+  min-height:42px;
+  padding:10px 13px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:var(--panel2);
+  color:var(--text);
+  font-size:13.5px;
+}
+input[type=text]:focus,input[type=number]:focus,input[type=date]:focus,select:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 13%,transparent);
+}
+.btn{
+  min-height:42px;
+  padding:11px 17px;
+  border-radius:12px;
+  background:var(--accent);
+  font-size:13px;
+  font-weight:750;
+  box-shadow:0 7px 16px color-mix(in srgb,var(--accent) 22%,transparent);
+}
+.btn:hover{background:var(--accent-hover);transform:translateY(-1px)}
+.btn.ghost{
+  color:var(--text);
+  background:var(--panel2);
+  border:1px solid var(--line);
+  box-shadow:none;
+}
+.btn.ghost:hover{background:var(--panel3);border-color:var(--accent)}
+.btn.sm{min-height:34px;padding:8px 12px;border-radius:10px;font-size:12px}
+.btnrow{margin-top:24px}
+.pill{
+  padding:5px 10px;
+  border-radius:9px;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.045em;
+  text-transform:uppercase;
+}
+.sidebar h3{
+  margin:0 0 5px;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.sidebar p.sub{font-size:12.5px;line-height:1.55}
+.sidebar .qnum{
+  margin:16px 0 2px;
+  font-size:29px;
+  line-height:1;
+  font-weight:800;
+  letter-spacing:-.06em;
+}
+.sidebar .qnum span{font-size:12px;letter-spacing:0}
+.sidebar .qprogress .sub{font-size:11px!important}
+.sidebar .qprogress{margin:10px 0 4px}
+.sidebar .qbtnrow{gap:8px}
+.sidebar .qbtnrow .btn{width:100%;min-height:38px}
+.sidebar > div{
+  padding:22px;
+  border:1px solid var(--line-soft);
+  border-radius:22px;
+  background:linear-gradient(155deg,var(--panel),var(--panel2));
+  box-shadow:var(--shadow);
+}
+.sidebar .progress-outer{height:9px;margin-top:13px}
+.sidebar #sb-quickadd{
+  margin-top:4px;
+  background:var(--text);
+  color:var(--bg);
+  border:0;
+}
+body.dark .sidebar #sb-quickadd{background:var(--accent);color:var(--accent-ink)}
+.progress-outer{
+  height:8px;
+  margin-top:10px;
+  background:var(--panel3);
+}
+.progress-inner{
+  background:linear-gradient(90deg,var(--accent),#9b7bf0);
+}
+.quotebar{
+  position:relative;
+  overflow:hidden;
+  margin-bottom:16px;
+  padding:20px 24px 20px 28px;
+  border-radius:18px;
+  background:linear-gradient(110deg,#3e3b9c,var(--accent));
+  color:#fff;
+  box-shadow:0 12px 26px rgba(89,87,214,.2);
+  font-size:15px;
+  font-weight:650;
+}
+.quotebar:after{
+  content:"";
+  position:absolute;
+  width:150px;
+  height:150px;
+  right:-35px;
+  top:-75px;
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:50%;
+  box-shadow:0 0 0 18px rgba(255,255,255,.04),0 0 0 38px rgba(255,255,255,.035);
+}
+.qstrip{gap:10px}
+.qstrip .qstat{
+  min-width:120px;
+  padding:16px;
+  border:1px solid var(--line-soft);
+  border-radius:16px;
+  background:var(--panel2);
+}
+.qstrip .qstat b{font-size:25px;font-weight:800}
+.qstrip .qstat span{
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.07em;
+}
+.stat{
+  min-height:78px;
+  padding:16px 17px;
+  border:1px solid var(--line-soft);
+  border-radius:16px;
+  background:var(--panel2);
+}
+.stat b{font-size:24px;font-weight:800}
+.stat span{font-size:10.5px;font-weight:700;letter-spacing:.03em}
+.daycard{
+  margin-bottom:12px;
+  border:1px solid var(--line-soft);
+  border-radius:17px;
+  background:var(--panel);
+  box-shadow:var(--shadow-sm);
+}
+.daycard.istoday{
+  border-color:color-mix(in srgb,var(--accent) 55%,var(--line));
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 12%,transparent),var(--shadow);
+}
+.daycard .dayhead{padding:16px 20px}
+.daycard .dayhead b{font-size:14px;font-weight:760}
+.daycard .body{padding:2px 20px 16px}
+.taskrow{
+  min-height:62px;
+  gap:13px;
+  padding:14px 4px;
+  border-bottom-color:var(--line-soft);
+}
+.taskrow input[type=checkbox]{
+  width:22px;
+  height:22px;
+  border-width:2px;
+  border-color:#cbd3c9;
+}
+.taskrow input[type=checkbox]:checked{
+  background:var(--good);
+  border-color:var(--good);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--good) 13%,transparent);
+}
+.taskrow .txt{font-size:13.5px;font-weight:600}
+.taskrow .sub{font-size:11.5px;color:var(--muted)}
+.taskrow .openbtn{
+  padding:8px 12px;
+  border:1px solid var(--line);
+  background:var(--panel2);
+  color:var(--text);
+  font-size:11.5px;
+  font-weight:750;
+}
+.taskrow .openbtn:hover{border-color:var(--accent);background:var(--panel3)}
+.badge-oneshot,.badge-revision{
+  padding:4px 7px;
+  border-radius:6px;
+  font-size:9px;
+  font-weight:850;
+  letter-spacing:.06em;
+}
+.dpp-widget{gap:7px}
+.dpp-label{font-size:9px;font-weight:850;letter-spacing:.08em}
+.dpp-toggle{gap:4px}
+.dpp-toggle button{width:27px;height:27px;font-size:10px}
+.dppbox,.skipbox,.holiday-options{
+  border:1px solid var(--line-soft);
+  border-radius:16px;
+  background:var(--panel2);
+  padding:17px;
+}
+.note{
+  border:1px solid var(--line-soft);
+  border-radius:13px;
+  background:var(--panel2);
+  padding:13px 15px;
+}
+.section-title{
+  color:var(--muted);
+  font-size:10.5px;
+  font-weight:850;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.subtabs{gap:7px}
+.subtabs button{
+  padding:8px 12px;
+  border:1px solid var(--line);
+  background:var(--panel2);
+  font-size:11.5px;
+  font-weight:750;
+}
+.subtabs button.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+.order-list{gap:8px}
+.order-row{
+  min-height:48px;
+  padding:10px 12px;
+  border:1px solid var(--line-soft);
+  border-radius:12px;
+  background:var(--panel2);
+}
+.order-row .order-num{
+  background:var(--accent);
+  color:#fff;
+  font-size:10px;
+}
+.order-row .order-name{font-size:13px;font-weight:650}
+.order-row .order-controls button{
+  border:1px solid var(--line);
+  background:var(--panel);
+}
+.pacecard{
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:var(--panel2);
+}
+.pacecard.selected{
+  border-color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 8%,var(--panel));
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 10%,transparent);
+}
+.chapter-card{
+  border:1px solid var(--line-soft);
+  border-radius:16px;
+  background:var(--panel2);
+}
+.chapter-card.done{background:transparent}
+.check-circle{width:26px;height:26px}
+.achieve-banner{
+  margin-top:14px;
+  border-radius:12px;
+  background:var(--good-bg);
+  color:var(--good);
+  font-weight:800;
+}
+.emptystate{padding:72px 24px}
+.emptystate p{margin:0}
+.test-score-card .score-summary{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin:14px 0 18px;
+}
+.test-score-card .score-ring{
+  width:76px;
+  height:76px;
+  flex:0 0 76px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:conic-gradient(var(--accent) var(--score),var(--panel3) 0);
+  position:relative;
+}
+.test-score-card .score-ring:after{
+  content:"";
+  position:absolute;
+  inset:8px;
+  border-radius:50%;
+  background:var(--panel);
+}
+.test-score-card .score-ring b{
+  position:relative;
+  z-index:1;
+  font-size:16px;
+}
+.test-score-card .score-copy b{display:block;font-size:16px}
+.test-score-card .score-copy span{color:var(--muted);font-size:12px}
+.test-score-list{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  margin-top:16px;
+}
+.test-score-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border:1px solid var(--line-soft);
+  border-radius:11px;
+  background:var(--panel2);
+  font-size:12px;
+}
+.test-score-row .test-date{width:78px;color:var(--muted);font-weight:700}
+.test-score-row .test-name{flex:1;min-width:0;font-weight:650}
+.test-score-row .test-value{font-weight:800;color:var(--accent)}
+@media (max-width:1100px){
+  .layout{gap:24px;padding:0 24px}
+  .sidebar{width:250px}
+  .rightbar{width:230px}
+}
+@media (max-width:820px){
+  .layout{padding:0 18px}
+  .sidebar{padding:18px 0 4px;min-height:0}
+  .rightbar{width:auto;min-height:0;padding:4px 0 18px;position:static;overflow:visible}
+  .wrap{padding-bottom:70px}
+  header.top{padding:24px 0 20px}
+  .brand h1{font-size:18px}
+  .card{padding:20px;border-radius:18px}
+}
+@media (max-width:560px){
+  nav.tabs button{padding:8px 7px;font-size:11px}
+  .qstrip .qstat{min-width:calc(50% - 5px)}
+  .stat{min-width:calc(50% - 6px)}
+  .taskrow .openbtn{width:100%;margin-left:35px}
+  .dpp-widget{margin-left:35px}
+}
+/* ---- iOS / Android mobile pass ---- */
+html,body{overflow-x:hidden}
+button,a,input,select{touch-action:manipulation}
+@media (max-width:820px){
+  .layout{
+    width:100%;
+    padding:0 max(14px,env(safe-area-inset-right)) 0 max(14px,env(safe-area-inset-left));
+    gap:0;
+  }
+  .sidebar,.wrap,.rightbar{
+    width:100%;
+    max-width:none;
+    min-width:0;
+  }
+  .sidebar{
+    padding:calc(14px + env(safe-area-inset-top)) 0 4px;
+    position:static;
+  }
+  .sidebar-nav{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:6px;
+    margin-bottom:14px;
+  }
+  .sidebar-nav-label{grid-column:1 / -1}
+  .sidebar-nav button{
+    min-height:46px;
+    padding:8px 10px;
+    font-size:14px;
+  }
+  .sidebar-nav button .nav-icon{width:28px;height:28px;flex-basis:28px}
+  .sidebar > div{
+    padding:16px;
+    border-radius:18px;
+  }
+  header.top{
+    padding:18px 0 16px;
+  }
+  .brand h1{font-size:19px}
+  .brand span{font-size:11px;max-width:210px}
+  .card{
+    width:100%;
+    padding:18px;
+    border-radius:17px;
+  }
+  .row > label.field{
+    min-width:0;
+    flex:1 1 100%;
+  }
+  input[type=text],input[type=number],input[type=date],select{
+    font-size:16px;
+    min-height:44px;
+  }
+  .btn{min-height:44px}
+  .iconbtn{width:44px;height:44px;flex:0 0 44px}
+  .rightbar{
+    padding:4px 0 calc(24px + env(safe-area-inset-bottom));
+    position:static;
+    overflow:visible;
+  }
+  .rightbar > .card{padding:16px}
+  .daycard .dayhead{
+    align-items:flex-start;
+    flex-wrap:wrap;
+    gap:5px 10px;
+  }
+  .daycard .dayhead .meta{
+    width:100%;
+    text-align:left;
+  }
+  .taskrow .txt{
+    min-width:0;
+    overflow-wrap:anywhere;
+  }
+  .chapter-card .link-input,
+  .link-input{
+    width:100%;
+    max-width:100%;
+  }
+  .practice-chapter-select{max-width:100%}
+}
+@media (max-width:560px){
+  .layout{
+    padding-left:max(12px,env(safe-area-inset-left));
+    padding-right:max(12px,env(safe-area-inset-right));
+  }
+  .brand{gap:9px}
+  .brand .mark{width:40px;height:40px;border-radius:13px}
+  .brand h1{font-size:18px}
+  .brand span{font-size:10.5px}
+  .card{padding:16px}
+  .sidebar-nav button{font-size:13px}
+  .sidebar-nav button .nav-icon{width:26px;height:26px;flex-basis:26px}
+  .qstrip .qstat{min-width:0}
+  .stat{min-width:0}
+  .taskrow{
+    align-items:flex-start;
+    padding:13px 2px;
+  }
+  .taskrow .openbtn{
+    width:calc(100% - 35px);
+    margin-left:35px;
+  }
+  .dpp-widget{
+    width:calc(100% - 35px);
+    margin-left:35px;
+    justify-content:space-between;
+  }
+  .test-score-row{gap:7px;padding:9px}
+  .test-score-row .test-date{width:65px;font-size:10px}
+  .test-score-row .test-name{font-size:11px}
+  .test-score-row .test-value{font-size:11px}
+  .btnrow{align-items:stretch}
+  .btnrow .btn{width:100%}
+}
 </style>
 </head>
 <body>
 <div class="layout">
   <aside class="sidebar" id="sidebar"></aside>
   <div class="wrap" id="app"></div>
+  <aside class="rightbar" id="rightbar"></aside>
 </div>
 <script>
 /* ---------------- SUBJECT DATA ---------------- */
 const SUBJECTS = [
 {id:'physics',name:'Physics',faculty:'Manish Singh Tak Sir',
- link:'https://pwthor.live/study/batches/67738e4a5787b05d8ec6e07f/subjects/physics-569037',
+ link:'https://pwthor.live/study/batches/6994351ae02b4900c7ac6906/subjects/physics-by-manish-singh-tak-sir-685329',
  chapters:[
   {name:'Mathematical Tools',lectures:4},{name:'Motion in a Straight Line',lectures:7},
   {name:'Motion in a Plane',lectures:7},{name:'Laws of Motion',lectures:10},
@@ -390,7 +1153,7 @@ const SUBJECTS = [
   {name:'Units and Measurements',lectures:1},{name:'Errors in Measurement',lectures:1}
  ]},
 {id:'maths',name:'Mathematics',faculty:'Tarun Khandelwal Sir',
- link:'https://pwthor.live/study/batches/678a39b07764c4041763336a/subjects/maths-002521',
+ link:'https://pwthor.live/study/batches/6994351ae02b4900c7ac6906/subjects/11th-maths-by-tarun-khandelwal-sir-771778',
  chapters:[
   {name:'Basic Mathematics',lectures:12},{name:'Quadratic Equations',lectures:9},
   {name:'Sequence and Series',lectures:9},{name:'Trigonometric Functions',lectures:8},
@@ -409,7 +1172,7 @@ const SUBJECTS = [
   {name:'Complex Number',lectures:4},{name:'Solution of Triangle',lectures:1}
  ]},
 {id:'inorganic',name:'Inorganic Chemistry',faculty:'Kunwar Om Pandey Sir',
- link:'https://pwthor.live/study/batches/678a39b07764c4041763336a/subjects/inorganic-chemistry-956522',
+ link:'https://pwthor.live/study/batches/6994351ae02b4900c7ac6906/subjects/inorganic-chemistry-by-kunwar-om-pandey-sir-733450',
  chapters:[
   {name:'Classification of Elements and Periodicity',lectures:9},
   {name:'Chemical Bonding and Molecular Structure',lectures:17},
@@ -422,7 +1185,7 @@ const SUBJECTS = [
   {name:'S-block Elements (Recorded)',lectures:1}
  ]},
 {id:'organic',name:'Organic Chemistry',faculty:'Rohit Agarwal Sir',
- link:'https://pwthor.live/study/batches/67738e4a5787b05d8ec6e07f/subjects/organic-chemistry-561378',
+ link:'https://pwthor.live/study/batches/6994351ae02b4900c7ac6906/subjects/organic-chemistry-by-rohit-agarwal-sir-184120',
  chapters:[
   {name:'IUPAC Nomenclature',lectures:9},
   {name:'GOC (Basic Principles)',lectures:12},
@@ -438,7 +1201,7 @@ const SUBJECTS = [
   {name:'Environmental Chemistry (Recorded)',lectures:1}
  ]},
 {id:'physicalchem',name:'Physical Chemistry',faculty:'Rahul Dudi Sir',
- link:'https://pwthor.live/study/batches/678a39b07764c4041763336a/subjects/physical-chemistry-292666',
+ link:'https://pwthor.live/study/batches/6994351ae02b4900c7ac6906/subjects/physical-chemistry-by-rahul-dudi-sir-111230',
  chapters:[
   {name:'Some Basic Concepts of Chemistry',lectures:12},
   {name:'Redox Reaction',lectures:5},
@@ -481,7 +1244,7 @@ const SKIP_REASONS = ['Fever / Unwell','Procrastination','Guests at home','Festi
 /* ---------------- STATE ---------------- */
 let state = null;
 const STORAGE_KEY = 'prayas-planner-state-v2';
-const PLAN_VERSION = 9;
+const PLAN_VERSION = 13;
 
 /* Uses LOCAL date parts (not UTC) so "today" is correct regardless of timezone/time of day */
 function todayISO(){
@@ -536,14 +1299,18 @@ function defaultState(){
   });
   return {
     theme:'light', setupDone:false, wizardStep:0,
-    startDate: todayISO(),
-    avgLectureMinutes:30, lecturesPerDay:2, subjectsPerDay:2, paceChoice:null,
-    subjectOrder: SUBJECTS.map(s=>s.id),
+     startDate: todayISO(),
+     avgLectureMinutes:30, lecturesPerDay:1, subjectsPerDay:1, paceChoice:null,
+     subjectOrder: ['physics','chemistry','maths'],
+     chemistryOrder: ['inorganic','organic','physicalchem'],
+      holidayWeekday:0, holidayOptions:{},
      chapters, chapterOrder, lectureOverrides,
+     videoLibraryBySubject: {},
+     csvSetupPrepared:false,
     plan: [], planGenerated:false,
      planVersion: PLAN_VERSION,
     skippedDates: [], skipLog: [], completedItems: {}, completionLog: [],
-    view:'today', openDay:null, skipPromptOpen:false, settingsPaceEditing:false,
+     view:'today', openDay:null, skipPromptOpen:false, settingsPaceEditing:false,
      dailyQuestionGoal:60, questionGoalOverrides:{}, questionsLog:{}, questionsByItem:{},
      questionPractice:{},
     dppByItem:{},
@@ -556,8 +1323,9 @@ function migrateState(parsed){
   const def = defaultState();
   const merged = Object.assign({}, def, parsed);
   const savedPlanVersion = Number(parsed.planVersion)||0;
-  // Versions 1–7 stored x as subjects/day and y as lectures/subject.
-  // Version 8 stores m as total lectures/day and n as subjects/day.
+  // Older versions stored a flat subject order and a configurable pace.
+  // The current planner uses a Physics → Chemistry → Maths group order,
+  // with a separate order inside Chemistry, and one core lecture per study day.
   if(savedPlanVersion<8 && parsed.subjectsPerDay!==undefined && parsed.lecturesPerDay!==undefined){
     merged.lecturesPerDay = Math.max(1, Number(parsed.subjectsPerDay)||1) * Math.max(1, Number(parsed.lecturesPerDay)||1);
     merged.subjectsPerDay = Math.max(1, Number(parsed.subjectsPerDay)||1);
@@ -571,9 +1339,60 @@ function migrateState(parsed){
   merged.avgLectureMinutes = parsed.avgLectureMinutes || def.avgLectureMinutes;
   merged.chapters = parsed.chapters || def.chapters;
   merged.chapterOrder = parsed.chapterOrder || def.chapterOrder;
-  merged.subjectOrder = parsed.subjectOrder || def.subjectOrder;
+  const savedSubjectOrder = Array.isArray(parsed.subjectOrder) ? parsed.subjectOrder : [];
+  merged.subjectOrder = savedSubjectOrder.includes('chemistry')
+    ? savedSubjectOrder.filter(id=>['physics','chemistry','maths'].includes(id))
+    : ['physics','chemistry','maths'].filter(group=>{
+        if(group==='physics') return savedSubjectOrder.includes('physics') || !savedSubjectOrder.length;
+        if(group==='maths') return savedSubjectOrder.includes('maths') || !savedSubjectOrder.length;
+        return savedSubjectOrder.some(id=>['inorganic','organic','physicalchem'].includes(id)) || !savedSubjectOrder.length;
+      });
+  if(merged.subjectOrder.length!==3) merged.subjectOrder = def.subjectOrder.slice();
+  const savedChemOrder = Array.isArray(parsed.chemistryOrder) ? parsed.chemistryOrder : [];
+  merged.chemistryOrder = ['inorganic','organic','physicalchem']
+    .filter(id=>savedChemOrder.includes(id) || (!savedChemOrder.length && savedSubjectOrder.includes(id)));
+  if(merged.chemistryOrder.length!==3) merged.chemistryOrder = def.chemistryOrder.slice();
+  const savedHolidayWeekday = Number(parsed.holidayWeekday);
+  merged.holidayWeekday = Number.isInteger(savedHolidayWeekday) && savedHolidayWeekday>=0 && savedHolidayWeekday<=6
+    ? savedHolidayWeekday : def.holidayWeekday;
+  merged.holidayOptions = parsed.holidayOptions && typeof parsed.holidayOptions==='object'
+    ? parsed.holidayOptions
+    : (parsed.sundayOptions && typeof parsed.sundayOptions==='object' ? parsed.sundayOptions : {});
   merged.lectureOverrides = parsed.lectureOverrides || def.lectureOverrides;
-  SUBJECTS.forEach(s=>{ if(!merged.lectureOverrides[s.id]) merged.lectureOverrides[s.id]={}; });
+   merged.videoLibraryBySubject = {};
+   if(parsed.videoLibraryBySubject && typeof parsed.videoLibraryBySubject==='object'){
+     Object.entries(parsed.videoLibraryBySubject).forEach(([sid,videos])=>{
+       merged.videoLibraryBySubject[sid] = cleanVideoList(videos);
+     });
+   } else if(Array.isArray(parsed.videoLibrary) && parsed.videoLibrary.length){
+     // Keep older whole-library imports recoverable without mixing them into
+     // any subject. The user can re-import that CSV under the right subject.
+     merged.videoLibraryBySubject.unassigned = cleanVideoList(parsed.videoLibrary);
+   }
+   merged.csvSetupPrepared = !!parsed.csvSetupPrepared;
+  SUBJECTS.forEach(s=>{
+    const savedOrder = parsed.chapterOrder && Array.isArray(parsed.chapterOrder[s.id])
+      ? parsed.chapterOrder[s.id] : def.chapterOrder[s.id];
+    const savedChapters = parsed.chapters && parsed.chapters[s.id] &&
+      typeof parsed.chapters[s.id]==='object' ? parsed.chapters[s.id] : {};
+    merged.chapterOrder[s.id] = savedOrder
+      .map(name=>String(name||'').trim()).filter(Boolean);
+    merged.chapters[s.id] = {};
+    merged.lectureOverrides[s.id] =
+      parsed.lectureOverrides && parsed.lectureOverrides[s.id] &&
+      typeof parsed.lectureOverrides[s.id]==='object'
+        ? Object.assign({},parsed.lectureOverrides[s.id]) : {};
+    merged.chapterOrder[s.id].forEach(name=>{
+      const cfg = savedChapters[name] || {};
+      merged.chapters[s.id][name] = {
+        done:!!cfg.done,
+        mode:cfg.mode==='oneshot' ? 'oneshot' : 'regular',
+        oneshotLink:String(cfg.oneshotLink||'').trim(),
+         oneshotTitle:String(cfg.oneshotTitle||'').trim(),
+        oneshotHours:Math.max(0,Number(cfg.oneshotHours)||0)
+      };
+    });
+  });
   merged.dailyQuestionGoal = parsed.dailyQuestionGoal || def.dailyQuestionGoal;
   merged.questionGoalOverrides = parsed.questionGoalOverrides || {};
   merged.questionsLog = parsed.questionsLog || {};
@@ -605,12 +1424,110 @@ function saveState(){
 /* ---------------- HELPERS ---------------- */
 function subj(id){ return SUBJECTS.find(s=>s.id===id); }
 function itemKey(sid,chName,part){ return sid+'::'+chName+'::'+part; }
+function escHtml(s){
+  return String(s??'').replace(/[&<>"']/g,ch=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[ch]));
+}
+
+/* Chapter names are part of item ids, so changing one needs to update every
+   stored reference, not just the visible syllabus list. */
+function renameStoredKey(key,oldPrefix,newPrefix){
+  return String(key).split(oldPrefix).join(newPrefix);
+}
+function renameChapter(sid,oldName,newName){
+  newName = String(newName||'').trim();
+  if(!newName || newName===oldName) return false;
+  const order = state.chapterOrder[sid]||[];
+  if(order.some(name=>name!==oldName && name.toLowerCase()===newName.toLowerCase())){
+    alert('A chapter with that name already exists in this subject.');
+    return false;
+  }
+  const oldPrefix = sid+'::'+oldName+'::';
+  const newPrefix = sid+'::'+newName+'::';
+  const cfg = state.chapters[sid][oldName] || {done:false,mode:'regular',oneshotLink:''};
+  delete state.chapters[sid][oldName];
+  state.chapters[sid][newName] = cfg;
+  state.chapterOrder[sid] = order.map(name=>name===oldName ? newName : name);
+  if(state.lectureOverrides[sid] && Object.prototype.hasOwnProperty.call(state.lectureOverrides[sid],oldName)){
+    state.lectureOverrides[sid][newName] = state.lectureOverrides[sid][oldName];
+    delete state.lectureOverrides[sid][oldName];
+  }
+  ['completedItems','dppByItem','questionsByItem','manualSchedule','revisionSelections'].forEach(key=>{
+    const source = state[key] || {};
+    const next = {};
+    Object.entries(source).forEach(([id,value])=>{
+      next[renameStoredKey(id,oldPrefix,newPrefix)] = value;
+    });
+    state[key] = next;
+  });
+  (state.plan||[]).forEach(day=>(day.items||[]).forEach(item=>{
+    if(item.subject===sid && item.chapter===oldName) item.chapter = newName;
+    if(item.id) item.id = renameStoredKey(item.id,oldPrefix,newPrefix);
+    if(item.revisionFor) item.revisionFor = renameStoredKey(item.revisionFor,oldPrefix,newPrefix);
+  }));
+  (state.completionLog||[]).forEach(entry=>{
+    if(entry.subject===sid && entry.chapter===oldName) entry.chapter = newName;
+    if(entry.id) entry.id = renameStoredKey(entry.id,oldPrefix,newPrefix);
+  });
+  Object.values(state.questionPractice||{}).forEach(entries=>(entries||[]).forEach(entry=>{
+    if(entry.subject===sid && entry.chapter===oldName) entry.chapter = newName;
+  }));
+  return true;
+}
+function addChapter(sid,name){
+  name = String(name||'').trim();
+  if(!name) return false;
+  const order = state.chapterOrder[sid] || (state.chapterOrder[sid]=[]);
+  if(order.some(existing=>existing.toLowerCase()===name.toLowerCase())){
+    alert('A chapter with that name already exists in this subject.');
+    return false;
+  }
+  order.push(name);
+  if(!state.chapters[sid]) state.chapters[sid] = {};
+  state.chapters[sid][name] = {done:false,mode:'regular',oneshotLink:''};
+  if(!state.lectureOverrides[sid]) state.lectureOverrides[sid] = {};
+  state.lectureOverrides[sid][name] = 1;
+  return true;
+}
+function deleteChapter(sid,name){
+  const order = state.chapterOrder[sid] || [];
+  const cfg = state.chapters[sid] && state.chapters[sid][name];
+  const progress = cfg && (cfg.done ||
+    Object.keys(state.completedItems||{}).some(id=>id.indexOf(sid+'::'+name+'::')===0));
+  const warning = progress
+    ? `Delete "${name}" and its saved progress, questions, and schedule entries?`
+    : `Delete "${name}" from this subject?`;
+  if(!confirm(warning)) return false;
+  state.chapterOrder[sid] = order.filter(existing=>existing!==name);
+  if(state.chapters[sid]) delete state.chapters[sid][name];
+  if(state.lectureOverrides[sid]) delete state.lectureOverrides[sid][name];
+  const prefix = sid+'::'+name+'::';
+  ['completedItems','dppByItem','questionsByItem','manualSchedule','revisionSelections'].forEach(key=>{
+    const source = state[key] || {};
+    state[key] = Object.fromEntries(Object.entries(source).filter(([id])=>id.indexOf(prefix)===-1));
+  });
+  (state.plan||[]).forEach(day=>{
+    day.items = (day.items||[]).filter(item=>!(item.subject===sid && item.chapter===name));
+  });
+  state.plan = (state.plan||[]).filter(day=>day.items.length>0);
+  state.completionLog = (state.completionLog||[]).filter(entry=>
+    !(entry.subject===sid && entry.chapter===name));
+  Object.keys(state.questionPractice||{}).forEach(date=>{
+    const entries = (state.questionPractice[date]||[]).filter(entry=>
+      !(entry.subject===sid && entry.chapter===name));
+    if(entries.length) state.questionPractice[date]=entries;
+    else delete state.questionPractice[date];
+  });
+  return true;
+}
 
 /* Lecture count per chapter — user-editable, falls back to the default from SUBJECTS */
 function getLectureCount(sid,chName){
   const ov = state.lectureOverrides && state.lectureOverrides[sid] ? state.lectureOverrides[sid][chName] : undefined;
   if(ov!==undefined && ov!==null && ov>0) return ov;
-  const chObj = subj(sid).chapters.find(c=>c.name===chName);
+  const subjectData = subj(sid);
+  const chObj = subjectData ? subjectData.chapters.find(c=>c.name===chName) : null;
   return chObj ? chObj.lectures : 1;
 }
 function setLectureCount(sid,chName,n){
@@ -619,8 +1536,49 @@ function setLectureCount(sid,chName,n){
   state.lectureOverrides[sid][chName] = n;
 }
 
+function orderedSubjectIds(){
+  const groups = Array.isArray(state.subjectOrder) && state.subjectOrder.length
+    ? state.subjectOrder : ['physics','chemistry','maths'];
+  const chemistry = Array.isArray(state.chemistryOrder) && state.chemistryOrder.length
+    ? state.chemistryOrder : ['inorganic','organic','physicalchem'];
+  const ids=[];
+  groups.forEach(group=>{
+    if(group==='chemistry') chemistry.forEach(id=>{ if(!ids.includes(id)) ids.push(id); });
+    else if(SUBJECTS.some(s=>s.id===group) && !ids.includes(group)) ids.push(group);
+  });
+  SUBJECTS.forEach(s=>{ if(!ids.includes(s.id)) ids.push(s.id); });
+  return ids;
+}
+function orderedSubjectGroups(){
+  const groups = Array.isArray(state.subjectOrder) && state.subjectOrder.length
+    ? state.subjectOrder : ['physics','chemistry','maths'];
+  const valid=groups.filter(id=>['physics','chemistry','maths'].includes(id));
+  ['physics','chemistry','maths'].forEach(id=>{ if(!valid.includes(id)) valid.push(id); });
+  return valid;
+}
+function subjectIdsForGroup(group){
+  if(group==='chemistry'){
+    const chemistry = Array.isArray(state.chemistryOrder) && state.chemistryOrder.length
+      ? state.chemistryOrder : ['inorganic','organic','physicalchem'];
+    return chemistry.slice();
+  }
+  return [group];
+}
+const WEEKDAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function weekdayOfISO(iso){
+  const parts=String(iso||'').split('-').map(Number);
+  const dt=new Date(Date.UTC(parts[0],parts[1]-1,parts[2]));
+  return dt.getUTCDay();
+}
+function weekdayNameOfISO(iso){
+  return WEEKDAYS[weekdayOfISO(iso)] || 'Holiday';
+}
+function isHoliday(iso){
+  return weekdayOfISO(iso)===state.holidayWeekday;
+}
+
 function remainingChapters(sid){
-  return state.chapterOrder[sid].filter(n=>!state.chapters[sid][n].done);
+  return (state.chapterOrder[sid]||[]).filter(n=>!state.chapters[sid][n] || !state.chapters[sid][n].done);
 }
 function totalRemainingLectureCount(sid){
   let n=0;
@@ -687,8 +1645,50 @@ function practiceTaskItems(dateIso){
       practiceIndex:index
     }));
 }
+function currentChapterPracticeItem(day){
+  const core=(day.items||[]).find(i=>i.type==='lecture'||i.type==='oneshot');
+  if(!core) return null;
+  const id='chapter-practice::'+day.date+'::'+core.id;
+  return {
+    type:'chapter-practice', subject:core.subject, chapter:core.chapter,
+    id, done:!!state.completedItems[id], questions:state.questionsByItem[id]||0
+  };
+}
+function holidayOptionState(dateIso){
+  if(!state.holidayOptions) state.holidayOptions={};
+  if(!state.holidayOptions[dateIso]) state.holidayOptions[dateIso]={};
+  return state.holidayOptions[dateIso];
+}
+function holidayTaskItems(day){
+  if(!day || !day.holiday) return [];
+  const options=holidayOptionState(day.date), out=[];
+  const practice=options.practice;
+  if(practice && practice.subject && practice.chapter){
+    out.push({type:'holiday-practice',subject:practice.subject,chapter:practice.chapter,
+      questions:Math.max(0,parseInt(practice.questions)||0),id:'holiday-practice::'+day.date,
+      done:!!practice.done});
+  }
+  const revision=options.revision;
+  if(revision && revision.subject && revision.chapter){
+    out.push({type:'holiday-revision',subject:revision.subject,chapter:revision.chapter,
+      id:'holiday-revision::'+day.date,done:!!revision.done});
+  }
+  const test=options.test;
+  if(test && test.enabled){
+    out.push({type:'test',subject:'',chapter:'Optional test',id:'holiday-test::'+day.date,
+      done:!!test.done, testType:test.type||'JEE Mains', maxMarks:Math.max(1,parseInt(test.maxMarks)||1),
+      papers:test.papers||'1', score:Math.max(0,parseInt(test.score)||0)});
+  }
+  return out;
+}
+function dayAuxItems(day){
+  return day && day.holiday ? holidayTaskItems(day) : (currentChapterPracticeItem(day) ? [currentChapterPracticeItem(day)] : []);
+}
 function dayDisplayItems(day){
-  return [...(day.items||[]),...practiceTaskItems(day.date)];
+  return [...(day.items||[]),...dayAuxItems(day)];
+}
+function findDisplayItem(day,id){
+  return dayDisplayItems(day).find(item=>item.id===id) || null;
 }
 function askQuestionsFor(promptText){
   const raw = window.prompt(promptText, '0');
@@ -711,19 +1711,35 @@ function oneShotCount(sid){
 }
 function remainingTotalLectures(){ let n=0; SUBJECTS.forEach(s=>n+=totalRemainingLectureCount(s.id)); return n; }
 function remainingTotalOneshots(){ let n=0; SUBJECTS.forEach(s=>n+=oneShotCount(s.id)); return n; }
+function remainingCoreTaskCount(){
+  let n=0;
+  orderedSubjectIds().forEach(sid=>{ n += buildSubjectQueue(sid).length; });
+  return n;
+}
 function estimateDaysAtPace(){
-  const totalLec = remainingTotalLectures();
-  const totalOne = remainingTotalOneshots();
-  const lecturesPerDay = Math.max(1,Number(state.lecturesPerDay)||1);
-  return totalLec>0 ? Math.ceil(totalLec/lecturesPerDay)+totalOne : totalOne;
+  const count=remainingCoreTaskCount();
+  if(!count) return 0;
+  let cursor=planStartDate(), studyDays=0, guard=0;
+  while(studyDays<count && guard<20000){
+    if(!isHoliday(cursor)) studyDays++;
+    cursor=addDays(cursor,1); guard++;
+  }
+  return Math.max(0,guard);
 }
 function estimatedFinishDate(){
-  const days = estimateDaysAtPace();
-  return addDays(planStartDate(),Math.max(0,days-1));
+  const count=remainingCoreTaskCount();
+  if(!count) return planStartDate();
+  let cursor=planStartDate(), done=0, guard=0;
+  while(done<count && guard<20000){
+    if(!isHoliday(cursor)) done++;
+    if(done===count) return cursor;
+    cursor=addDays(cursor,1); guard++;
+  }
+  return cursor;
 }
 
 function chapterProgress(sid,chName){
-  const cfg = state.chapters[sid][chName];
+  const cfg = state.chapters[sid][chName] || {done:false,mode:'regular'};
   if(cfg.mode==='oneshot'){
     const done = (cfg.done || state.completedItems[itemKey(sid,chName,'oneshot')]) ? 1:0;
     return {done, total:1};
@@ -737,8 +1753,8 @@ function chapterProgress(sid,chName){
 }
 function subjectTotals(sid){
   let total=0, done=0;
-  subj(sid).chapters.forEach(c=>{
-    const p = chapterProgress(sid,c.name);
+  (state.chapterOrder[sid]||[]).forEach(chName=>{
+    const p = chapterProgress(sid,chName);
     total+=p.total; done+=p.done;
   });
   return {total,done};
@@ -828,100 +1844,50 @@ function buildSubjectQueue(sid){
 }
 
 function generatePlan(){
-  const active = state.subjectOrder.filter(sid=>buildSubjectQueue(sid).length>0);
-  const queues={}; active.forEach(sid=>queues[sid]=buildSubjectQueue(sid));
-  let rotation=[...active];
+  /*
+   * Keep the three-day rhythm explicit: one task from Physics, then one
+   * from Chemistry, then one from Maths. Chemistry's own queue is already
+   * assembled in the user's selected Inorganic / Organic / Physical order.
+   * If one group finishes early, the remaining groups continue in order.
+   */
+  const groups=orderedSubjectGroups();
+  const queues={};
+  groups.forEach(group=>{
+    queues[group]=[];
+    subjectIdsForGroup(group).forEach(sid=>queues[group].push(...buildSubjectQueue(sid)));
+  });
   const plan=[];
-  let dateCursor = nextScheduledDate(planStartDate());
-  const N = Math.max(1, state.subjectsPerDay);
-  const pace = state.lecturesPerDay;
+  let dateCursor = planStartDate();
+  let groupIndex=0;
   let guard=0;
-  while(rotation.length>0 && guard<8000){
+  while(groups.some(group=>queues[group] && queues[group].length>0) && guard<20000){
     guard++;
-    rotation = rotation.filter(sid=>queues[sid] && queues[sid].length>0);
-    if(rotation.length===0) break;
-    const picks=[];
-    while(picks.length<N && rotation.length>0){ picks.push(rotation.shift()); }
-    let oneshotPick=null;
-    for(const sid of picks){ if(queues[sid][0] && queues[sid][0].type==='oneshot'){ oneshotPick=sid; break; } }
-    const dayItems=[];
-    if(oneshotPick){
-      // A one-shot is always exactly one study day. Its configured hours are
-      // informational only: never bulk it with lectures or let it consume a
-      // fraction of a day.
-      const t=queues[oneshotPick].shift();
-      dayItems.push(Object.assign({},t,{done:!!state.completedItems[t.id]}));
-      // Give the user a revision window on the same one-shot day. It does not
-      // turn the one-shot into a second day; it fills the otherwise-unused
-      // part of that day and starts with completed chapters as suggestions.
-      const revisionId = 'revision-window::'+t.id;
-      const selectedRevision = state.revisionSelections[revisionId] || {};
-      if(!state.completedItems[revisionId]){
-        dayItems.push({
-          type:'revision', subject:selectedRevision.subject||'', chapter:selectedRevision.chapter||'',
-          id:revisionId, done:false, manual:false, revisionFor:t.id
-        });
-      }
-      const others = picks.filter(p=>p!==oneshotPick);
-      rotation = others.concat(rotation);
-      if(queues[oneshotPick].length>0) rotation.push(oneshotPick);
+    if(isHoliday(dateCursor)){
+      plan.push({date:dateCursor,items:[],holiday:true});
+      dateCursor=addDays(dateCursor,1);
+      continue;
     } else {
-      /*
-       * Keep m total lecture slots per day, distributed across n subjects.
-       *
-       * Every selected subject gets one slot first. Any remaining slots go
-       * one-by-one to the selected subjects with the most lectures left.
-       * This gives 4/3 -> 2,1,1 and 5/3 -> 2,2,1 (subject ranking decides
-       * which subjects receive the extra slots).
-       */
-      const totalSlots = Math.max(1,pace);
-      const selected = picks.slice(0,totalSlots);
-      const allocation = {};
-      let slotsLeft = totalSlots;
-      const lectureCapacity = sid=>{
-        const queue = queues[sid];
-        if(!queue || queue.length===0) return 0;
-        const oneShotAt = queue.findIndex(t=>t.type==='oneshot');
-        return oneShotAt===-1 ? queue.length : oneShotAt;
-      };
-      // Give each selected subject one lecture before distributing extras.
-      selected.forEach(sid=>{
-        if(slotsLeft>0 && lectureCapacity(sid)>0){
-          allocation[sid] = 1;
-          slotsLeft--;
+      let selectedGroup=null, selectedOffset=0;
+      for(let offset=0;offset<groups.length;offset++){
+        const candidate=groups[(groupIndex+offset)%groups.length];
+        if(queues[candidate] && queues[candidate].length){
+          selectedGroup=candidate;
+          selectedOffset=offset;
+          break;
         }
-      });
-      // Extras are assigned by remaining lecture volume, highest first.
-      let extraIndex = 0;
-      while(slotsLeft>0){
-        const ranked = selected
-          .filter(sid=>lectureCapacity(sid)>(allocation[sid]||0))
-          .sort((a,b)=>lectureCapacity(b)-lectureCapacity(a));
-        if(ranked.length===0) break;
-        const sid = ranked[extraIndex % ranked.length];
-        allocation[sid] = (allocation[sid]||0)+1;
-        slotsLeft--;
-        extraIndex++;
       }
-      // Consume each subject's allocated chunk, stopping before a one-shot.
-      selected.forEach(sid=>{
-        const queue = queues[sid];
-        const take = Math.min(allocation[sid]||0, lectureCapacity(sid));
-        for(let i=0;i<take;i++){
-          const t = queue.shift();
-          dayItems.push(Object.assign({},t,{done:!!state.completedItems[t.id]}));
-        }
+      if(!selectedGroup) break;
+      const t=queues[selectedGroup].shift();
+      groupIndex=(groupIndex+selectedOffset+1)%groups.length;
+      const dayItems=[Object.assign({},t,{done:!!state.completedItems[t.id]})];
+      const revisionId='revision-window::'+t.id;
+      const selectedRevision=state.revisionSelections[revisionId] || {};
+      dayItems.push({
+        type:'revision', subject:selectedRevision.subject||'', chapter:selectedRevision.chapter||'',
+        id:revisionId, done:!!state.completedItems[revisionId], manual:false, revisionFor:t.id
       });
-      // Subjects not selected stay at the front; selected subjects rotate to
-      // the back while still retaining their remaining queue.
-      rotation = rotation.filter(sid=>queues[sid] && queues[sid].length>0);
-      selected.forEach(sid=>{
-        if(queues[sid] && queues[sid].length>0) rotation.push(sid);
-      });
-    }
-    if(dayItems.length>0){
-      plan.push({date:dateCursor, items:dayItems});
-      dateCursor = nextScheduledDate(addDays(dateCursor,1));
+      plan.push({date:dateCursor,items:dayItems,holiday:false});
+      dateCursor=addDays(dateCursor,1);
     }
   }
   applyManualSchedules(plan);
@@ -1027,9 +1993,10 @@ function findTargetPlanDay(){
 }
 function allChapterOptionsGrouped(){
   let html='';
-  SUBJECTS.forEach(s=>{
+  orderedSubjectIds().forEach(sid=>{
+    const s=subj(sid);
     html += `<optgroup label="${s.name}">`;
-    state.chapterOrder[s.id].forEach(ch=>{ html += `<option value="${s.id}::${escAttr(ch)}">${ch}</option>`; });
+    (state.chapterOrder[s.id]||[]).forEach(ch=>{ html += `<option value="${s.id}::${escAttr(ch)}">${escHtml(ch)}</option>`; });
     html += `</optgroup>`;
   });
   return html;
@@ -1076,7 +2043,7 @@ function downloadJson(data,filename){
   URL.revokeObjectURL(url);
 }
 function exportData(){
-  downloadJson(state,'prayas-planner-backup-'+todayISO()+'.json');
+  downloadJson(state,'manzil-planner-backup-'+todayISO()+'.json');
 }
 function buildSyllabusExport(){
   return {
@@ -1094,7 +2061,8 @@ function buildSyllabusExport(){
           name,
           lectures:getLectureCount(s.id,name),
           mode:cfg.mode==='oneshot' ? 'oneshot' : 'regular',
-          oneshotLink:cfg.oneshotLink||''
+           oneshotLink:cfg.oneshotLink||'',
+           oneshotTitle:cfg.oneshotTitle||''
         };
       })
     }))
@@ -1102,7 +2070,7 @@ function buildSyllabusExport(){
 }
 function exportSyllabus(){
   const syllabus = buildSyllabusExport();
-  downloadJson(syllabus,'prayas-syllabus-'+todayISO()+'.json');
+  downloadJson(syllabus,'manzil-syllabus-'+todayISO()+'.json');
 }
 function syllabusSubjectsFromFile(parsed){
   if(parsed && parsed.format==='prayas-syllabus' && Array.isArray(parsed.subjects)){
@@ -1133,7 +2101,9 @@ function syllabusSubjectsFromFile(parsed){
         mode:parsed.chapters[s.id] && parsed.chapters[s.id][name] &&
           parsed.chapters[s.id][name].mode==='oneshot' ? 'oneshot' : 'regular',
         oneshotLink:parsed.chapters[s.id] && parsed.chapters[s.id][name]
-          ? parsed.chapters[s.id][name].oneshotLink||'' : ''
+           ? parsed.chapters[s.id][name].oneshotLink||'' : '',
+         oneshotTitle:parsed.chapters[s.id] && parsed.chapters[s.id][name]
+           ? parsed.chapters[s.id][name].oneshotTitle||'' : ''
       }))
     }));
   }
@@ -1153,7 +2123,7 @@ function importSyllabusData(file){
       const imported = subjects.filter(s=>s && knownSubjects.has(s.id));
       const unknown = subjects.filter(s=>!s || !knownSubjects.has(s.id));
       if(unknown.length>0 || imported.length===0){
-        alert('This syllabus was not exported from a compatible Prayas Planner.');
+        alert('This syllabus was not exported from a compatible Manzil Planner.');
         return;
       }
       for(const importedSubject of imported){
@@ -1162,10 +2132,9 @@ function importSyllabusData(file){
           alert(`No chapters found for ${baseSubject.name}.`);
           return;
         }
-        const knownChapters = new Set(baseSubject.chapters.map(c=>c.name));
         const names = importedSubject.chapters.map(ch=>String(ch && ch.name || '').trim());
-        if(names.some(name=>!name || !knownChapters.has(name)) || new Set(names).size!==names.length){
-          alert(`The syllabus contains an unknown or duplicate chapter in ${baseSubject.name}.`);
+        if(names.some(name=>!name) || new Set(names).size!==names.length){
+          alert(`The syllabus contains an empty or duplicate chapter in ${baseSubject.name}.`);
           return;
         }
       }
@@ -1181,7 +2150,8 @@ function importSyllabusData(file){
             // Syllabus imports do not erase completion already recorded here.
             done:!!old.done,
             mode:ch.mode==='oneshot' ? 'oneshot' : 'regular',
-            oneshotLink:String(ch.oneshotLink||'').trim()
+              oneshotLink:String(ch.oneshotLink||'').trim(),
+              oneshotTitle:String(ch.oneshotTitle||'').trim()
           };
           nextOverrides[name] = Math.max(1,parseInt(ch.lectures)||1);
         });
@@ -1205,12 +2175,135 @@ function importSyllabusData(file){
   };
   reader.readAsText(file);
 }
+
+/* ---------------- YOUTUBE CSV IMPORT ---------------- */
+function parseCsvRows(text){
+  const rows=[], row=[];
+  let cell='', quoted=false;
+  const source=String(text||'').replace(/^\uFEFF/,'');
+  for(let i=0;i<source.length;i++){
+    const ch=source[i];
+    if(quoted){
+      if(ch==='"'){
+        if(source[i+1]==='"'){ cell+='"'; i++; }
+        else quoted=false;
+      } else {
+        cell+=ch;
+      }
+    } else if(ch==='"'){
+      quoted=true;
+    } else if(ch===','){
+      row.push(cell); cell='';
+    } else if(ch==='\n' || ch==='\r'){
+      if(ch==='\r' && source[i+1]==='\n') i++;
+      row.push(cell); cell='';
+      if(row.some(value=>String(value).trim()!=='')) rows.push(row.splice(0,row.length));
+    } else {
+      cell+=ch;
+    }
+  }
+  row.push(cell);
+  if(row.some(value=>String(value).trim()!=='')) rows.push(row);
+  return rows;
+}
+function csvHeaderKey(value){
+  return String(value||'').trim().toLowerCase().replace(/[\s_-]+/g,'');
+}
+function videosFromCsv(text){
+  const rows=parseCsvRows(text);
+  if(rows.length<2) return {error:'The CSV is empty. Add a header row and at least one video.'};
+  const headers=rows[0].map(csvHeaderKey);
+  const titleIndex=headers.findIndex(h=>h==='title' || h==='videotitle' || h==='name');
+  const linkIndex=headers.findIndex(h=>h==='videolink' || h==='link' || h==='url' || h==='videourl');
+  if(titleIndex===-1 || linkIndex===-1){
+    return {error:'Expected columns named "title" and "video link".'};
+  }
+  const seen=new Set(), seenTitles=new Set(), videos=[];
+  rows.slice(1).forEach(row=>{
+    const title=String(row[titleIndex]||'').trim();
+    const link=externalHref(row[linkIndex]);
+    const titleKey=title.toLowerCase();
+    if(!title || !link || seen.has(link) || seenTitles.has(titleKey)) return;
+    seen.add(link);
+    seenTitles.add(titleKey);
+    videos.push({title,link});
+  });
+  if(videos.length===0) return {error:'No valid videos were found. Each row needs a title and a valid video link.'};
+  return {videos};
+}
+function cleanVideoList(videos){
+  return Array.isArray(videos)
+    ? videos.map(v=>({
+        title:String(v && v.title || '').trim(),
+        link:externalHref(v && v.link)
+      })).filter(v=>v.title && v.link)
+    : [];
+}
+function subjectVideos(sid){
+  return state.videoLibraryBySubject && Array.isArray(state.videoLibraryBySubject[sid])
+    ? state.videoLibraryBySubject[sid] : [];
+}
+function renderVideoLibraryRows(sid,limit=999){
+  const videos=subjectVideos(sid);
+  if(videos.length===0) return '';
+  const visible=videos.slice(0,limit);
+  return `<div class="video-library">
+    ${visible.map(video=>`<div class="video-library-row">
+      <div class="video-title" title="${escAttr(video.title)}">${escHtml(video.title)}</div>
+      <a class="csv-video-open video-open" href="${escAttr(externalHref(video.link))}" target="_blank" rel="noopener noreferrer">Open ↗</a>
+    </div>`).join('')}
+    ${videos.length>limit ? `<div class="video-library-more">Showing ${limit} of ${videos.length} imported videos. All are available in the chapter pickers below.</div>` : ''}
+  </div>`;
+}
+function syncSubjectChaptersFromVideos(sid,videos){
+  const previous=state.chapters[sid] || {};
+  state.chapterOrder[sid]=videos.map(video=>video.title);
+  state.chapters[sid]={};
+  state.lectureOverrides[sid]={};
+  videos.forEach(video=>{
+    const old=previous[video.title] || {};
+    state.chapters[sid][video.title]={
+      done:!!old.done,
+      mode:'oneshot',
+      oneshotLink:video.link,
+      oneshotTitle:video.title
+    };
+  });
+}
+function resetToImportedCsvSubjects(){
+  SUBJECTS.forEach(s=>syncSubjectChaptersFromVideos(s.id,subjectVideos(s.id)));
+  state.manualSchedule={};
+  state.revisionSelections={};
+  state.plan=[];
+  state.planGenerated=false;
+}
+function applySubjectVideos(sid,videos){
+  if(!state.videoLibraryBySubject) state.videoLibraryBySubject={};
+  state.videoLibraryBySubject[sid]=videos;
+  syncSubjectChaptersFromVideos(sid,videos);
+  resetToImportedCsvSubjects();
+  if(state.setupDone) generatePlan();
+  else saveState();
+}
+function importVideoCsv(file,sid){
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const result=videosFromCsv(e.target.result);
+    if(result.error){ alert(result.error); return; }
+    applySubjectVideos(sid,result.videos);
+    render();
+    const subjectName=(subj(sid)||{}).name || 'subject';
+    alert(`${result.videos.length} chapter${result.videos.length===1?'':'s'} imported for ${subjectName}.`);
+  };
+  reader.onerror=()=>alert('Could not read this CSV file.');
+  reader.readAsText(file);
+}
 function importData(file){
   const reader = new FileReader();
   reader.onload = (e)=>{
     try{
       const parsed = JSON.parse(e.target.result);
-      if(!parsed || !parsed.chapters || !parsed.chapterOrder){ alert("This file doesn't look like a valid Prayas Planner backup."); return; }
+      if(!parsed || !parsed.chapters || !parsed.chapterOrder){ alert("This file doesn't look like a valid Manzil Planner backup."); return; }
       state = migrateState(parsed);
       saveState(); render();
       alert('Backup restored successfully!');
@@ -1230,7 +2323,6 @@ function render(){
     html += renderWizard();
   } else {
     ensurePlanFresh();
-    html += renderTabs();
     if(state.view==='today') html += renderToday();
     else if(state.view==='plan') html += renderFullPlan();
     else if(state.view==='progress') html += renderProgressTab();
@@ -1239,22 +2331,30 @@ function render(){
   app.innerHTML = html;
   const sidebarEl = document.getElementById('sidebar');
   if(sidebarEl) sidebarEl.innerHTML = state.setupDone ? renderSidebar() : '';
+  const rightbarEl = document.getElementById('rightbar');
+  if(rightbarEl) rightbarEl.innerHTML = state.setupDone ? renderRightbar() : '';
   attachHandlers();
 }
 
-/* ---- LEFT SIDEBAR: tabbed (Questions / Revision) + quick stats ---- */
+/* ---- LEFT SIDEBAR: primary navigation + daily questions ---- */
 function renderSidebar(){
-  const tab = state.sidebarTab || 'questions';
-  return `
-    <div class="toggle-group">
-      <button data-act="sbtab" data-tab="questions" class="${tab==='questions'?'active':''}">Questions</button>
-      <button data-act="sbtab" data-tab="revision" class="${tab==='revision'?'active':''}">Revision</button>
-    </div>
-    <div style="margin-top:16px">
-      ${tab==='revision' ? renderSidebarRevision() : renderSidebarQuestions()}
-    </div>
-    ${renderSidebarStats()}
-  `;
+  return `${renderSidebarNav()}<div>${renderSidebarQuestions()}</div>`;
+}
+
+function renderSidebarNav(){
+  return `<nav class="sidebar-nav" aria-label="Planner navigation">
+    <div class="sidebar-nav-label">Workspace</div>
+    <button data-view="today" class="${state.view==='today'?'active':''}"><span class="nav-icon" aria-hidden="true">◉</span><span>Today</span></button>
+    <button data-view="plan" class="${state.view==='plan'?'active':''}"><span class="nav-icon" aria-hidden="true">▤</span><span>Full Plan</span></button>
+    <button data-view="progress" class="${state.view==='progress'?'active':''}"><span class="nav-icon" aria-hidden="true">◒</span><span>Progress</span></button>
+    <button data-view="settings" class="${state.view==='settings'?'active':''}"><span class="nav-icon" aria-hidden="true">⚙</span><span>Settings</span></button>
+  </nav>`;
+}
+
+function renderRightbar(){
+  return `<div class="rightbar-label sidebar-nav-label">At a glance</div>
+    ${renderQuickStatsStrip()}
+    ${renderPlanSummaryStrip()}`;
 }
 
 function renderSidebarQuestions(){
@@ -1286,66 +2386,12 @@ function renderSidebarQuestions(){
   `;
 }
 
-function renderSidebarRevision(){
-  const day = findTargetPlanDay();
-  const isToday = day && day.date===todayISO();
-  const revItems = day ? day.items.filter(i=>i.type==='revision' && i.chapter) : [];
-  let html = `
-    <h3>Add a Revision</h3>
-    <p class="sub">Done chapters are suggested first. You can drop one into ${day ? (isToday?"today's plan":'your next scheduled day') : 'your plan'} as a revision task.</p>`;
-  if(!day){
-    html += `<div class="note">No plan yet — generate one in Settings first.</div>`;
-    return html;
-  }
-  html += `
-    <label class="field" style="margin-bottom:10px">
-      <span class="lbl">Chapter</span>
-      <select id="sb-revisionchapter">
-        <option value="">Choose chapter…</option>
-        ${allChapterOptionsGrouped()}
-      </select>
-    </label>
-    <button class="btn sm" id="sb-addrevision" style="width:100%">Add to ${isToday?'today':'plan'}</button>
-  `;
-  html += `<div class="section-title" style="margin-top:18px">${isToday?'Today':fmtDate(day.date)}'s revisions</div>`;
-  if(revItems.length>0){
-    html += revItems.map(it=>`
-      <div class="taskrow" style="padding:8px 0">
-        <div class="txt" style="font-size:12.5px;font-weight:450">${it.chapter}${it.done?' <span class="pill on" style="padding:2px 7px">done</span>':''}<div class="sub">${subj(it.subject).name}</div></div>
-        <button class="iconbtn" style="width:24px;height:24px;font-size:11px;flex-shrink:0" data-act="removerevision" data-day="${day.date}" data-id="${escAttr(it.id)}" title="Remove">&times;</button>
-      </div>`).join('');
-  } else {
-    html += `<div class="note" style="margin-top:2px">None added yet.</div>`;
-  }
-  return html;
-}
-
-function renderSidebarStats(){
-  const {total,done} = syllabusTotals();
-  const pct = total ? Math.round(done/total*100) : 0;
-  const streak = computeStreak();
-   const goal = questionTarget(todayISO());
-  const qdone = dayQuestionsDone(todayISO());
-  return `
-    <hr class="sep" style="margin:20px 0 14px">
-    <div class="section-title" style="margin:0 0 8px">Quick stats</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <div class="stat"><b>${pct}%</b><span>Syllabus done</span></div>
-      <div class="stat"><b>${streak}</b><span>Day streak</span></div>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-      <div class="stat"><b>${done}</b><span>Lectures &amp; one-shots done</span></div>
-      <div class="stat"><b>${qdone}/${goal}</b><span>Questions today</span></div>
-    </div>
-  `;
-}
-
 function renderHeader(){
   const streak = (state && state.setupDone) ? computeStreak() : 0;
   return `<header class="top">
     <div class="brand">
       <div class="mark">P</div>
-      <div><h1>Prayas Catch-Up Planner</h1><span>Physics &middot; Maths &middot; Chemistry</span></div>
+      <div><h1>Manzil</h1><span>JEE catch-up system &middot; Physics, Maths &amp; Chemistry</span></div>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
       ${streak>0?`<span class="pill on" title="Current streak">${streak}-day streak</span>`:''}
@@ -1363,57 +2409,13 @@ function renderTabs(){
   </nav>`;
 }
 
-/* ---- SHARED CHAPTER CARDS ---- */
-function renderChapterRows(sid){
-  const order = state.chapterOrder[sid];
-  let rows='';
-  order.forEach((chName,i)=>{
-    const cfg = state.chapters[sid][chName];
-    const prog = chapterProgress(sid,chName);
-    rows += `<div class="chapter-card ${cfg.done?'done':''}">
-      <div class="chapter-card-top">
-        <button type="button" class="check-circle ${cfg.done?'checked':''}" data-act="donetoggle" data-sub="${sid}" data-ch="${escAttr(chName)}" title="Mark chapter done">${cfg.done?'&#10003;':''}</button>
-        <div class="chapter-card-name">${chName}</div>
-        <div class="chapter-card-progress">${prog.done}/${prog.total} lec</div>
-        ${!cfg.done ? `<div class="mini-order">
-          <button data-act="moveup" data-sub="${sid}" data-idx="${i}" ${i===0?'disabled':''}>▲</button>
-          <button data-act="movedown" data-sub="${sid}" data-idx="${i}" ${i===order.length-1?'disabled':''}>▼</button>
-        </div>` : ''}
-      </div>
-      ${!cfg.done ? `
-      <div class="chapter-card-controls">
-        <div class="seg-toggle">
-          <button type="button" data-act="modeselect" data-sub="${sid}" data-ch="${escAttr(chName)}" data-value="regular" class="${cfg.mode==='regular'?'active':''}">Regular</button>
-          <button type="button" data-act="modeselect" data-sub="${sid}" data-ch="${escAttr(chName)}" data-value="oneshot" class="${cfg.mode==='oneshot'?'active':''}">One Shot</button>
-        </div>
-        ${cfg.mode==='regular' ? `
-        <div class="field-mini">
-          <span class="small-lbl">Lectures</span>
-          <div class="stepper">
-            <button type="button" data-act="leccountstep" data-sub="${sid}" data-ch="${escAttr(chName)}" data-dir="-1">&minus;</button>
-            <input type="number" min="1" data-act="leccount" data-sub="${sid}" data-ch="${escAttr(chName)}" value="${getLectureCount(sid,chName)}">
-            <button type="button" data-act="leccountstep" data-sub="${sid}" data-ch="${escAttr(chName)}" data-dir="1">+</button>
-          </div>
-        </div>` : ''}
-        ${cfg.mode==='oneshot' ? `
-        <div class="field-mini">
-          <span class="small-lbl">One-shot link</span>
-          <input class="link-input" type="text" placeholder="Paste link" data-act="oneshotlink" data-sub="${sid}" data-ch="${escAttr(chName)}" value="${escAttr(cfg.oneshotLink||'')}">
-        </div>
-        <span class="oneshot-day-note">Always 1 full day</span>` : ''}
-      </div>` : ''}
-    </div>`;
-  });
-  return `<div>${rows}</div>`;
-}
-
 /* ---- WIZARD ---- */
 function renderWizard(){
   const step = state.wizardStep;
   let inner='';
   if(step===0) inner=wizardStep0();
   else if(step>=1 && step<=5) inner=wizardChapterStep(step-1);
-  else if(step===6) inner=wizardPaceStep();
+   else if(step===6) inner=wizardOrderStep();
   else if(step===7) inner=wizardReviewStep();
   const totalSteps=8;
   return `<div class="card">
@@ -1425,10 +2427,8 @@ function renderWizard(){
 function wizardStep0(){
   return `
   <h2>Let's set your baseline</h2>
-  <p class="sub">Choose when your plan should begin. The planner will calculate the completion time from your daily pace.</p>
-  <div class="note" style="margin:0 0 16px">Already have a syllabus export? Import it now and the chapter setup will be filled for you.</div>
-  <button class="btn ghost sm" id="w-importsyllabusbtn" type="button">Import syllabus file</button>
-  <input type="file" id="w-importsyllabusfile" accept=".json,application/json" style="display:none">
+   <p class="sub">Choose when your plan should begin. The planner will calculate the completion date from your ordered syllabus.</p>
+  <div class="note" style="margin:0 0 16px">Import one CSV per subject. Each row becomes a chapter named from its <b>title</b>, with its <b>video link</b> available as Open.</div>
   <div class="row">
     <label class="field"><span class="lbl">Plan start date</span>
       <input type="date" id="w-start" value="${state.startDate}">
@@ -1441,11 +2441,24 @@ function wizardChapterStep(idx){
   const s = SUBJECTS[idx];
   return `
   <h2>${s.name}</h2>
-  <p class="sub">Faculty: ${s.faculty}. Tick chapters you've already finished. For the rest, choose Regular or One Shot, and set the order you want to tackle them in (▲▼).</p>
-  ${renderChapterRows(s.id)}
+  <p class="sub">Upload the CSV for ${s.name}. Every video title becomes a chapter automatically.</p>
+  ${renderSubjectVideoImport(s.id,'w')}
   <div class="btnrow">
     <button class="btn ghost" id="w-back">← Back</button>
-    <button class="btn" id="w-nextsub">Continue</button>
+    <button class="btn" id="w-nextsub" ${subjectVideos(s.id).length?'':'disabled'}>Continue</button>
+  </div>`;
+}
+
+function renderSubjectVideoImport(sid,prefix){
+  const s=subj(sid);
+  const videos=subjectVideos(sid);
+  const inputId=prefix+'-importvideocsvfile-'+sid;
+  return `<div class="note" style="margin:0 0 14px">
+    <b>${escHtml(s ? s.name : 'Subject')} videos</b>
+    <div style="margin-top:4px">Use columns <b>title</b> and <b>video link</b>. Each title becomes a chapter name.</div>
+    <button class="btn ghost sm" data-act="importsubjectcsv" data-sub="${sid}" data-target="${inputId}" type="button" style="margin-top:10px">Import ${escHtml(s ? s.name : 'subject')} CSV</button>
+    <input type="file" id="${inputId}" data-act="subjectcsvfile" data-sub="${sid}" accept=".csv,text/csv" style="display:none">
+    ${videos.length ? `<div style="margin-top:8px">${videos.length} chapter${videos.length===1?'':'s'} imported for ${escHtml(s ? s.name : 'this subject')}.</div>${renderVideoLibraryRows(sid)}` : '<div style="margin-top:8px">No CSV imported for this subject yet.</div>'}
   </div>`;
 }
 
@@ -1462,49 +2475,44 @@ function renderPaceTierCards(tiers, actPrefix){
     </div>`).join('');
 }
 
-function wizardPaceStep(){
-  const totalLecturesPerDay=Math.max(1,state.lecturesPerDay);
+function orderEditorRows(order, labels, kind){
+  return `<div class="order-list">${order.map((id,i)=>`
+    <div class="order-row">
+      <div class="order-num">${i+1}</div><div class="order-name">${escHtml(labels[id]||id)}</div>
+      <div class="order-controls">
+        <button type="button" data-act="ordermove" data-kind="${kind}" data-idx="${i}" data-dir="-1" ${i===0?'disabled':''}>▲</button>
+        <button type="button" data-act="ordermove" data-kind="${kind}" data-idx="${i}" data-dir="1" ${i===order.length-1?'disabled':''}>▼</button>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function wizardOrderStep(){
+  const groupLabels={physics:'Physics',chemistry:'Chemistry',maths:'Maths'};
+  const chemistryLabels={inorganic:'Inorganic Chemistry',organic:'Organic Chemistry',physicalchem:'Physical Chemistry'};
   return `
-  <h2>Set your daily pace</h2>
-  <p class="sub">Choose <b>m</b> total lectures per day and <b>n</b> subjects per day. The planner gives one lecture to each selected subject first, then assigns the remaining slots to the subjects with the most lectures left.</p>
-  <div class="row">
-    <label class="field"><span class="lbl">m — Total lectures per day</span>
-      <input type="number" min="1" max="20" id="w-pace" value="${totalLecturesPerDay}" data-act="wliveupdate">
-    </label>
-    <label class="field"><span class="lbl">n — Subjects per day</span>
-      <input type="number" min="1" max="5" id="w-subjday" value="${state.subjectsPerDay}" data-act="wliveupdate">
-    </label>
-    <label class="field"><span class="lbl">Avg. minutes per lecture</span>
-      <input type="number" min="5" id="w-avgmin" value="${state.avgLectureMinutes}" data-act="wliveupdate">
-    </label>
-  </div>
-  <div class="row" style="margin-top:4px">
-    <div class="stat"><b>${totalLecturesPerDay}</b><span>Total lectures/day</span></div>
-    <div class="stat"><b>${state.subjectsPerDay}</b><span>Subjects/day</span></div>
-  </div>
+  <h2>Choose your study order</h2>
+  <p class="sub">The plan will follow this order from top to bottom. Chemistry has its own internal order.</p>
+  <div class="section-title" style="margin-top:14px">Overall order</div>
+  ${orderEditorRows(state.subjectOrder,groupLabels,'subjects')}
+  <div class="section-title">Chemistry order</div>
+  ${orderEditorRows(state.chemistryOrder,chemistryLabels,'chemistry')}
   <div class="btnrow">
     <button class="btn ghost" id="w-back">← Back</button>
-    <button class="btn" id="w-nextpace">Continue</button>
+    <button class="btn" id="w-nextorder">Continue</button>
   </div>`;
 }
 
 function wizardReviewStep(){
-  const totalLec = remainingTotalLectures();
-  const totalOne = remainingTotalOneshots();
-  const totalLecturesPerDay = Math.max(1,state.lecturesPerDay);
-  const estDays = totalLec>0 ? Math.ceil(totalLec/totalLecturesPerDay)+totalOne : totalOne;
-  const finishDate = addDays(planStartDate(), Math.max(0,estDays-1));
-  const dailyMinutes = totalLecturesPerDay*state.avgLectureMinutes;
+  const totalTasks = remainingCoreTaskCount();
+  const finishDate = estimatedFinishDate();
   return `
   <h2>Review &amp; generate</h2>
   <div class="row" style="margin-bottom:10px">
-    <div class="stat"><b>${totalLec}</b><span>Remaining lectures</span></div>
-    <div class="stat"><b>${totalOne}</b><span>One-shot chapters</span></div>
-    <div class="stat"><b>${fmtMinutes(dailyMinutes)}</b><span>Daily study time at this pace</span></div>
-    <div class="stat"><b>${estDays}d</b><span>Days to complete at this pace</span></div>
+    <div class="stat"><b>${totalTasks}</b><span>Study tasks</span></div>
+    <div class="stat"><b>${WEEKDAYS[state.holidayWeekday]}</b><span>Default holiday</span></div>
+    <div class="stat"><b>${fmtDate(finishDate)}</b><span>Projected finish</span></div>
   </div>
-  <div class="note">If you start on ${fmtDate(planStartDate())}, your projected finish date is <b>${fmtDate(finishDate)}</b>.</div>
-  <div class="note">Pace: ${totalLecturesPerDay} total lecture(s)/day across ${state.subjectsPerDay} subject(s). Each selected subject gets one first; remaining slots go to subjects with the most lectures left.</div>
+  <div class="note">Each study day contains one current-chapter lecture, question practice for that same chapter, and a selectable revision chapter. ${WEEKDAYS[state.holidayWeekday]}s are left open by default.</div>
   <div class="btnrow">
     <button class="btn ghost" id="w-back">← Back</button>
     <button class="btn" id="w-generate">Generate My Plan</button>
@@ -1519,9 +2527,10 @@ function renderPlanSummaryStrip(){
   const finishDate = estimatedFinishDate();
   const days = estimateDaysAtPace();
   return `<div class="card">
+    <div class="section-title" style="margin:0 0 10px">Plan outlook</div>
     <div class="row">
       <div class="stat"><b>${streak}</b><span>Day streak</span></div>
-      <div class="stat"><b>${days}d</b><span>Days at this pace</span></div>
+       <div class="stat"><b>${days}d</b><span>Calendar days remaining</span></div>
       <div class="stat"><b>${fmtDate(finishDate)}</b><span>Projected completion</span></div>
     </div>
   </div>`;
@@ -1569,27 +2578,27 @@ function renderToday(){
   let note='';
   if(!day){
     if(state.plan.length===0){
-      return renderQuoteBar() + `<div class="card"><h2>Syllabus complete</h2><p class="sub">You've finished everything currently in your plan. Check <b>Progress</b> for your stats, or add more chapters in Settings.</p></div>` + renderOverallProgress();
+      return renderQuoteBar() + `<div class="card"><h2>Syllabus complete</h2><p class="sub">You've finished everything currently in your plan. Check <b>Progress</b> for your stats, or add more chapters in Settings.</p></div>`;
     }
     const future = state.plan.filter(d=>d.date>=realToday);
     if(future.length>0){
       day = future[0];
       note = day.date!==realToday ? `<div class="note">No tasks land exactly on today. Showing your next scheduled day: ${fmtDate(day.date)}.</div>` : '';
     } else {
-      return renderQuoteBar() + `<div class="card"><h2>Plan complete</h2><p class="sub">You've reached the end of your generated plan. Check <b>Progress</b> to review, or adjust pace in Settings.</p></div>` + renderOverallProgress();
+      return renderQuoteBar() + `<div class="card"><h2>Plan complete</h2><p class="sub">You've reached the end of your generated plan. Check <b>Progress</b> to review, or adjust pace in Settings.</p></div>`;
     }
   }
   const displayItems = dayDisplayItems(day);
   const doneCt = displayItems.filter(i=>i.done).length;
   const allDone = displayItems.length>0 && doneCt===displayItems.length;
-  return renderQuoteBar() + renderQuickStatsStrip() + renderPlanSummaryStrip() + `<div class="card">
+  return renderQuoteBar() + `<div class="card">
     <h2>Today &middot; ${fmtDate(day.date)}</h2>
     <p class="sub">${displayItems.length} task${displayItems.length!==1?'s':''} scheduled${allDone?' — all done':''}</p>
     ${note}
     ${renderDayItems(day)}
     ${renderDayQuestionsPanel(day.date, allDone)}
     ${renderSkipPrompt()}
-  </div>` + renderOverallProgress();
+   </div>`;
 }
 
 function questionPracticeChapterOptions(dateIso, currentIndex, entries){
@@ -1616,7 +2625,7 @@ function questionPracticeChapterOptions(dateIso, currentIndex, entries){
     const key = o.sid+'::'+o.ch;
     const disabled = used.has(key) && key!==currentKey ? ' disabled' : '';
     const selected = key===currentKey ? ' selected' : '';
-    return `<option value="${o.sid}::${escAttr(o.ch)}"${selected}${disabled}>${o.planned?'Planned today · ':''}${o.label} — ${o.ch}</option>`;
+     return `<option value="${o.sid}::${escAttr(o.ch)}"${selected}${disabled}>${o.planned?'Planned today · ':''}${escHtml(o.label)} — ${escHtml(o.ch)}</option>`;
   }).join('');
 }
 
@@ -1633,7 +2642,7 @@ function renderQuestionPracticeWindow(dateIso){
     html += entries.map((entry,i)=>`
       <div class="taskrow">
         ${entry.subject&&entry.chapter ? `<input type="checkbox" data-act="practicetoggle" data-day="${dateIso}" data-index="${i}" ${entry.done?'checked':''}>` : '<span style="width:21px;flex-shrink:0"></span>'}
-        <div class="txt ${entry.done?'done':''}">${entry.subject&&entry.chapter ? `Practice questions: ${entry.chapter}<span class="badge-revision">QUESTION PRACTICE</span><div class="sub">${entry.questions||0} questions · ${subj(entry.subject)?.name||'Chapter selected'}</div>` : 'Choose a chapter for practice'} </div>
+        <div class="txt ${entry.done?'done':''}">${entry.subject&&entry.chapter ? `Practice questions<span class="badge-revision">QUESTION PRACTICE</span><div class="sub">${entry.questions||0} questions · ${escHtml(subj(entry.subject)?.name||'Chapter selected')}</div>` : 'Choose a chapter for practice'} </div>
         <select class="practice-chapter-select" data-act="practicechapter" data-day="${dateIso}" data-index="${i}">${questionPracticeChapterOptions(dateIso,i,entries)}</select>
         <input class="practice-count-input" type="number" min="1" step="1" value="${entry.questions||''}" placeholder="Q" title="Number of questions" data-act="practicecount" data-day="${dateIso}" data-index="${i}">
         <button type="button" class="question-practice-remove" data-act="removepractice" data-day="${dateIso}" data-index="${i}" title="Remove chapter">&times;</button>
@@ -1675,7 +2684,8 @@ function renderDayQuestionsPanel(dateIso, allTasksDone){
 
 function allChapterOptions(){
   let done=[], all=[];
-  SUBJECTS.forEach(s=>{
+  orderedSubjectIds().forEach(sid=>{
+    const s=subj(sid);
     state.chapterOrder[s.id].forEach(ch=>{
       const entry = {sid:s.id, sname:s.name, ch};
       all.push(entry);
@@ -1688,14 +2698,106 @@ function allChapterOptions(){
   return done.length>0 ? done : all;
 }
 
+function chapterSelectOptions(selectedSid,selectedChapter,placeholder='Choose a chapter…'){
+  let html=`<option value="">${placeholder}</option>`;
+  orderedSubjectIds().forEach(sid=>{
+    const s=subj(sid);
+    html+=`<optgroup label="${escAttr(s?s.name:sid)}">`;
+    (state.chapterOrder[sid]||[]).forEach(ch=>{
+      const selected=sid===selectedSid && ch===selectedChapter ? ' selected' : '';
+      html+=`<option value="${sid}::${escAttr(ch)}"${selected}>${escHtml(ch)}</option>`;
+    });
+    html+='</optgroup>';
+  });
+  return html;
+}
+
+function renderCurrentChapterPractice(day){
+  const item=currentChapterPracticeItem(day);
+  if(!item) return '';
+  const s=subj(item.subject);
+  return `<div class="taskrow">
+    <input type="checkbox" data-act="tasktoggle" data-day="${day.date}" data-id="${escAttr(item.id)}" ${item.done?'checked':''}>
+    <div class="txt ${item.done?'done':''}">Question practice<span class="badge-revision">CURRENT CHAPTER</span>
+      <div class="sub">${escHtml(s?s.name:'Subject')}${item.questions?` · ${item.questions} questions logged`:''}</div>
+    </div>
+  </div>`;
+}
+
+function renderHolidayOptions(day){
+  const opts=holidayOptionState(day.date);
+  const practice=opts.practice||{}, revision=opts.revision||{}, test=opts.test||{};
+  const testType=test.type||'JEE Mains';
+  return `<div class="holiday-options">
+    <div class="option-block">
+      <div class="option-title">Chapter practice <span class="badge-revision">OPTIONAL</span></div>
+      <div class="option-grid">
+        <select data-act="holidaypracticechapter" data-day="${day.date}">${chapterSelectOptions(practice.subject||'',practice.chapter||'')}</select>
+        <input type="number" min="1" placeholder="Questions" value="${practice.questions||''}" data-act="holidaypracticecount" data-day="${day.date}">
+      </div>
+      ${practice.subject&&practice.chapter ? `<label class="taskrow" style="padding:10px 0 0;border:0"><input type="checkbox" data-act="tasktoggle" data-day="${day.date}" data-id="holiday-practice::${day.date}" ${practice.done?'checked':''}><span class="txt ${practice.done?'done':''}">Mark holiday practice complete</span></label>`:''}
+    </div>
+    <div class="option-block">
+      <div class="option-title">Revision <span class="badge-revision">OPTIONAL</span></div>
+      <div class="option-grid one">
+        <select data-act="holidayrevisionchapter" data-day="${day.date}">${chapterSelectOptions(revision.subject||'',revision.chapter||'')}</select>
+      </div>
+      ${revision.subject&&revision.chapter ? `<label class="taskrow" style="padding:10px 0 0;border:0"><input type="checkbox" data-act="tasktoggle" data-day="${day.date}" data-id="holiday-revision::${day.date}" ${revision.done?'checked':''}><span class="txt ${revision.done?'done':''}">Mark holiday revision complete</span></label>`:''}
+    </div>
+    <div class="option-block">
+      <label class="option-title" style="display:flex;align-items:center;gap:8px">
+        <input type="checkbox" data-act="holidaytesttoggle" data-day="${day.date}" ${test.enabled?'checked':''}>
+        Optional test
+      </label>
+      ${test.enabled ? `<div class="test-fields">
+        <label class="field"><span class="lbl">Test type</span><select data-act="holidaytesttype" data-day="${day.date}">
+        <option ${testType==='JEE Mains'?'selected':''}>JEE Mains</option>
+        <option ${testType==='JEE Advanced'?'selected':''}>JEE Advanced</option>
+        </select></label>
+        <label class="field"><span class="lbl">Maximum marks</span><input type="number" min="1" data-act="holidaytestmax" data-day="${day.date}" value="${test.maxMarks||''}"></label>
+        ${testType==='JEE Advanced'?`<label class="field"><span class="lbl">Number of papers</span><select data-act="holidaytestpapers" data-day="${day.date}">
+          <option value="1" ${String(test.papers||'1')==='1'?'selected':''}>1 paper</option>
+          <option value="2" ${String(test.papers||'1')==='2'?'selected':''}>2 papers</option>
+        </select></label>`:''}
+        <label class="field"><span class="lbl">Score</span><input type="number" min="0" data-act="holidaytestscore" data-day="${day.date}" value="${test.score||''}"></label>
+      </div>
+      <label class="taskrow" style="padding:10px 0 0;border:0"><input type="checkbox" data-act="tasktoggle" data-day="${day.date}" data-id="holiday-test::${day.date}" ${test.done?'checked':''}><span class="txt ${test.done?'done':''}">Mark test complete</span></label>`:''}
+    </div>
+  </div>`;
+}
+
 function renderDayItems(day){
+  if(day.holiday){
+    return `<div class="holiday-card" style="padding:14px 4px">
+      <div class="holiday-label">${weekdayNameOfISO(day.date)} holiday</div>
+      <div class="sub" style="margin-top:4px">No chapter lecture is scheduled. Add optional practice, revision, or a test below.</div>
+      ${renderHolidayOptions(day)}
+    </div>`;
+  }
   let rows='';
-  day.items.forEach(it=>{
+  const core=(day.items||[]).find(i=>i.type==='lecture'||i.type==='oneshot');
+  if(core){
+    const it=core;
+    const s = subj(it.subject);
+    const chapterCfg = state.chapters[it.subject] && state.chapters[it.subject][it.chapter]
+      ? state.chapters[it.subject][it.chapter] : null;
+    const savedChapterLink = chapterCfg ? chapterCfg.oneshotLink : '';
+    const link = it.type==='oneshot' ? externalHref(savedChapterLink || it.link || '') : externalHref(s.link);
+    const label = it.type==='oneshot' ? escHtml(it.chapter) : `${escHtml(it.chapter)} — Lecture ${it.lectureNum}/${it.totalLectures}`;
+    rows += `<div class="taskrow">
+      <input type="checkbox" data-act="tasktoggle" data-day="${day.date}" data-id="${escAttr(it.id)}" ${it.done?'checked':''}>
+      <div class="txt ${it.done?'done':''}">${label}<span class="badge-oneshot">${it.type==='oneshot'?'ONE SHOT':'LECTURE'}</span><div class="sub">${escHtml(s?s.name:'Subject')}</div></div>
+      ${it.type==='lecture' ? renderDppWidget(it.id) : ''}
+      ${link ? `<a class="openbtn" href="${escAttr(link)}" target="_blank" rel="noopener noreferrer">${it.type==='oneshot'?'Open video':'Open Class'} ↗</a>` : ''}
+    </div>`;
+  }
+  rows += renderCurrentChapterPractice(day);
+  day.items.filter(it=>it.type==='revision').forEach(it=>{
     if(it.type==='revision'){
       if(!it.chapter){
-        const opts = allChapterOptions().map(o=>`<option value="${o.sid}::${escAttr(o.ch)}">${o.sname} — ${o.ch}</option>`).join('');
+        const opts = allChapterOptions().map(o=>`<option value="${o.sid}::${escAttr(o.ch)}">${escHtml(o.sname)} — ${escHtml(o.ch)}</option>`).join('');
         rows += `<div class="taskrow">
-          <div class="txt">Revision window <span class="badge-revision">SUGGESTED</span><div class="sub">Pick a completed chapter to revise in the time left after your one-shot</div></div>
+      <div class="txt">Revision window <span class="badge-revision">SUGGESTED</span><div class="sub">Pick a completed chapter to revise in the time left</div></div>
           <select data-act="revisionpick" data-day="${day.date}" data-id="${escAttr(it.id)}" style="width:220px">
             <option value="">Choose a completed chapter…</option>${opts}
           </select>
@@ -1705,31 +2807,13 @@ function renderDayItems(day){
       const s = subj(it.subject);
       rows += `<div class="taskrow">
         <input type="checkbox" data-act="tasktoggle" data-day="${day.date}" data-id="${escAttr(it.id)}" ${it.done?'checked':''}>
-        <div class="txt ${it.done?'done':''}">Revision: ${it.chapter}<span class="badge-revision">REVISION WINDOW</span><div class="sub">${s?s.name:'Chapter selected'}</div></div>
+        <div class="txt ${it.done?'done':''}">Revision: ${escHtml(it.chapter)}<span class="badge-revision">REVISION WINDOW</span><div class="sub">${escHtml(s?s.name:'Chapter selected')}</div></div>
         <button class="iconbtn" style="width:28px;height:28px;font-size:12px;flex-shrink:0" data-act="removerevision" data-day="${day.date}" data-id="${escAttr(it.id)}" title="Remove">&times;</button>
       </div>`;
       return;
     }
-    const s = subj(it.subject);
-    const savedOneShotLink = it.type==='oneshot' && state.chapters[it.subject] && state.chapters[it.subject][it.chapter]
-      ? state.chapters[it.subject][it.chapter].oneshotLink
-      : '';
-    const link = it.type==='oneshot'
-      ? externalHref(savedOneShotLink || it.link || '')
-      : externalHref(s.link);
-    const label = it.type==='oneshot'
-      ? `Watch One Shot: ${it.chapter}`
-      : `${it.chapter} — Lecture ${it.lectureNum}/${it.totalLectures}`;
-    rows += `<div class="taskrow">
-      <input type="checkbox" data-act="tasktoggle" data-day="${day.date}" data-id="${escAttr(it.id)}" ${it.done?'checked':''}>
-      <div class="txt ${it.done?'done':''}">${label}${it.type==='oneshot'?'<span class="badge-oneshot">ONE SHOT · 1 DAY</span>':''}<div class="sub">${s.name}</div></div>
-      ${it.type==='lecture' ? renderDppWidget(it.id) : ''}
-      ${it.type==='oneshot'
-        ? (link ? `<a class="openbtn" href="${escAttr(link)}" target="_blank" rel="noopener noreferrer">Watch One Shot ↗</a>` : '')
-        : (link ? `<a class="openbtn" href="${escAttr(link)}" target="_blank" rel="noopener">Open Class ↗</a>` : '')}
-    </div>`;
   });
-  return `<div>${rows}${renderQuestionPracticeWindow(day.date)}</div>`;
+  return `<div>${rows}</div>`;
 }
 
 /* ---- DPP widget: circular Yes / No / Block per lecture task ---- */
@@ -1757,31 +2841,8 @@ function schedulablePlanItems(){
 
 function taskScheduleLabel(it){
   return it.type==='oneshot'
-    ? `One Shot — ${it.chapter}`
-    : `${it.chapter} — Lecture ${it.lectureNum}/${it.totalLectures}`;
-}
-
-function renderRescheduleCard(){
-  const items=schedulablePlanItems();
-  if(items.length===0) return '';
-  const options=items.map(({day,it})=>{
-    const manual=state.manualSchedule && state.manualSchedule[it.id];
-    return `<option value="${escAttr(it.id)}">${taskScheduleLabel(it)} · ${subj(it.subject).name} · ${fmtDate(day.date)}${manual?' · manually placed':''}</option>`;
-  }).join('');
-  return `<div class="card">
-    <h2>Choose what to study next</h2>
-    <p class="sub">Your automatic plan stays unchanged unless you explicitly move a task here. Pick any lecture or one-shot and place it on today, tomorrow, or any date.</p>
-    <div class="reschedule-grid">
-      <label class="field"><span class="lbl">Lecture / one-shot</span>
-        <select id="reschedule-item">${options}</select>
-      </label>
-      <label class="field"><span class="lbl">Study date</span>
-        <input type="date" id="reschedule-date" min="${todayISO()}" value="${items[0].day.date}">
-      </label>
-      <button class="btn" data-act="reschedule">Place in this slot</button>
-    </div>
-    <div class="note" style="margin-top:12px">The plan ripples forward to stay valid: a full lecture day pushes one lecture to the next window; a one-shot takes the day and pushes the full lecture window forward. One-shot revision windows travel with their one-shot.</div>
-  </div>`;
+    ? escHtml(it.chapter)
+    : `${escHtml(it.chapter)} — Lecture ${it.lectureNum}/${it.totalLectures}`;
 }
 
 function renderOverallProgress(){
@@ -1789,7 +2850,7 @@ function renderOverallProgress(){
   const pct = total? Math.round(done/total*100):0;
   return `<div class="card">
     <h2>Overall progress</h2>
-    <p class="sub">${done} / ${total} lectures &amp; one-shots completed (${pct}%)</p>
+    <p class="sub">${done} / ${total} chapters completed (${pct}%)</p>
     <div class="progress-outer"><div class="progress-inner" style="width:${pct}%"></div></div>
   </div>`;
 }
@@ -1803,8 +2864,8 @@ function renderFullPlan(){
   // stale cached plan date while the user is editing settings.
   const finishDate = estimatedFinishDate();
   const firstPlanDate = state.plan[0].date;
-  let html = renderRescheduleCard() + renderOverallProgress();
-  html += `<div class="note">Plan starts on <b>${fmtDate(firstPlanDate)}</b> and is projected to finish by <b>${fmtDate(finishDate)}</b> — ${state.plan.length} study day${state.plan.length!==1?'s':''} scheduled at this pace.</div><div style="height:6px"></div>`;
+   let html = renderOverallProgress();
+  html += `<div class="note">Plan starts on <b>${fmtDate(firstPlanDate)}</b> and is projected to finish by <b>${fmtDate(finishDate)}</b> — ${state.plan.length} calendar day${state.plan.length!==1?'s':''} shown, including ${weekdayNameOfISO(state.plan.find(d=>d.holiday)?.date||firstPlanDate)} holidays.</div><div style="height:6px"></div>`;
   const realToday = todayISO();
   state.plan.forEach(day=>{
     const displayItems = dayDisplayItems(day);
@@ -1812,7 +2873,7 @@ function renderFullPlan(){
     const isOpen = state.openDay===day.date;
     const isToday = day.date===realToday;
     const isOneShotDay = day.items.some(i=>i.type==='oneshot');
-    const dayMeta = isOneShotDay ? '1 one-shot day' : `${day.items.filter(i=>i.type==='lecture').length} lectures`;
+     const dayMeta = day.holiday ? `${weekdayNameOfISO(day.date)} holiday` : (isOneShotDay ? '1 class' : `${day.items.filter(i=>i.type==='lecture').length} class`);
     const practiceTotal = questionPracticeTotal(day.date);
     const practiceMeta = practiceTotal ? ` · ${practiceTotal} practice q` : '';
     html += `<div class="daycard ${isToday?'istoday':''}">
@@ -1827,23 +2888,74 @@ function renderFullPlan(){
 }
 
 /* ---- PROGRESS VIEW ---- */
+function testScoreEntries(){
+  return Object.entries(state.holidayOptions||{})
+    .map(([date,options])=>{
+      const test=options && options.test;
+      if(!test || !test.enabled) return null;
+      const maxMarks=Math.max(1,parseInt(test.maxMarks)||1);
+      const score=Math.max(0,Math.min(maxMarks,parseInt(test.score)||0));
+      return {
+        date,
+        score,
+        maxMarks,
+        pct:Math.round(score/maxMarks*100),
+        type:test.type||'JEE Mains',
+        done:!!test.done
+      };
+    })
+    .filter(Boolean)
+    .sort((a,b)=>a.date.localeCompare(b.date));
+}
+
+function renderTestScoreProgress(){
+  const tests=testScoreEntries();
+  if(!tests.length){
+    return `<div class="card test-score-card">
+      <h2>Test score progress</h2>
+      <p class="sub">Your optional test scores will appear here once you add a test on a holiday.</p>
+      <div class="note">No test scores recorded yet.</div>
+    </div>`;
+  }
+  const totalScore=tests.reduce((sum,t)=>sum+t.score,0);
+  const totalMax=tests.reduce((sum,t)=>sum+t.maxMarks,0);
+  const overallPct=Math.round(totalScore/Math.max(1,totalMax)*100);
+  const recent=tests.slice().reverse().slice(0,6);
+  return `<div class="card test-score-card">
+    <h2>Test score progress</h2>
+    <p class="sub">${tests.length} test${tests.length===1?'':'s'} recorded across your plan.</p>
+    <div class="score-summary">
+      <div class="score-ring" style="--score:${overallPct}%"><b>${overallPct}%</b></div>
+      <div class="score-copy"><b>${totalScore} / ${totalMax} marks</b><span>Overall score average</span></div>
+    </div>
+    <div class="progress-outer"><div class="progress-inner" style="width:${overallPct}%"></div></div>
+    <div class="test-score-list">
+      ${recent.map(t=>`<div class="test-score-row">
+        <span class="test-date">${fmtDate(t.date)}</span>
+        <span class="test-name">${escHtml(t.type)}</span>
+        <span class="test-value">${t.score}/${t.maxMarks}</span>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
 function renderProgressTab(){
   const {total,done} = syllabusTotals();
   const pct = total? Math.round(done/total*100):0;
   const streak = computeStreak();
-  let html = renderQuickStatsStrip();
-  html += `<div class="card">
+  let html = `<div class="card">
     <h2>Your progress</h2>
     <div class="row" style="margin-bottom:6px">
       <div class="stat"><b>${pct}%</b><span>Syllabus complete</span></div>
       <div class="stat"><b>${streak}</b><span>Day streak</span></div>
-      <div class="stat"><b>${done}/${total}</b><span>Lectures / one-shots done</span></div>
+       <div class="stat"><b>${done}/${total}</b><span>Chapters done</span></div>
     </div>
     <div class="progress-outer"><div class="progress-inner" style="width:${pct}%"></div></div>
   </div>`;
 
   html += `<div class="card"><h2>By subject</h2>`;
-  SUBJECTS.forEach(s=>{
+   orderedSubjectIds().forEach(sid=>{
+     const s=subj(sid);
     const st = subjectTotals(s.id);
     const spct = st.total? Math.round(st.done/st.total*100):0;
     html += `<div class="subjectprogress-row">
@@ -1853,6 +2965,8 @@ function renderProgressTab(){
     </div>`;
   });
   html += `</div>`;
+
+  html += renderTestScoreProgress();
 
   if(state.skipLog.length>0){
     html += `<div class="card"><h2>Skipped days</h2>`;
@@ -1953,7 +3067,40 @@ function renderPaceCard(){
   } else {
     body += `<button class="btn ghost" id="s-changepace">Change pace</button>`;
   }
-  return `<div class="card"><h2>Pace &amp; study time</h2><p class="sub">Completion time is calculated from the remaining lectures, one-shots, and your selected daily pace.</p>${body}</div>`;
+  return `<div class="card"><h2>Pace &amp; study time</h2><p class="sub">Completion time is calculated from the imported chapters and your selected daily pace.</p>${body}</div>`;
+}
+
+function renderOrderSettings(){
+  const groupLabels={physics:'Physics',chemistry:'Chemistry',maths:'Maths'};
+  const chemistryLabels={inorganic:'Inorganic Chemistry',organic:'Organic Chemistry',physicalchem:'Physical Chemistry'};
+  return `<div class="card">
+    <h2>Study order</h2>
+    <p class="sub">Change the order used to build the plan. Chapters are followed in their own order inside each subject.</p>
+    <div class="section-title" style="margin-top:14px">Overall order</div>
+    ${orderEditorRows(state.subjectOrder,groupLabels,'subjects')}
+    <div class="section-title">Chemistry order</div>
+    ${orderEditorRows(state.chemistryOrder,chemistryLabels,'chemistry')}
+    <button class="btn sm" data-act="saveorder">Regenerate with this order</button>
+  </div>`;
+}
+
+function renderChapterOrderSettings(){
+  const sid=settingsActiveSubj;
+  const s=subj(sid);
+  const order=state.chapterOrder[sid]||[];
+  return `<div class="card">
+    <h2>Chapter order</h2>
+    <p class="sub">Move chapters up or down to control exactly what comes next in ${escHtml(s?s.name:'this subject')}.</p>
+    <div class="subtabs">${SUBJECTS.map(subject=>`<button data-act="ssubjtab" data-sub="${subject.id}" class="${sid===subject.id?'active':''}">${escHtml(subject.name)}</button>`).join('')}</div>
+    <div class="order-list">${order.map((name,i)=>`
+      <div class="order-row">
+        <div class="order-num">${i+1}</div><div class="order-name">${escHtml(name)}</div>
+        <div class="order-controls">
+          <button type="button" data-act="chaptermove" data-sub="${sid}" data-idx="${i}" data-dir="-1" ${i===0?'disabled':''}>▲</button>
+          <button type="button" data-act="chaptermove" data-sub="${sid}" data-idx="${i}" data-dir="1" ${i===order.length-1?'disabled':''}>▼</button>
+        </div>
+      </div>`).join('')}</div>
+  </div>`;
 }
 
 function renderSettings(){
@@ -1967,17 +3114,23 @@ function renderSettings(){
   </div>
 
   ${renderBaselineCard()}
-  ${renderPaceCard()}
-
   <div class="card">
-    <h2>Subject order</h2>
-    <p class="sub">Order subjects rotate through when picking each day's subjects.</p>
-    ${renderSubjectOrderList()}
+    <h2>Default holiday</h2>
+    <p class="sub">Choose one day of the week to keep free from chapter lectures. You can still add optional practice, revision, or a test to that day's holiday card.</p>
+    <label class="field" style="max-width:280px;margin-bottom:12px">
+      <span class="lbl">Weekly holiday</span>
+      <select id="s-holidayweekday" data-act="holidayweekday">
+        ${WEEKDAYS.map((day,index)=>`<option value="${index}" ${state.holidayWeekday===index?'selected':''}>${day}</option>`).join('')}
+      </select>
+    </label>
+    <button class="btn" data-act="saveholiday">Save &amp; Regenerate Plan</button>
   </div>
+  ${renderOrderSettings()}
+  ${renderChapterOrderSettings()}
 
   <div class="card">
-    <h2>Chapters &amp; one-shots</h2>
-    <p class="sub">Edit done status, one-shot links, and chapter order per subject.</p>
+    <h2>Subject CSVs</h2>
+    <p class="sub">Replace a subject's CSV any time. Titles become chapter names and links stay attached to their chapters.</p>
     ${renderSettingsSubjectTabs()}
   </div>
 
@@ -1986,11 +3139,8 @@ function renderSettings(){
     <p class="sub">Export your progress as a full backup, or export just the syllabus without completion history and plan data.</p>
     <div class="btnrow" style="justify-content:flex-start;margin-top:6px">
       <button class="btn" id="s-export">Export backup</button>
-      <button class="btn ghost" id="s-exportsyllabus">Export syllabus only</button>
       <button class="btn ghost" id="s-importbtn">Import backup</button>
-      <button class="btn ghost" id="s-importsyllabusbtn">Import syllabus only</button>
       <input type="file" id="s-importfile" accept=".json,application/json" style="display:none">
-      <input type="file" id="s-importsyllabusfile" accept=".json,application/json" style="display:none">
     </div>
   </div>
 
@@ -2024,7 +3174,7 @@ function renderSettingsSubjectTabs(){
     tabs += `<button data-act="ssubjtab" data-sub="${s.id}" class="${settingsActiveSubj===s.id?'active':''}">${s.name}</button>`;
   });
   tabs += `</div>`;
-  return tabs + `<div>${renderChapterRows(settingsActiveSubj)}</div><button class="btn" id="s-saveChapters" style="margin-top:12px">Save &amp; Regenerate Plan</button>`;
+  return tabs + renderSubjectVideoImport(settingsActiveSubj,'s');
 }
 
 function externalHref(value){
@@ -2036,14 +3186,18 @@ function externalHref(value){
     return (url.protocol==='http:' || url.protocol==='https:') ? url.href : '';
   }catch(e){ return ''; }
 }
-function escAttr(s){ return String(s).replace(/"/g,'&quot;'); }
+function escAttr(s){
+  return String(s??'').replace(/[&<>"']/g,ch=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[ch]));
+}
 
 /* ---------------- EVENT HANDLING ---------------- */
 function attachHandlers(){
   const themeBtn = document.getElementById('themeBtn');
   if(themeBtn) themeBtn.onclick = ()=>{ state.theme = state.theme==='dark'?'light':'dark'; saveState(); render(); };
 
-  document.querySelectorAll('nav.tabs button').forEach(b=>{
+  document.querySelectorAll('.sidebar-nav button').forEach(b=>{
     b.onclick = ()=>{ state.view = b.dataset.view; render(); };
   });
 
@@ -2072,6 +3226,11 @@ function attachHandlers(){
   // wizard step 0
   const wnext0 = document.getElementById('w-next0');
   if(wnext0) wnext0.onclick = ()=>{
+    if(!state.csvSetupPrepared){
+      resetToImportedCsvSubjects();
+      state.csvSetupPrepared=true;
+      saveState();
+    }
     state.startDate = normalizeISODate(document.getElementById('w-start').value, state.startDate);
     state.wizardStep = 1; saveState(); render();
   };
@@ -2081,6 +3240,18 @@ function attachHandlers(){
 
   const wnextsub = document.getElementById('w-nextsub');
   if(wnextsub) wnextsub.onclick = ()=>{ state.wizardStep++; render(); };
+
+  document.querySelectorAll('[data-act="ordermove"]').forEach(el=>{
+    el.onclick=()=>{
+      const target=el.dataset.kind==='chemistry' ? state.chemistryOrder : state.subjectOrder;
+      const index=parseInt(el.dataset.idx), next=index+parseInt(el.dataset.dir);
+      if(next<0 || next>=target.length) return;
+      [target[index],target[next]]=[target[next],target[index]];
+      saveState(); render();
+    };
+  });
+  const wnextorder=document.getElementById('w-nextorder');
+  if(wnextorder) wnextorder.onclick=()=>{ state.wizardStep=7; saveState(); render(); };
 
   document.querySelectorAll('[data-act="wliveupdate"]').forEach(el=>{
     el.onchange = ()=>{
@@ -2098,38 +3269,12 @@ function attachHandlers(){
       render();
     };
   });
-  const wnextpace = document.getElementById('w-nextpace');
-  if(wnextpace) wnextpace.onclick = ()=>{ state.wizardStep = 7; saveState(); render(); };
-
   const wgen = document.getElementById('w-generate');
   if(wgen) wgen.onclick = ()=>{
     state.setupDone = true; state.view='today';
     generatePlan(); render();
   };
 
-  // chapter card controls (both wizard & settings)
-  document.querySelectorAll('[data-act="donetoggle"]').forEach(el=>{
-    el.onclick = ()=>{
-      const sid=el.dataset.sub, ch=el.dataset.ch;
-      state.chapters[sid][ch].done = !state.chapters[sid][ch].done;
-      saveState(); render();
-    };
-  });
-  document.querySelectorAll('[data-act="modeselect"]').forEach(el=>{
-    el.onclick = ()=>{
-      const sid=el.dataset.sub, ch=el.dataset.ch;
-      state.chapters[sid][ch].mode = el.dataset.value;
-      saveState(); render();
-    };
-  });
-  document.querySelectorAll('[data-act="leccountstep"]').forEach(el=>{
-    el.onclick = ()=>{
-      const sid=el.dataset.sub, ch=el.dataset.ch, dir=parseInt(el.dataset.dir);
-      const cur = getLectureCount(sid,ch);
-      setLectureCount(sid, ch, cur+dir);
-      saveState(); render();
-    };
-  });
   // DPP: yes / no / block toggle per lecture task
   document.querySelectorAll('[data-act="dpptoggle"]').forEach(el=>{
     el.onclick = ()=>{
@@ -2137,49 +3282,37 @@ function attachHandlers(){
       saveState(); render();
     };
   });
-  document.querySelectorAll('[data-act="oneshotlink"]').forEach(el=>{
-    el.onchange = ()=>{
-      const sid=el.dataset.sub, ch=el.dataset.ch;
-      const cfg = state.chapters[sid][ch];
-      cfg.oneshotLink = el.value.trim();
-      saveState();
-      render();
-    };
-  });
-  document.querySelectorAll('[data-act="moveup"]').forEach(el=>{
-    el.onclick = ()=>{
-      const sid=el.dataset.sub, i=parseInt(el.dataset.idx);
-      const arr=state.chapterOrder[sid];
-      if(i>0){ [arr[i-1],arr[i]]=[arr[i],arr[i-1]]; saveState(); render(); }
-    };
-  });
-  document.querySelectorAll('[data-act="movedown"]').forEach(el=>{
-    el.onclick = ()=>{
-      const sid=el.dataset.sub, i=parseInt(el.dataset.idx);
-      const arr=state.chapterOrder[sid];
-      if(i<arr.length-1){ [arr[i+1],arr[i]]=[arr[i],arr[i+1]]; saveState(); render(); }
-    };
-  });
-
   // today / full plan task toggles
   document.querySelectorAll('[data-act="tasktoggle"]').forEach(el=>{
     el.onchange = ()=>{
       const dayDate = el.dataset.day, id = el.dataset.id;
       const day = state.plan.find(d=>d.date===dayDate);
-      let item = day ? day.items.find(i=>i.id===id) : null;
+      let item = day ? findDisplayItem(day,id) : null;
       if(item) item.done = el.checked;
+      if(item && day && day.holiday){
+        const opts=holidayOptionState(dayDate);
+        if(item.type==='holiday-practice' && opts.practice) opts.practice.done=el.checked;
+        if(item.type==='holiday-revision' && opts.revision) opts.revision.done=el.checked;
+        if(item.type==='test' && opts.test) opts.test.done=el.checked;
+      }
       if(el.checked){
         state.completedItems[id] = true;
         if(item){
           state.completionLog.push({
             id, subject:item.subject, chapter:item.chapter,
-            part: item.type==='oneshot' ? 'One Shot' : (item.type==='revision' ? 'Revision' : ('Lecture '+item.lectureNum)),
+            part: item.type==='oneshot' ? 'One Shot' :
+              (item.type==='revision' ? 'Revision' :
+              (item.type==='chapter-practice' || item.type==='holiday-practice' ? 'Question Practice' :
+              (item.type==='holiday-revision' ? 'Holiday Revision' :
+              (item.type==='test' ? 'Test' : ('Lecture '+item.lectureNum))))),
             date: todayISO(), ts: Date.now()
           });
         }
-        if(item && (item.type==='lecture' || item.type==='oneshot' || item.type==='revision')){
-          const label = item.type==='oneshot' ? 'this One Shot' : (item.type==='revision' ? 'this revision session' : 'this lecture');
-          const n = askQuestionsFor('How many questions did you solve for '+label+'?');
+        if(item && (item.type==='lecture' || item.type==='oneshot' || item.type==='revision' || item.type==='chapter-practice' || item.type==='holiday-practice' || item.type==='holiday-revision')){
+          const label = item.type==='oneshot' ? 'this One Shot' :
+            (item.type==='revision' || item.type==='holiday-revision' ? 'this revision session' :
+            (item.type==='chapter-practice' || item.type==='holiday-practice' ? 'this chapter practice' : 'this lecture'));
+          const n = item.type==='holiday-practice' && item.questions ? item.questions : askQuestionsFor('How many questions did you solve for '+label+'?');
           if(n>0){ state.questionsByItem[id] = n; addQuestions(dayDate, n); }
         }
       } else {
@@ -2192,15 +3325,6 @@ function attachHandlers(){
           delete state.questionsByItem[id];
         }
       }
-      saveState(); render();
-    };
-  });
-
-  // editable lecture count per chapter
-  document.querySelectorAll('[data-act="leccount"]').forEach(el=>{
-    el.onchange = ()=>{
-      const sid=el.dataset.sub, ch=el.dataset.ch;
-      setLectureCount(sid, ch, el.value);
       saveState(); render();
     };
   });
@@ -2364,6 +3488,14 @@ function attachHandlers(){
     state.startDate = normalizeISODate(document.getElementById('s-start').value, state.startDate);
     generatePlan(); render();
   };
+  const saveHoliday = document.querySelector('[data-act="saveholiday"]');
+  if(saveHoliday) saveHoliday.onclick = ()=>{
+    const weekday = parseInt(document.getElementById('s-holidayweekday').value);
+    if(Number.isInteger(weekday) && weekday>=0 && weekday<=6) state.holidayWeekday = weekday;
+    state.manualSchedule = {};
+    generatePlan();
+    render();
+  };
 
   const changePace = document.getElementById('s-changepace');
   if(changePace) changePace.onclick = ()=>{ state.settingsPaceEditing = true; render(); };
@@ -2386,43 +3518,102 @@ function attachHandlers(){
     };
   });
 
-  document.querySelectorAll('[data-act="subjmoveup"]').forEach(el=>{
-    el.onclick=()=>{ const i=parseInt(el.dataset.idx); if(i>0){ const a=state.subjectOrder; [a[i-1],a[i]]=[a[i],a[i-1]]; saveState(); render(); } };
+  document.querySelectorAll('[data-act="saveorder"]').forEach(el=>{
+    el.onclick=()=>{ state.manualSchedule={}; generatePlan(); render(); };
   });
-  document.querySelectorAll('[data-act="subjmovedown"]').forEach(el=>{
-    el.onclick=()=>{ const i=parseInt(el.dataset.idx); const a=state.subjectOrder; if(i<a.length-1){ [a[i+1],a[i]]=[a[i],a[i+1]]; saveState(); render(); } };
+  document.querySelectorAll('[data-act="chaptermove"]').forEach(el=>{
+    el.onclick=()=>{
+      const sid=el.dataset.sub, order=state.chapterOrder[sid]||[];
+      const index=parseInt(el.dataset.idx), next=index+parseInt(el.dataset.dir);
+      if(next<0 || next>=order.length) return;
+      [order[index],order[next]]=[order[next],order[index]];
+      state.manualSchedule={}; generatePlan(); render();
+    };
   });
+  document.querySelectorAll('[data-act="holidaypracticechapter"]').forEach(el=>{
+    el.onchange=()=>{
+      const opts=holidayOptionState(el.dataset.day);
+      const [sid,ch]=String(el.value||'::').split('::');
+      opts.practice=Object.assign({},opts.practice,{subject:sid||'',chapter:ch||'',done:false});
+      saveState(); render();
+    };
+  });
+  document.querySelectorAll('[data-act="holidaypracticecount"]').forEach(el=>{
+    el.onchange=()=>{
+      const opts=holidayOptionState(el.dataset.day);
+      opts.practice=Object.assign({},opts.practice,{questions:Math.max(0,parseInt(el.value)||0)});
+      saveState(); render();
+    };
+  });
+  document.querySelectorAll('[data-act="holidayrevisionchapter"]').forEach(el=>{
+    el.onchange=()=>{
+      const opts=holidayOptionState(el.dataset.day);
+      const [sid,ch]=String(el.value||'::').split('::');
+      opts.revision=Object.assign({},opts.revision,{subject:sid||'',chapter:ch||'',done:false});
+      saveState(); render();
+    };
+  });
+  document.querySelectorAll('[data-act="holidaytesttoggle"]').forEach(el=>{
+    el.onchange=()=>{
+      const opts=holidayOptionState(el.dataset.day);
+      opts.test=Object.assign({},opts.test,{enabled:el.checked,type:(opts.test&&opts.test.type)||'JEE Mains',papers:(opts.test&&opts.test.papers)||'1'});
+      saveState(); render();
+    };
+  });
+  document.querySelectorAll('[data-act="holidaytesttype"]').forEach(el=>{
+    el.onchange=()=>{
+      const opts=holidayOptionState(el.dataset.day);
+      opts.test=Object.assign({},opts.test,{type:el.value});
+      saveState(); render();
+    };
+  });
+  document.querySelectorAll('[data-act="holidaytestpapers"]').forEach(el=>{
+    el.onchange=()=>{
+      const opts=holidayOptionState(el.dataset.day);
+      opts.test=Object.assign({},opts.test,{papers:el.value});
+      saveState(); render();
+    };
+  });
+  document.querySelectorAll('[data-act="holidaytestmax"]').forEach(el=>{
+    el.onchange=()=>{
+      const opts=holidayOptionState(el.dataset.day);
+      opts.test=Object.assign({},opts.test,{maxMarks:Math.max(1,parseInt(el.value)||1)});
+      saveState(); render();
+    };
+  });
+  document.querySelectorAll('[data-act="holidaytestscore"]').forEach(el=>{
+    el.onchange=()=>{
+      const opts=holidayOptionState(el.dataset.day);
+      opts.test=Object.assign({},opts.test,{score:Math.max(0,parseInt(el.value)||0)});
+      saveState(); render();
+    };
+  });
+
   document.querySelectorAll('[data-act="ssubjtab"]').forEach(el=>{
     el.onclick = ()=>{ settingsActiveSubj = el.dataset.sub; render(); };
   });
-  const saveChapters = document.getElementById('s-saveChapters');
-  if(saveChapters) saveChapters.onclick = ()=>{ generatePlan(); render(); };
 
   const exportBtn = document.getElementById('s-export');
   if(exportBtn) exportBtn.onclick = exportData;
-  const exportSyllabusBtn = document.getElementById('s-exportsyllabus');
-  if(exportSyllabusBtn) exportSyllabusBtn.onclick = exportSyllabus;
   const importBtn = document.getElementById('s-importbtn');
   if(importBtn) importBtn.onclick = ()=>document.getElementById('s-importfile').click();
   const importFile = document.getElementById('s-importfile');
   if(importFile) importFile.onchange = (e)=>{ if(e.target.files[0]) importData(e.target.files[0]); };
-  const importSyllabusBtn = document.getElementById('s-importsyllabusbtn');
-  if(importSyllabusBtn) importSyllabusBtn.onclick = ()=>document.getElementById('s-importsyllabusfile').click();
-  const importSyllabusFile = document.getElementById('s-importsyllabusfile');
-  if(importSyllabusFile) importSyllabusFile.onchange = (e)=>{
-    if(e.target.files[0]) importSyllabusData(e.target.files[0]);
-    e.target.value='';
-  };
-  const wizardImportSyllabusBtn = document.getElementById('w-importsyllabusbtn');
-  if(wizardImportSyllabusBtn) wizardImportSyllabusBtn.onclick = ()=>document.getElementById('w-importsyllabusfile').click();
-  const wizardImportSyllabusFile = document.getElementById('w-importsyllabusfile');
-  if(wizardImportSyllabusFile) wizardImportSyllabusFile.onchange = (e)=>{
-    if(e.target.files[0]) importSyllabusData(e.target.files[0]);
-    e.target.value='';
-  };
+  document.querySelectorAll('[data-act="importsubjectcsv"]').forEach(button=>{
+    button.onclick = ()=>{
+      const input=document.getElementById(button.dataset.target);
+      if(input) input.click();
+    };
+  });
+  document.querySelectorAll('[data-act="subjectcsvfile"]').forEach(input=>{
+    input.onchange = (e)=>{
+      if(e.target.files[0]) importVideoCsv(e.target.files[0],input.dataset.sub);
+      e.target.value='';
+    };
+  });
 
   const rerun = document.getElementById('s-rerunwizard');
-  if(rerun) rerun.onclick = ()=>{ state.setupDone = false; state.wizardStep = 0; saveState(); render(); };
+  if(rerun) rerun.onclick = ()=>{ state.setupDone = false; state.wizardStep = 0; state.csvSetupPrepared = false; saveState(); render(); };
   const hardReset = document.getElementById('s-hardreset');
   if(hardReset) hardReset.onclick = ()=>{
     if(confirm('This will permanently erase all your progress and settings on this device. Export a backup first if you want to keep it. Continue?')){
