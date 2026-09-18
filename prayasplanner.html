@@ -597,6 +597,91 @@ body.dark .quotebar{
   background:color-mix(in srgb,var(--accent) 14%,var(--panel2));
   color:var(--accent);
 }
+.sidebar-switch{
+  display:flex;
+  gap:4px;
+  padding:4px;
+  margin:-4px 0 18px;
+  border:1px solid var(--line-soft);
+  border-radius:12px;
+  background:var(--panel2);
+}
+.sidebar-switch button{
+  flex:1;
+  min-height:34px;
+  padding:7px 8px;
+  border:0;
+  border-radius:9px;
+  background:transparent;
+  color:var(--muted);
+  font-family:inherit;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer;
+  transition:background .15s var(--ease),color .15s var(--ease);
+}
+.sidebar-switch button.active{
+  background:var(--panel);
+  color:var(--text);
+  box-shadow:var(--shadow-sm);
+}
+.revision-form{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.revision-form .field{margin-bottom:0}
+.revision-form .btn{width:100%}
+.revision-slot-list{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  margin-top:16px;
+}
+.revision-slot{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  padding:10px;
+  border:1px solid var(--line-soft);
+  border-radius:11px;
+  background:var(--panel2);
+}
+.revision-slot-copy{
+  flex:1;
+  min-width:0;
+}
+.revision-slot-copy b{
+  display:block;
+  font-size:12px;
+  line-height:1.35;
+  overflow-wrap:anywhere;
+}
+.revision-slot-copy span{
+  display:block;
+  margin-top:2px;
+  color:var(--muted);
+  font-size:10.5px;
+}
+.revision-slot-remove{
+  width:26px;
+  height:26px;
+  flex:0 0 26px;
+  border:0;
+  border-radius:8px;
+  background:var(--panel);
+  color:var(--muted);
+  cursor:pointer;
+  font-size:16px;
+  line-height:1;
+}
+.revision-slot-remove:hover{background:var(--line);color:var(--text)}
+.sidebar-empty{
+  margin-top:14px;
+  color:var(--muted);
+  font-size:11.5px;
+  line-height:1.45;
+}
 header.top{
   padding:34px 0 28px;
   align-items:flex-start;
@@ -1269,7 +1354,7 @@ const SKIP_REASONS = ['Fever / Unwell','Procrastination','Guests at home','Festi
 /* ---------------- STATE ---------------- */
 let state = null;
 const STORAGE_KEY = 'prayas-planner-state-v2';
-const PLAN_VERSION = 13;
+const PLAN_VERSION = 14;
 
 /* Uses LOCAL date parts (not UTC) so "today" is correct regardless of timezone/time of day */
 function todayISO(){
@@ -1339,8 +1424,8 @@ function defaultState(){
      dailyQuestionGoal:60, questionGoalOverrides:{}, questionsLog:{}, questionsByItem:{},
      questionPractice:{},
     dppByItem:{},
-     manualSchedule:{}, revisionSelections:{},
-    sidebarTab:'questions'
+      manualSchedule:{}, revisionSelections:{}, manualRevisionSlots:[],
+      sidebarTab:'questions', sidebarRevisionDate:''
   };
 }
 
@@ -1426,11 +1511,28 @@ function migrateState(parsed){
   merged.dppByItem = parsed.dppByItem || {};
   merged.manualSchedule = parsed.manualSchedule || {};
   merged.revisionSelections = parsed.revisionSelections || {};
+  merged.manualRevisionSlots = Array.isArray(parsed.manualRevisionSlots)
+    ? parsed.manualRevisionSlots.map(slot=>({
+        id:String(slot && slot.id || ''),
+        date:normalizeISODate(slot && slot.date,''),
+        subject:String(slot && slot.subject || ''),
+        chapter:String(slot && slot.chapter || ''),
+        done:!!(slot && slot.done)
+      })).filter(slot=>slot.id && slot.date && slot.subject && slot.chapter)
+    : [];
+  // Preserve manual revision tasks created by the older sidebar implementation.
+  if(!merged.manualRevisionSlots.length && Array.isArray(merged.plan)){
+    merged.manualRevisionSlots = merged.plan.flatMap(day=>
+      (day.items||[]).filter(item=>item.type==='revision' && item.manual && item.subject && item.chapter)
+        .map(item=>({id:item.id,date:day.date,subject:item.subject,chapter:item.chapter,done:!!item.done}))
+    );
+  }
   merged.plan = parsed.plan || [];
   merged.planVersion = parsed.planVersion || 0;
   merged.skipPromptOpen = false;
   merged.settingsPaceEditing = false;
   merged.sidebarTab = parsed.sidebarTab || 'questions';
+  merged.sidebarRevisionDate = normalizeISODate(parsed.sidebarRevisionDate,'');
   return merged;
 }
 
@@ -1498,6 +1600,9 @@ function renameChapter(sid,oldName,newName){
   Object.values(state.questionPractice||{}).forEach(entries=>(entries||[]).forEach(entry=>{
     if(entry.subject===sid && entry.chapter===oldName) entry.chapter = newName;
   }));
+  (state.manualRevisionSlots||[]).forEach(slot=>{
+    if(slot.subject===sid && slot.chapter===oldName) slot.chapter = newName;
+  });
   return true;
 }
 function addChapter(sid,name){
@@ -1544,6 +1649,8 @@ function deleteChapter(sid,name){
     if(entries.length) state.questionPractice[date]=entries;
     else delete state.questionPractice[date];
   });
+  state.manualRevisionSlots = (state.manualRevisionSlots||[]).filter(slot=>
+    !(slot.subject===sid && slot.chapter===name));
   return true;
 }
 
@@ -1916,6 +2023,7 @@ function generatePlan(){
     }
   }
   applyManualSchedules(plan);
+  applyManualRevisions(plan);
   state.plan = plan;
   state.planGenerated = true;
   state.planVersion = PLAN_VERSION;
@@ -2026,11 +2134,40 @@ function allChapterOptionsGrouped(){
   });
   return html;
 }
-function addManualRevision(sid, chName){
-  const day = findTargetPlanDay();
-  if(!day) return false;
+function revisionSlotEntries(){
+  return (Array.isArray(state.manualRevisionSlots) ? state.manualRevisionSlots : [])
+    .filter(slot=>slot && slot.id && slot.date && slot.subject && slot.chapter)
+    .slice()
+    .sort((a,b)=>a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+}
+function applyManualRevisions(plan){
+  revisionSlotEntries().forEach(slot=>{
+    let day = plan.find(d=>d.date===slot.date);
+    if(!day){
+      day = {date:slot.date,items:[],holiday:isHoliday(slot.date)};
+      plan.push(day);
+    }
+    const existing = day.items.find(item=>item.id===slot.id);
+    const revision = {
+      type:'revision',
+      subject:slot.subject,
+      chapter:slot.chapter,
+      id:slot.id,
+      done:!!slot.done || !!state.completedItems[slot.id],
+      manual:true
+    };
+    if(existing) Object.assign(existing,revision);
+    else day.items.push(revision);
+  });
+  plan.sort((a,b)=>a.date.localeCompare(b.date));
+}
+function addManualRevision(dateIso, sid, chName){
+  dateIso = normalizeISODate(dateIso,'');
+  if(!dateIso || dateIso<todayISO() || !sid || !chName) return false;
+  if(!Array.isArray(state.manualRevisionSlots)) state.manualRevisionSlots=[];
   const id = 'manual-rev-'+Date.now()+'-'+Math.floor(Math.random()*1000);
-  day.items.push({type:'revision', subject:sid, chapter:chName, id, done:false, manual:true});
+  state.manualRevisionSlots.push({id,date:dateIso,subject:sid,chapter:chName,done:false});
+  generatePlan();
   saveState();
   return true;
 }
@@ -2039,6 +2176,9 @@ function removeRevisionItem(dateIso, id){
   if(!day) return;
   const idx = day.items.findIndex(i=>i.id===id);
   if(idx===-1) return;
+  if(day.items[idx].manual){
+    state.manualRevisionSlots = revisionSlotEntries().filter(slot=>slot.id!==id);
+  }
   if(day.items[idx].done){
     delete state.completedItems[id];
     for(let i=state.completionLog.length-1;i>=0;i--){
@@ -2363,7 +2503,13 @@ function render(){
 
 /* ---- LEFT SIDEBAR: primary navigation + daily questions ---- */
 function renderSidebar(){
-  return `${renderSidebarNav()}<div>${renderSidebarQuestions()}</div>`;
+  return `${renderSidebarNav()}<div>
+    <div class="sidebar-switch" role="tablist" aria-label="Study tracker">
+      <button type="button" data-act="sbtab" data-tab="questions" class="${state.sidebarTab==='questions'?'active':''}" role="tab" aria-selected="${state.sidebarTab==='questions'}">Questions</button>
+      <button type="button" data-act="sbtab" data-tab="revision" class="${state.sidebarTab==='revision'?'active':''}" role="tab" aria-selected="${state.sidebarTab==='revision'}">Revision</button>
+    </div>
+    ${state.sidebarTab==='revision' ? renderSidebarRevision() : renderSidebarQuestions()}
+  </div>`;
 }
 
 function renderSidebarNav(){
@@ -2408,6 +2554,43 @@ function renderSidebarQuestions(){
       ${over ? `<div style="color:var(--good);font-weight:700;font-size:12px;margin-top:6px">Goal beaten</div>` : `<div class="sub" style="margin:6px 0 0">${Math.max(0,goal-done)} left today</div>`}
     </div>
     <button class="btn ghost sm" id="sb-quickadd" style="width:100%">Log questions</button>
+  `;
+}
+
+function renderSidebarRevision(){
+  const suggestedDate = findTargetPlanDay()?.date || todayISO();
+  const selectedDate = normalizeISODate(state.sidebarRevisionDate,'') >= todayISO()
+    ? state.sidebarRevisionDate : suggestedDate;
+  const slots = revisionSlotEntries();
+  return `
+    <h3>Revision Windows</h3>
+    <p class="sub">Add more than one chapter revision to any upcoming task day.</p>
+    <div class="revision-form">
+      <label class="field">
+        <span class="lbl">Revision date</span>
+        <input type="date" id="sb-revisiondate" min="${todayISO()}" value="${selectedDate}">
+      </label>
+      <label class="field">
+        <span class="lbl">Chapter to revise</span>
+        <select id="sb-revisionchapter">
+          <option value="">Choose a chapter…</option>
+          ${allChapterOptionsGrouped()}
+        </select>
+      </label>
+      <button class="btn sm" id="sb-addrevision" type="button">+ Add revision slot</button>
+    </div>
+    ${slots.length ? `<div class="revision-slot-list">
+      ${slots.map(slot=>{
+        const subject = subj(slot.subject);
+        return `<div class="revision-slot">
+          <div class="revision-slot-copy">
+            <b>${slot.done?'✓ ':''}${escHtml(slot.chapter)}</b>
+            <span>${escHtml(subject ? subject.name : slot.subject)} · ${fmtDate(slot.date)}</span>
+          </div>
+          <button type="button" class="revision-slot-remove" data-act="removerevision" data-day="${escAttr(slot.date)}" data-id="${escAttr(slot.id)}" title="Remove revision slot">&times;</button>
+        </div>`;
+      }).join('')}
+    </div>` : `<div class="sidebar-empty">No extra revision slots yet. Pick a date and chapter above to add one.</div>`}
   `;
 }
 
@@ -2799,11 +2982,26 @@ function renderHolidayOptions(day){
   </div>`;
 }
 
+function renderManualRevisionItems(day){
+  return (day.items||[]).filter(item=>item.type==='revision' && item.manual).map(item=>{
+    const s=subj(item.subject);
+    return `<div class="taskrow">
+      <input type="checkbox" data-act="tasktoggle" data-day="${day.date}" data-id="${escAttr(item.id)}" ${item.done?'checked':''}>
+      <div class="txt ${item.done?'done':''}">Revision: ${escHtml(item.chapter)}<span class="badge-revision">REVISION SLOT</span>
+        <div class="sub">${escHtml(s?s.name:'Chapter selected')}</div>
+      </div>
+      <button class="iconbtn" style="width:28px;height:28px;font-size:12px;flex-shrink:0" data-act="removerevision" data-day="${escAttr(day.date)}" data-id="${escAttr(item.id)}" title="Remove">&times;</button>
+    </div>`;
+  }).join('');
+}
+
 function renderDayItems(day){
   if(day.holiday){
+    const manualRevisions = renderManualRevisionItems(day);
     return `<div class="holiday-card" style="padding:14px 4px">
       <div class="holiday-label">${weekdayNameOfISO(day.date)} holiday</div>
       <div class="sub" style="margin-top:4px">No chapter lecture is scheduled. Add optional practice, revision, or a test below.</div>
+      ${manualRevisions ? `<div style="margin-top:10px">${manualRevisions}</div>` : ''}
       ${renderHolidayOptions(day)}
     </div>`;
   }
@@ -3240,12 +3438,26 @@ function attachHandlers(){
   });
 
   // add a manual revision task from the sidebar
+  const sbRevisionDate = document.getElementById('sb-revisiondate');
+  if(sbRevisionDate) sbRevisionDate.onchange = ()=>{
+    state.sidebarRevisionDate = normalizeISODate(sbRevisionDate.value,'');
+  };
   const sbAddRevision = document.getElementById('sb-addrevision');
   if(sbAddRevision) sbAddRevision.onclick = ()=>{
     const sel = document.getElementById('sb-revisionchapter');
-    if(!sel || !sel.value) return;
+    const dateInput = document.getElementById('sb-revisiondate');
+    if(!sel || !sel.value || !dateInput || !dateInput.value){
+      alert('Choose a revision date and chapter first.');
+      return;
+    }
+    const date = normalizeISODate(dateInput.value,'');
+    if(!date || date<todayISO()){
+      alert('Choose today or a future date for the revision.');
+      return;
+    }
     const [sid, chName] = sel.value.split('::');
-    if(addManualRevision(sid, chName)) render();
+    state.sidebarRevisionDate = date;
+    if(addManualRevision(date, sid, chName)) render();
   };
 
   // remove a revision task (manual or free-time), from sidebar or plan views
@@ -3329,6 +3541,10 @@ function attachHandlers(){
       const day = state.plan.find(d=>d.date===dayDate);
       let item = day ? findDisplayItem(day,id) : null;
       if(item) item.done = el.checked;
+      if(item && item.manual){
+        const slot = (state.manualRevisionSlots||[]).find(entry=>entry.id===id);
+        if(slot) slot.done = el.checked;
+      }
       if(item && day && day.holiday){
         const opts=holidayOptionState(dayDate);
         if(item.type==='holiday-practice' && opts.practice) opts.practice.done=el.checked;
