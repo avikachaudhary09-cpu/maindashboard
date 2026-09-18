@@ -985,6 +985,30 @@ body.dark .sidebar #sb-quickadd{background:var(--accent);color:var(--accent-ink)
 .test-score-row .test-date{width:78px;color:var(--muted);font-weight:700}
 .test-score-row .test-name{flex:1;min-width:0;font-weight:650}
 .test-score-row .test-value{font-weight:800;color:var(--accent)}
+.setup-import{
+  margin-top:18px;
+  padding:15px 16px;
+  border:1px dashed var(--line);
+  border-radius:15px;
+  background:var(--panel2);
+}
+.setup-import-title{
+  margin-bottom:4px;
+  font-size:13px;
+  font-weight:800;
+}
+.setup-import-copy{
+  margin-bottom:12px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.45;
+}
+.setup-import-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.setup-import-actions .btn{min-height:38px}
 @media (max-width:1100px){
   .layout{gap:24px;padding:0 24px}
   .sidebar{width:250px}
@@ -1118,6 +1142,7 @@ button,a,input,select{touch-action:manipulation}
   .test-score-row .test-date{width:65px;font-size:10px}
   .test-score-row .test-name{font-size:11px}
   .test-score-row .test-value{font-size:11px}
+  .setup-import-actions .btn{width:100%}
   .btnrow{align-items:stretch}
   .btnrow .btn{width:100%}
 }
@@ -2429,6 +2454,14 @@ function wizardStep0(){
   <h2>Let's set your baseline</h2>
    <p class="sub">Choose when your plan should begin. The planner will calculate the completion date from your ordered syllabus.</p>
   <div class="note" style="margin:0 0 16px">Import one CSV per subject. Each row becomes a chapter named from its <b>title</b>, with its <b>video link</b> available as Open.</div>
+   <div class="setup-import">
+     <div class="setup-import-title">Already have Manzil data?</div>
+     <div class="setup-import-copy">Restore a full backup to continue where you left off.</div>
+     <div class="setup-import-actions">
+       <button class="btn ghost sm" id="w-importbackup" type="button">Import full backup</button>
+       <input type="file" id="w-importbackupfile" accept=".json,application/json" style="display:none">
+     </div>
+   </div>
   <div class="row">
     <label class="field"><span class="lbl">Plan start date</span>
       <input type="date" id="w-start" value="${state.startDate}">
@@ -3234,6 +3267,13 @@ function attachHandlers(){
     state.startDate = normalizeISODate(document.getElementById('w-start').value, state.startDate);
     state.wizardStep = 1; saveState(); render();
   };
+  const wizardImportBackup = document.getElementById('w-importbackup');
+  if(wizardImportBackup) wizardImportBackup.onclick = ()=>document.getElementById('w-importbackupfile').click();
+  const wizardImportBackupFile = document.getElementById('w-importbackupfile');
+  if(wizardImportBackupFile) wizardImportBackupFile.onchange = (e)=>{
+    if(e.target.files[0]) importData(e.target.files[0]);
+    e.target.value='';
+  };
 
   const wback = document.getElementById('w-back');
   if(wback) wback.onclick = ()=>{ state.wizardStep = Math.max(0,state.wizardStep-1); render(); };
@@ -3627,6 +3667,7 @@ function attachHandlers(){
 /* ---------------- INIT ---------------- */
 (function init(){
   loadState();
+  state.view='today';
   ensurePlanFresh();
   render();
 })();
